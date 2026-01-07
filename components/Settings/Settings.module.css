@@ -1,0 +1,410 @@
+/* Settings Page Styles */
+.settingsPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+}
+
+.settingsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 2px solid rgba(26, 26, 26, 0.15);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.backButton:hover {
+  border-color: var(--color-text-primary);
+  background-color: var(--color-button-dark);
+  color: var(--color-button-dark-text);
+}
+
+.settingsTitle {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.settingsContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-xl);
+  gap: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Profile Picture Section */
+.section {
+  width: 100%;
+  background-color: var(--color-background);
+  border: 1px solid rgba(26, 26, 26, 0.1);
+  border-radius: 24px;
+  padding: var(--spacing-xl);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.02em;
+}
+
+.sectionDescription {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Profile Picture Component */
+.profilePictureContainer {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--color-button-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profilePictureSmall {
+  width: 40px;
+  height: 40px;
+}
+
+.profilePictureMedium {
+  width: 80px;
+  height: 80px;
+}
+
+.profilePictureLarge {
+  width: 120px;
+  height: 120px;
+}
+
+.profilePictureContainer.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profilePictureContainer.clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profileImage {
+  object-fit: cover;
+}
+
+.profileInitials {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-button-dark-text);
+}
+
+.profilePictureSmall .profileInitials {
+  font-size: 0.875rem;
+}
+
+.profilePictureMedium .profileInitials {
+  font-size: 1.5rem;
+}
+
+.profilePictureLarge .profileInitials {
+  font-size: 2.5rem;
+}
+
+/* Profile Display Section */
+.profileDisplaySection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profileName {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.profileEmail {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+/* Password Reset Section */
+.resetSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.emailDisplay {
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  background-color: rgba(26, 26, 26, 0.03);
+  border: 2px solid rgba(26, 26, 26, 0.1);
+  border-radius: 50px;
+}
+
+.resetButton {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetButton:hover:not(:disabled) {
+  background-color: #333;
+  transform: translateY(-1px);
+}
+
+.resetButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.resetButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sign Out Section */
+.signOutSection {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--spacing-md);
+}
+
+.signOutBtn {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: #dc2626;
+  background-color: transparent;
+  border: 2px solid #fecaca;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signOutBtn:hover {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+}
+
+/* Messages */
+.successMessage {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  color: #16a34a;
+  text-align: center;
+  width: 100%;
+}
+
+.errorMessage {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+  text-align: center;
+  width: 100%;
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Writing Preferences Section */
+.preferencesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.preferenceItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.preferenceLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.preferenceValue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background-color: rgba(26, 26, 26, 0.03);
+  border: 2px solid rgba(26, 26, 26, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.preferenceValue:hover {
+  border-color: rgba(26, 26, 26, 0.25);
+  background-color: rgba(26, 26, 26, 0.05);
+}
+
+.editHint {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.preferenceEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: rgba(26, 26, 26, 0.02);
+  border: 2px solid rgba(26, 26, 26, 0.1);
+  border-radius: 20px;
+}
+
+.editorActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: 2px solid rgba(26, 26, 26, 0.15);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  border-color: var(--color-text-primary);
+  color: var(--color-text-primary);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #333;
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .settingsContent {
+    padding: var(--spacing-lg);
+  }
+
+  .section {
+    padding: var(--spacing-lg);
+    border-radius: 20px;
+  }
+
+  .settingsTitle {
+    font-size: 1.25rem;
+  }
+}
+

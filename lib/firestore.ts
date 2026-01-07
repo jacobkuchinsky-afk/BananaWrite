@@ -1,0 +1,544 @@
+/**
+ * Firestore helper functions for BananaWrite
+ * Handles all database operations for user data, progress, and sessions
+ */
+
+import { 
+  db, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  serverTimestamp,
+  Timestamp 
+} from './firebase'
+import { 
+  UserProfile, 
+  UserProgress, 
+  CurrentSession, 
+  DEFAULT_USER_PROGRESS, 
+  DEFAULT_CURRENT_SESSION,
+  SessionStatus,
+  QuizSession,
+  QuizSessionStatus,
+  DEFAULT_QUIZ_SESSION,
+  QuizRequirements,
+  QuizQuestion,
+  QuizAnswer,
+  QuizGradingResult,
+  TeacherFeedback,
+  UserSettings,
+  DEFAULT_USER_SETTINGS,
+  CrazinessLevel,
+  FocusTopic
+} from '@/types'
+
+// Collection paths
+const USERS_COLLECTION = 'users'
+
+// Helper to get document references
+const getUserDocRef = (userId: string) => doc(db, USERS_COLLECTION, userId)
+const getProgressDocRef = (userId: string) => doc(db, USERS_COLLECTION, userId, 'data', 'progress')
+const getSessionDocRef = (userId: string) => doc(db, USERS_COLLECTION, userId, 'data', 'session')
+const getProfileDocRef = (userId: string) => doc(db, USERS_COLLECTION, userId, 'data', 'profile')
+const getQuizSessionDocRef = (userId: string) => doc(db, USERS_COLLECTION, userId, 'data', 'quizSession')
+const getSettingsDocRef = (userId: string) => doc(db, USERS_COLLECTION, userId, 'data', 'settings')
+
+/**
+ * Initialize a new user in Firestore
+ * Called when a user signs up or signs in for the first time
+ */
+export async function initializeUser(userId: string, email: string, displayName: string | null): Promise<void> {
+  const userDocRef = getUserDocRef(userId)
+  const profileRef = getProfileDocRef(userId)
+  const progressRef = getProgressDocRef(userId)
+  const sessionRef = getSessionDocRef(userId)
+  const settingsRef = getSettingsDocRef(userId)
+
+  // Check if user already exists
+  const profileSnap = await getDoc(profileRef)
+  
+  if (!profileSnap.exists()) {
+    // Create parent user document first (required for subcollections)
+    await setDoc(userDocRef, {
+      createdAt: serverTimestamp(),
+      email: email
+    })
+
+    // Create profile
+    const profile: UserProfile = {
+      email,
+      displayName,
+      createdAt: serverTimestamp() as Timestamp,
+      lastActive: serverTimestamp() as Timestamp
+    }
+    await setDoc(profileRef, profile)
+
+    // Create progress
+    await setDoc(progressRef, DEFAULT_USER_PROGRESS)
+
+    // Create session
+    await setDoc(sessionRef, DEFAULT_CURRENT_SESSION)
+
+    // Create settings (setupComplete: false by default)
+    await setDoc(settingsRef, DEFAULT_USER_SETTINGS)
+    
+    console.log('New user documents created successfully')
+  } else {
+    // Update last active
+    await updateDoc(profileRef, {
+      lastActive: serverTimestamp()
+    })
+  }
+}
+
+/**
+ * Get user's current progress
+ */
+export async function getUserProgress(userId: string): Promise<UserProgress | null> {
+  const progressRef = getProgressDocRef(userId)
+  const progressSnap = await getDoc(progressRef)
+  
+  if (progressSnap.exists()) {
+    return progressSnap.data() as UserProgress
+  }
+  return null
+}
+
+/**
+ * Get user's current session
+ */
+export async function getCurrentSession(userId: string): Promise<CurrentSession | null> {
+  const sessionRef = getSessionDocRef(userId)
+  const sessionSnap = await getDoc(sessionRef)
+  
+  if (sessionSnap.exists()) {
+    return sessionSnap.data() as CurrentSession
+  }
+  return null
+}
+
+/**
+ * Start a new writing session
+ * Updates the session status and stores the essay prompt
+ */
+export async function startWritingSession(
+  userId: string, 
+  writingTechnique: string, 
+  essayPrompt: string
+): Promise<void> {
+  const sessionRef = getSessionDocRef(userId)
+  
+  await updateDoc(sessionRef, {
+    status: 'writing' as SessionStatus,
+    writingTechnique,
+    essayPrompt,
+    essayDraft: '',
+    wordCount: 0,
+    startedAt: serverTimestamp(),
+    lastSavedAt: serverTimestamp(),
+    submittedAt: null
+  })
+}
+
+/**
+ * Save essay draft (auto-save or manual save)
+ */
+export async function saveEssayDraft(
+  userId: string, 
+  essayDraft: string, 
+  wordCount: number
+): Promise<void> {
+  const sessionRef = getSessionDocRef(userId)
+  
+  await updateDoc(sessionRef, {
+    essayDraft,
+    wordCount,
+    lastSavedAt: serverTimestamp()
+  })
+}
+
+/**
+ * Submit the essay
+ * Marks the session as submitted
+ */
+export async function submitEssay(userId: string): Promise<void> {
+  const sessionRef = getSessionDocRef(userId)
+  
+  await updateDoc(sessionRef, {
+    status: 'submitted' as SessionStatus,
+    submittedAt: serverTimestamp()
+  })
+}
+
+/**
+ * Reset session to idle (after completing a lesson or starting fresh)
+ */
+export async function resetSession(userId: string): Promise<void> {
+  const sessionRef = getSessionDocRef(userId)
+  
+  await setDoc(sessionRef, DEFAULT_CURRENT_SESSION)
+}
+
+/**
+ * Update current lesson index
+ */
+export async function updateCurrentLesson(userId: string, lessonIndex: number): Promise<void> {
+  const progressRef = getProgressDocRef(userId)
+  
+  await updateDoc(progressRef, {
+    currentLesson: lessonIndex
+  })
+}
+
+/**
+ * Mark a lesson as completed and increment XP
+ */
+export async function completeLesson(userId: string, lessonIndex: number, xpEarned: number): Promise<void> {
+  const progressRef = getProgressDocRef(userId)
+  const progress = await getUserProgress(userId)
+  
+  if (progress) {
+    const completedLessons = progress.completedLessons.includes(lessonIndex)
+      ? progress.completedLessons
+      : [...progress.completedLessons, lessonIndex]
+    
+    await updateDoc(progressRef, {
+      completedLessons,
+      totalXP: progress.totalXP + xpEarned,
+      currentLesson: lessonIndex + 1
+    })
+  }
+}
+
+/**
+ * Get full user data (profile, progress, and session)
+ */
+export async function getFullUserData(userId: string): Promise<{
+  profile: UserProfile | null
+  progress: UserProgress | null
+  session: CurrentSession | null
+}> {
+  const [profileSnap, progressSnap, sessionSnap] = await Promise.all([
+    getDoc(getProfileDocRef(userId)),
+    getDoc(getProgressDocRef(userId)),
+    getDoc(getSessionDocRef(userId))
+  ])
+
+  return {
+    profile: profileSnap.exists() ? profileSnap.data() as UserProfile : null,
+    progress: progressSnap.exists() ? progressSnap.data() as UserProgress : null,
+    session: sessionSnap.exists() ? sessionSnap.data() as CurrentSession : null
+  }
+}
+
+// ============================================
+// Quiz Session Functions
+// ============================================
+
+/**
+ * Get user's current quiz session
+ */
+export async function getQuizSession(userId: string): Promise<QuizSession | null> {
+  const quizRef = getQuizSessionDocRef(userId)
+  const quizSnap = await getDoc(quizRef)
+  
+  if (quizSnap.exists()) {
+    return quizSnap.data() as QuizSession
+  }
+  return null
+}
+
+/**
+ * Start a new quiz session after essay review
+ */
+export async function startQuizSession(
+  userId: string,
+  essayText: string,
+  essayErrors: string[],
+  rawErrorsResponse: string
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await setDoc(quizRef, {
+    ...DEFAULT_QUIZ_SESSION,
+    status: 'reviewing' as QuizSessionStatus,
+    essayText,
+    essayErrors,
+    rawErrorsResponse,
+    startedAt: serverTimestamp()
+  })
+}
+
+/**
+ * Update quiz requirements after AI decides what to quiz on
+ */
+export async function setQuizRequirements(
+  userId: string,
+  requirements: QuizRequirements
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await updateDoc(quizRef, {
+    currentQuizRequirements: requirements,
+    status: 'quizzing' as QuizSessionStatus
+  })
+}
+
+/**
+ * Set the current quiz questions
+ */
+export async function setCurrentQuiz(
+  userId: string,
+  quizName: string,
+  questions: QuizQuestion[]
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await updateDoc(quizRef, {
+    currentQuiz: {
+      name: quizName,
+      questions
+    },
+    currentQuestionIndex: 0,
+    userAnswers: [],
+    status: 'quizzing' as QuizSessionStatus
+  })
+}
+
+/**
+ * Submit an answer for the current question
+ */
+export async function submitQuizAnswer(
+  userId: string,
+  answer: QuizAnswer
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  const quizSession = await getQuizSession(userId)
+  
+  if (quizSession) {
+    const newAnswers = [...quizSession.userAnswers, answer]
+    const newIndex = quizSession.currentQuestionIndex + 1
+    
+    await updateDoc(quizRef, {
+      userAnswers: newAnswers,
+      currentQuestionIndex: newIndex
+    })
+  }
+}
+
+/**
+ * Save quiz grading results
+ */
+export async function saveQuizResults(
+  userId: string,
+  results: QuizGradingResult
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await updateDoc(quizRef, {
+    quizResults: results,
+    status: results.passed ? 'complete' : 'grading',
+    lastQuizResults: results.feedback
+  })
+}
+
+/**
+ * Save teacher feedback
+ */
+export async function saveTeacherFeedback(
+  userId: string,
+  feedback: TeacherFeedback
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await updateDoc(quizRef, {
+    teacherFeedback: feedback,
+    currentFeedbackIndex: 0,
+    status: 'feedback' as QuizSessionStatus
+  })
+}
+
+/**
+ * Advance to next feedback item
+ */
+export async function advanceFeedbackIndex(userId: string): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  const quizSession = await getQuizSession(userId)
+  
+  if (quizSession) {
+    await updateDoc(quizRef, {
+      currentFeedbackIndex: quizSession.currentFeedbackIndex + 1
+    })
+  }
+}
+
+/**
+ * Mark a topic as learned (passed quiz with >= 80%)
+ */
+export async function markTopicLearned(userId: string, topic: string): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  const quizSession = await getQuizSession(userId)
+  
+  if (quizSession) {
+    const newLearnedTopics = quizSession.learnedTopics.includes(topic)
+      ? quizSession.learnedTopics
+      : [...quizSession.learnedTopics, topic]
+    
+    await updateDoc(quizRef, {
+      learnedTopics: newLearnedTopics
+    })
+  }
+}
+
+/**
+ * Reset quiz for retry (failed quiz, try again)
+ */
+export async function resetQuizForRetry(userId: string): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  const quizSession = await getQuizSession(userId)
+  
+  if (quizSession) {
+    await updateDoc(quizRef, {
+      currentQuiz: null,
+      currentQuestionIndex: 0,
+      userAnswers: [],
+      quizResults: null,
+      teacherFeedback: null,
+      currentFeedbackIndex: 0,
+      status: 'reviewing' as QuizSessionStatus
+    })
+  }
+}
+
+/**
+ * Complete quiz session (all topics learned, ready for new essay)
+ */
+export async function completeQuizSession(userId: string): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await updateDoc(quizRef, {
+    status: 'complete' as QuizSessionStatus,
+    completedAt: serverTimestamp()
+  })
+}
+
+/**
+ * Clear quiz session entirely (after module completion or starting fresh)
+ */
+export async function clearQuizSession(userId: string): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  
+  await setDoc(quizRef, DEFAULT_QUIZ_SESSION)
+}
+
+/**
+ * Get full user data including quiz session
+ */
+export async function getFullUserDataWithQuiz(userId: string): Promise<{
+  profile: UserProfile | null
+  progress: UserProgress | null
+  session: CurrentSession | null
+  quizSession: QuizSession | null
+}> {
+  const [profileSnap, progressSnap, sessionSnap, quizSnap] = await Promise.all([
+    getDoc(getProfileDocRef(userId)),
+    getDoc(getProgressDocRef(userId)),
+    getDoc(getSessionDocRef(userId)),
+    getDoc(getQuizSessionDocRef(userId))
+  ])
+
+  return {
+    profile: profileSnap.exists() ? profileSnap.data() as UserProfile : null,
+    progress: progressSnap.exists() ? progressSnap.data() as UserProgress : null,
+    session: sessionSnap.exists() ? sessionSnap.data() as CurrentSession : null,
+    quizSession: quizSnap.exists() ? quizSnap.data() as QuizSession : null
+  }
+}
+
+// ============================================
+// User Settings Functions (Craziness & Focus)
+// ============================================
+
+/**
+ * Get user's settings (craziness, focus, setupComplete)
+ */
+export async function getUserSettings(userId: string): Promise<UserSettings | null> {
+  const settingsRef = getSettingsDocRef(userId)
+  const settingsSnap = await getDoc(settingsRef)
+  
+  if (settingsSnap.exists()) {
+    return settingsSnap.data() as UserSettings
+  }
+  return null
+}
+
+/**
+ * Update user's craziness and focus settings
+ */
+export async function updateUserSettings(
+  userId: string,
+  craziness: CrazinessLevel,
+  focus: FocusTopic
+): Promise<void> {
+  const settingsRef = getSettingsDocRef(userId)
+  
+  await updateDoc(settingsRef, {
+    craziness,
+    focus,
+    setupComplete: true
+  })
+}
+
+/**
+ * Mark user setup as complete
+ */
+export async function completeUserSetup(
+  userId: string,
+  craziness: CrazinessLevel,
+  focus: FocusTopic
+): Promise<void> {
+  const settingsRef = getSettingsDocRef(userId)
+  
+  await setDoc(settingsRef, {
+    craziness,
+    focus,
+    setupComplete: true
+  })
+}
+
+/**
+ * Check if user has completed setup
+ */
+export async function isSetupComplete(userId: string): Promise<boolean> {
+  const settings = await getUserSettings(userId)
+  return settings?.setupComplete ?? false
+}
+
+/**
+ * Get full user data including settings
+ */
+export async function getFullUserDataWithSettings(userId: string): Promise<{
+  profile: UserProfile | null
+  progress: UserProgress | null
+  session: CurrentSession | null
+  quizSession: QuizSession | null
+  settings: UserSettings | null
+}> {
+  const [profileSnap, progressSnap, sessionSnap, quizSnap, settingsSnap] = await Promise.all([
+    getDoc(getProfileDocRef(userId)),
+    getDoc(getProgressDocRef(userId)),
+    getDoc(getSessionDocRef(userId)),
+    getDoc(getQuizSessionDocRef(userId)),
+    getDoc(getSettingsDocRef(userId))
+  ])
+
+  return {
+    profile: profileSnap.exists() ? profileSnap.data() as UserProfile : null,
+    progress: progressSnap.exists() ? progressSnap.data() as UserProgress : null,
+    session: sessionSnap.exists() ? sessionSnap.data() as CurrentSession : null,
+    quizSession: quizSnap.exists() ? quizSnap.data() as QuizSession : null,
+    settings: settingsSnap.exists() ? settingsSnap.data() as UserSettings : null
+  }
+}
+

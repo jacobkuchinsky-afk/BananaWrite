@@ -1,0 +1,836 @@
+/* Write Page Styles */
+.writePage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+}
+
+/* Header */
+.writeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+  background-color: var(--color-background);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+  color: var(--color-text-primary);
+  background-color: rgba(26, 26, 26, 0.05);
+}
+
+.backArrow {
+  font-size: 1.25rem;
+}
+
+.saveStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.saveIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #22c55e;
+}
+
+.saveIndicator.saving {
+  background-color: #f59e0b;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Main Content */
+.writeContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  gap: var(--spacing-lg);
+}
+
+/* Prompt Section */
+.promptSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.regenerateBtn {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: 1.5px solid rgba(26, 26, 26, 0.15);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.regenerateBtn:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: rgba(26, 26, 26, 0.3);
+  background-color: rgba(26, 26, 26, 0.03);
+}
+
+.regenerateBtn:hover:not(:disabled) svg {
+  transform: rotate(180deg);
+}
+
+.regenerateBtn svg {
+  transition: transform 0.3s ease;
+}
+
+.regenerateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.promptCard {
+  background-color: rgba(26, 26, 26, 0.03);
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  border-radius: 16px;
+  padding: var(--spacing-lg);
+}
+
+.promptLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+.promptText {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.skillBadge {
+  display: inline-block;
+  margin-top: var(--spacing-sm);
+  padding: 0.375rem 0.875rem;
+  background-color: rgba(26, 26, 26, 0.08);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* Writing Area */
+.writingSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.writingArea {
+  flex: 1;
+  width: 100%;
+  min-height: 400px;
+  padding: var(--spacing-lg);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  border: 2px solid rgba(26, 26, 26, 0.1);
+  border-radius: 16px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.writingArea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.writingArea:focus {
+  border-color: rgba(26, 26, 26, 0.3);
+  box-shadow: 0 0 0 4px rgba(26, 26, 26, 0.05);
+}
+
+/* Word Counter */
+.wordCounterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.wordCounterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordCount {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.wordCount.complete {
+  color: #22c55e;
+}
+
+.wordCount.warning {
+  color: #f59e0b;
+}
+
+.wordCountPercent {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(26, 26, 26, 0.1);
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--color-text-primary);
+  border-radius: 50px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.progressBarFill.complete {
+  background-color: #22c55e;
+}
+
+.progressBarFill.warning {
+  background-color: #f59e0b;
+}
+
+.progressBarFill.over {
+  background-color: #ef4444;
+}
+
+/* Submit Section */
+.submitSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitHint {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Success Overlay */
+.successOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  z-index: 1000;
+  padding: var(--spacing-xl);
+}
+
+.successContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  text-align: center;
+  max-width: 500px;
+}
+
+.successIcon {
+  font-size: 5rem;
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.successTitle {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.successSubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.returnBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: var(--spacing-md);
+}
+
+.returnBtn:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+/* Feedback Section */
+.feedbackSection {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 16px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feedbackIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.feedbackContent {
+  flex: 1;
+}
+
+.feedbackTitle {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 0.5rem;
+}
+
+.feedbackText {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #78350f;
+}
+
+/* Marked Essay Overlay */
+.markedEssayOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: var(--color-background);
+  z-index: 1000;
+  padding: var(--spacing-xl);
+  overflow-y: auto;
+}
+
+.markedEssayContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  max-width: 800px;
+  width: 100%;
+  padding-bottom: var(--spacing-xl);
+}
+
+.markedEssayHeader {
+  text-align: center;
+  padding-top: var(--spacing-lg);
+}
+
+.markedEssayTitle {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.markedEssaySubtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Error Summary Section */
+.errorSummary {
+  background-color: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 16px;
+  padding: var(--spacing-lg);
+}
+
+.errorSummaryTitle {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.errorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.errorItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.errorSeverity {
+  flex-shrink: 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.errorSeverity[data-severity="high"] {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.errorSeverity[data-severity="medium"] {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.errorSeverity[data-severity="low"] {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: #16a34a;
+}
+
+.errorDescription {
+  color: var(--color-text-secondary);
+}
+
+/* Marked Essay Content */
+.markedEssayContent {
+  background-color: var(--color-background);
+  border: 2px solid rgba(26, 26, 26, 0.1);
+  border-radius: 16px;
+  padding: var(--spacing-lg);
+}
+
+.markedEssayText {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.9;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+}
+
+/* Error Highlight - Red background for errors */
+.errorHighlight {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+  border-bottom: 2px solid #dc2626;
+  font-weight: 500;
+}
+
+/* Continue Actions */
+.markedEssayActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+.continueHint {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.continueBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.continueBtn:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.continueBtn:active {
+  transform: scale(0.98);
+}
+
+/* Action Button Group - for redo option */
+.actionButtonGroup {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.redoBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 2px solid var(--color-text-primary);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.redoBtn:hover {
+  background-color: rgba(26, 26, 26, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.redoBtn:active {
+  transform: scale(0.98);
+}
+
+/* Redo Mode - Writing area with error reference */
+.redoModeContainer {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex: 1;
+}
+
+.redoWritingSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.redoErrorReference {
+  flex: 0 0 350px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: rgba(239, 68, 68, 0.03);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.redoErrorReferenceTitle {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.redoErrorReferenceSubtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.redoMarkedPreview {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+}
+
+/* Error Snippet List for Redo Mode */
+.errorSnippetList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.errorSnippetItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: rgba(239, 68, 68, 0.08);
+  border-radius: 8px;
+  border-left: 3px solid #dc2626;
+}
+
+.errorSnippetNumber {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #dc2626;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 50%;
+}
+
+.errorSnippetText {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #991b1b;
+  font-style: italic;
+}
+
+/* Error Snippets Section in Redo Mode */
+.errorSnippetsSection {
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Marked Essay Section in Redo Mode */
+.markedEssaySection {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.markedEssaySectionTitle {
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.redoBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  margin-bottom: var(--spacing-md);
+}
+
+.redoBannerIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.redoBannerText {
+  flex: 1;
+}
+
+.redoBannerTitle {
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 0.25rem;
+}
+
+.redoBannerSubtitle {
+  font-size: 0.875rem;
+  color: #78350f;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .redoModeContainer {
+    flex-direction: column;
+  }
+
+  .redoErrorReference {
+    flex: none;
+    max-height: 300px;
+    order: -1; /* Show errors above writing area on mobile */
+  }
+
+  .errorSnippetsSection {
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .markedEssaySection {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 640px) {
+  .writeContent {
+    padding: var(--spacing-md);
+  }
+
+  .promptCard {
+    padding: var(--spacing-md);
+  }
+
+  .promptText {
+    font-size: 1.125rem;
+  }
+
+  .writingArea {
+    min-height: 300px;
+    padding: var(--spacing-md);
+    font-size: 1rem;
+  }
+
+  .markedEssayOverlay {
+    padding: var(--spacing-md);
+  }
+
+  .markedEssayContent {
+    padding: var(--spacing-md);
+  }
+
+  .markedEssayText {
+    font-size: 1rem;
+  }
+
+  .errorSummary {
+    padding: var(--spacing-md);
+  }
+
+  .actionButtonGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .redoBtn,
+  .actionButtonGroup .continueBtn {
+    width: 100%;
+  }
+
+  .redoBanner {
+    margin: var(--spacing-md);
+    margin-bottom: 0;
+  }
+}
