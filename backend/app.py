@@ -12,13 +12,16 @@ from routes.prompt import prompt_bp
 app = Flask(__name__)
 
 # Configure CORS - restrict to allowed origins
-# Add your Vercel domain here after deployment
 ALLOWED_ORIGINS = [
+    # Local development
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    # Add your Vercel domain below after deployment, e.g.:
-    # "https://bananawrite.vercel.app",
-    # "https://your-custom-domain.com",
+    # Production - Vercel (add your actual Vercel domains)
+    "https://bananawrite.vercel.app",
+    "https://banana-write.vercel.app",
+    "https://bananawrite-jacobkuchinsky-afks-projects.vercel.app",
+    # Railway backend (for health checks)
+    "https://bananawrite-production.up.railway.app",
 ]
 
 # In production, use environment variable for additional origins
@@ -30,7 +33,9 @@ CORS(app, resources={
     r"/api/*": {
         "origins": ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True,
+        "max_age": 600
     }
 })
 
