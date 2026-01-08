@@ -12,6 +12,32 @@ interface FeedbackCardProps {
   onFinish: () => void
 }
 
+// Parse explanation text into formatted sections
+function formatExplanation(text: string) {
+  // Split into paragraphs
+  const paragraphs = text.split(/\n\n+/).filter(p => p.trim())
+  
+  if (paragraphs.length <= 1) {
+    // Try splitting by single newlines if no double newlines
+    const lines = text.split(/\n/).filter(l => l.trim())
+    if (lines.length > 1) {
+      return lines
+    }
+    // Try splitting by periods followed by space and capital letter for long single blocks
+    if (text.length > 200) {
+      const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z])/).filter(s => s.trim())
+      // Group sentences into chunks of 2-3 for better readability
+      const chunks: string[] = []
+      for (let i = 0; i < sentences.length; i += 2) {
+        chunks.push(sentences.slice(i, i + 2).join(' '))
+      }
+      return chunks.length > 1 ? chunks : [text]
+    }
+  }
+  
+  return paragraphs
+}
+
 export default function FeedbackCard({ 
   explanations, 
   currentIndex,
@@ -26,6 +52,7 @@ export default function FeedbackCard({
   const isFirst = currentIndex === 0
   const isLast = currentIndex >= total - 1
   const currentExplanation = explanations[currentIndex] || ''
+  const formattedParagraphs = formatExplanation(currentExplanation)
 
   // Reset countdown when changing to a new explanation
   useEffect(() => {
@@ -59,9 +86,19 @@ export default function FeedbackCard({
   return (
     <div className={styles.feedbackCard}>
       <div className={styles.feedbackHeader}>
-        <span className={styles.feedbackCounter}>
-          Explanation {currentIndex + 1} of {total}
-        </span>
+        <div className={styles.feedbackHeaderLeft}>
+          <span className={styles.feedbackBadge}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            Why you got it wrong
+          </span>
+          <span className={styles.feedbackCounter}>
+            {currentIndex + 1} of {total}
+          </span>
+        </div>
         <div className={styles.feedbackNavigation}>
           <button
             className={styles.feedbackNavBtn}
@@ -83,7 +120,20 @@ export default function FeedbackCard({
       </div>
       
       <div className={styles.feedbackExplanation}>
-        {currentExplanation}
+        {formattedParagraphs.map((paragraph, idx) => (
+          <p key={idx} className={styles.feedbackParagraph}>
+            {paragraph}
+          </p>
+        ))}
+      </div>
+      
+      <div className={styles.feedbackProgress}>
+        {Array.from({ length: total }).map((_, idx) => (
+          <div 
+            key={idx} 
+            className={`${styles.feedbackProgressDot} ${idx === currentIndex ? styles.active : ''} ${idx < currentIndex ? styles.completed : ''}`}
+          />
+        ))}
       </div>
       
       {isLast && (

@@ -145,25 +145,39 @@ Scope:
 - Ignore: spelling, style preferences, creativity, flow, word choice suggestions
 - Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry)
 - Report only significant errors; ignore minor issues
+- Count individual error instances within each category
 
 Severity Scale: 1 (minor) to 10 (severe)
 
 No Errors Found:
 - If no significant errors exist, output exactly: <No Errors>
 
+Quiz Tag Rule:
+- If any single error category has 3 or more individual instances, add <quiz> as the FIRST line of output
+- Example: 3 comma errors in the essay = add <quiz> tag
+
 Output Format:
+<quiz> (ONLY if 3+ instances of the same error type exist)
 §[count of distinct error categories]§
-- [Error category and description]~[severity 1-10]
-- [Error category and description]~[severity 1-10]
+- [Error category and description] (X instances)~[severity 1-10]
+- [Error category and description] (X instances)~[severity 1-10]
 µ
 [Full essay with each error wrapped in ¦ markers]
 
-Example:
+Example WITHOUT quiz tag (fewer than 3 of any single type):
 §2§
-- Comma splices creating run-on sentences~7
-- Colons used incorrectly as periods~5
+- Comma splices creating run-on sentences (2 instances)~7
+- Colons used incorrectly as periods (1 instance)~5
 µ
-The dog ran fast¦,¦ it was excited. The weather was nice¦:¦ We went outside."""
+The dog ran fast¦,¦ it was excited. The weather was nice¦:¦ We went outside.
+
+Example WITH quiz tag (3+ of same type):
+<quiz>
+§2§
+- Comma splices creating run-on sentences (4 instances)~7
+- Colons used incorrectly as periods (1 instance)~5
+µ
+The dog ran fast¦,¦ it was excited¦,¦ the cat jumped¦,¦ they played¦,¦ it was fun. The weather was nice¦:¦ We went outside."""
 
 # Essay reviewer prompt for re-evaluation (with memory of original errors)
 REVIEWER_REDO_PROMPT = """Task: Re-evaluate the essay after the user attempted to fix the original errors.
@@ -176,16 +190,21 @@ Evaluation Steps:
 2. Identify any new errors introduced during revision
 3. Report only significant grammar/punctuation/syntax errors
 4. Ignore: spelling, style preferences, creativity, flow
+5. Count individual error instances within each category
 
 Severity Scale: 1 (minor) to 10 (severe)
 
 All Fixed:
 - If all original errors are fixed AND no new significant errors exist, output exactly: <No Errors>
 
+Quiz Tag Rule:
+- If any single error category has 3 or more individual instances, add <quiz> as the FIRST line of output
+
 Output Format:
+<quiz> (ONLY if 3+ instances of the same error type exist)
 §[count of distinct error categories]§
-- [Error description]~[severity] [UNFIXED or NEW]
-- [Error description]~[severity] [UNFIXED or NEW]
+- [Error description] (X instances)~[severity] [UNFIXED or NEW]
+- [Error description] (X instances)~[severity] [UNFIXED or NEW]
 µ
 [Full essay with each error wrapped in ¦ markers]"""
 
@@ -513,7 +532,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
         essay: The original essay text (used as fallback for marked_essay)
     
     Returns:
-        dict: Parsed review data
+        dict: Parsed review data including 'force_quiz' flag
     """
     # Check if no errors found
     if "<No Errors>" in result or "<no errors>" in result.lower():
@@ -522,19 +541,29 @@ def _parse_review_response(result: str, essay: str) -> dict:
             "errors": [],
             "marked_essay": essay,
             "problem_count": 0,
+            "force_quiz": False,
             "raw_response": result
         }
+    
+    # Check for <quiz> tag - indicates 3+ errors of same type
+    force_quiz = "<quiz>" in result.lower()
+    
+    # Remove the quiz tag for further parsing
+    result_cleaned = result
+    if force_quiz:
+        import re
+        result_cleaned = re.sub(r'<quiz>\s*', '', result_cleaned, flags=re.IGNORECASE)
     
     # Parse problem count from §[count]§
     problem_count = 0
     import re
-    count_match = re.search(r'§(\d+)§', result)
+    count_match = re.search(r'§(\d+)§', result_cleaned)
     if count_match:
         problem_count = int(count_match.group(1))
         # Remove the count marker from the result for further parsing
-        result_without_count = re.sub(r'§\d+§\s*', '', result, count=1)
+        result_without_count = re.sub(r'§\d+§\s*', '', result_cleaned, count=1)
     else:
-        result_without_count = result
+        result_without_count = result_cleaned
     
     # Split by µ to separate error list from marked essay
     marked_essay = ""
@@ -576,6 +605,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
             "errors": [],
             "marked_essay": essay,
             "problem_count": 0,
+            "force_quiz": False,
             "raw_response": result
         }
     
@@ -584,6 +614,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
         "errors": errors,
         "marked_essay": marked_essay,
         "problem_count": problem_count,
+        "force_quiz": force_quiz,
         "raw_response": result
     }
 

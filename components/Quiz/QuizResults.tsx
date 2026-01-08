@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRightIcon } from '@/components/Icons/Icons'
+import { ArrowRightIcon, CheckIcon } from '@/components/Icons/Icons'
 import styles from './Quiz.module.css'
 
 interface QuizResultsProps {
@@ -11,6 +11,33 @@ interface QuizResultsProps {
   continueLabel?: string
 }
 
+// Parse feedback into structured sections
+function parseFeedback(feedback: string) {
+  // Split by common patterns like "Question 1:", "Q1:", numbered items, etc.
+  const lines = feedback.split('\n').filter(line => line.trim())
+  
+  const sections: { type: 'correct' | 'incorrect' | 'info'; content: string }[] = []
+  
+  for (const line of lines) {
+    const trimmed = line.trim()
+    
+    // Detect correct answers
+    if (trimmed.toLowerCase().includes('correct') && !trimmed.toLowerCase().includes('incorrect')) {
+      sections.push({ type: 'correct', content: trimmed })
+    }
+    // Detect incorrect answers
+    else if (trimmed.toLowerCase().includes('incorrect') || trimmed.toLowerCase().includes('wrong')) {
+      sections.push({ type: 'incorrect', content: trimmed })
+    }
+    // General info
+    else if (trimmed.length > 0) {
+      sections.push({ type: 'info', content: trimmed })
+    }
+  }
+  
+  return sections.length > 0 ? sections : [{ type: 'info' as const, content: feedback }]
+}
+
 export default function QuizResults({ 
   score, 
   passed, 
@@ -18,6 +45,8 @@ export default function QuizResults({
   onContinue,
   continueLabel = 'Continue'
 }: QuizResultsProps) {
+  const feedbackSections = parseFeedback(feedback)
+  
   return (
     <div className={styles.resultsCard}>
       <div className={`${styles.scoreCircle} ${passed ? styles.passed : styles.failed}`}>
@@ -37,8 +66,43 @@ export default function QuizResults({
       
       {feedback && (
         <div className={styles.resultsFeedback}>
-          <h3 className={styles.feedbackTitle}>Quiz Results</h3>
-          <p className={styles.feedbackText}>{feedback}</p>
+          <h3 className={styles.feedbackTitle}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+            </svg>
+            Your Results
+          </h3>
+          <div className={styles.feedbackSections}>
+            {feedbackSections.map((section, index) => (
+              <div 
+                key={index} 
+                className={`${styles.feedbackSection} ${styles[section.type]}`}
+              >
+                <span className={styles.feedbackIcon}>
+                  {section.type === 'correct' && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                  {section.type === 'incorrect' && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  )}
+                  {section.type === 'info' && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12" y2="8" />
+                    </svg>
+                  )}
+                </span>
+                <p className={styles.feedbackContent}>{section.content}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       

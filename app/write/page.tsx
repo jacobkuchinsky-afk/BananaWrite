@@ -299,16 +299,22 @@ function WriteContent() {
           reviewResult.raw_response
         )
         
-        // If this was a redo submission, go directly to quiz (no more chances)
-        if (isRedoMode) {
+        const errorCount = reviewResult.problem_count || reviewResult.errors.length
+        const forceQuiz = reviewResult.force_quiz || false
+        
+        // Skip redo option if:
+        // 1. This was already a redo submission
+        // 2. More than 5 errors
+        // 3. AI detected 3+ errors of the same type (force_quiz flag)
+        if (isRedoMode || errorCount > 5 || forceQuiz) {
           setIsReviewingEssay(false)
           router.push('/quiz')
         } else {
-          // First submission - show marked essay with errors highlighted
+          // First submission with few errors - show marked essay with errors highlighted
           setMarkedEssayData({
             markedEssay: reviewResult.marked_essay || essayText,
             errors: reviewResult.errors,
-            problemCount: reviewResult.problem_count || reviewResult.errors.length
+            problemCount: errorCount
           })
           setOriginalErrors(reviewResult.errors)
           setIsReviewingEssay(false)
