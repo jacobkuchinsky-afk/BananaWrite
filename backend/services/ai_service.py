@@ -16,13 +16,13 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Chutes API configuration from environment variables
-API_KEY = os.getenv('CHUTES_API_KEY')
+API_KEY = os.getenv('CHUTES_API_KEY', '')
 BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
 MAIN_MODEL = "moonshotai/Kimi-K2-Instruct-0905"
 
-# Validate API key is present
+# Log warning if API key is missing (but don't fail during import/build)
 if not API_KEY:
-    logger.warning("CHUTES_API_KEY environment variable not set!")
+    logger.warning("CHUTES_API_KEY environment variable not set! API calls will fail.")
 
 # Writing techniques list - progression of skills to learn
 WRITING_TECHNIQUES = [
