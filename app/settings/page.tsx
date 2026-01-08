@@ -276,7 +276,7 @@ function SettingsContent() {
 
 export default function SettingsPage() {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireSetup={false}>
       <SettingsContent />
     </ProtectedRoute>
   )

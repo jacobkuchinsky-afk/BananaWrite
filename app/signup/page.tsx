@@ -66,7 +66,8 @@ export default function SignupPage() {
 
     try {
       await loginWithGoogle()
-      router.push('/dashboard')
+      // New users go to setup first to choose their prompt preferences
+      router.push('/setup')
     } catch (err: unknown) {
       const error = err as { code?: string }
       if (error.code === 'auth/popup-closed-by-user') {

@@ -57,7 +57,6 @@ WRITING_TECHNIQUES = [
     "Thesis statements",
     "Metaphors and similes",
     "Capitalization",
-    "Italics",
     "Dialogue formatting",
     "Direct and indirect quotations",
     "Citation styles",
@@ -100,6 +99,7 @@ Guidelines:
 - The prompt should make sense examples: "Write an an essay about your favorite food and why its better than any other food" "Write a narrtive about a boy who explores a world where currency is made of your reputation"
 - The prompts focus like for example 'compound sentences' should not actually be about compound sentences but rather require them. For example: 'Write an expository on the lore of your favorite video game, it should have 4 compound sentences' 
 - The prompt does not need to be super postive it should be suited for the comedy and maturness of a 14-18 year old.
+- Never ask for more than than the writing technique requires. For example if the writing tehcinue is topic sentences, do not also ask for conjuntions.
 - Give extra information if the prompt requires the user to know something like a specific topic.
 Output structure:
 First line: The main prompt (1-2 sentences)
@@ -348,7 +348,7 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
     if writing_technique and writing_technique.lower() != "none":
         user_message = f"Create an essay prompt. The student is currently learning about: {writing_technique}. Subtly incorporate opportunities to practice this skill."
     else:
-        user_message = "Create a general essay prompt for a student just starting their writing journey."
+        user_message = "Create an essay prompt with no specific writing techinque needed."
     
     try:
         stream = client.chat.completions.create(
