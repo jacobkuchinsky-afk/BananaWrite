@@ -11,31 +11,13 @@ from routes.prompt import prompt_bp
 # Create Flask app
 app = Flask(__name__)
 
-# Configure CORS - restrict to allowed origins
-ALLOWED_ORIGINS = [
-    # Local development
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    # Production - Vercel (add your actual Vercel domains)
-    "https://bananawrite.vercel.app",
-    "https://banana-write.vercel.app",
-    "https://bananawrite-jacobkuchinsky-afks-projects.vercel.app",
-    # Railway backend (for health checks)
-    "https://bananawrite-production.up.railway.app",
-]
-
-# In production, use environment variable for additional origins
-extra_origins = os.getenv('CORS_ALLOWED_ORIGINS', '')
-if extra_origins:
-    ALLOWED_ORIGINS.extend([origin.strip() for origin in extra_origins.split(',') if origin.strip()])
-
+# Configure CORS - allow all origins for now (debug)
+# TODO: Restrict to specific origins in production
 CORS(app, resources={
     r"/api/*": {
-        "origins": ALLOWED_ORIGINS,
+        "origins": "*",
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True,
-        "max_age": 600
+        "allow_headers": ["Content-Type", "Authorization"]
     }
 })
 
@@ -47,10 +29,16 @@ app.register_blueprint(prompt_bp)
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint for Railway deployment"""
+    # Check if API key is configured
+    api_key = os.getenv('CHUTES_API_KEY', '')
+    has_api_key = len(api_key) > 10 if api_key else False
+    
     return jsonify({
         "status": "healthy",
         "service": "bananawrite-backend",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "api_key_configured": has_api_key,
+        "api_key_preview": f"{api_key[:8]}..." if has_api_key else "NOT SET"
     })
 
 
