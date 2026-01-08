@@ -81,242 +81,254 @@ def get_essay_prompt_creator(craziness: str = None, focus: str = None) -> str:
     craziness_level = craziness or DEFAULT_CRAZINESS
     focus_topic = focus or DEFAULT_FOCUS
     
-    return f"""Task: Make a fun and engaging prompt for a student to write an essay
+    return f"""Task: Generate a 1-2 sentence essay prompt for a student.
 
-Guidelines:
-- This prompt should be 1-2 sentences long
-- The topic should craziness level, unqiueness level, humor, and interestingness level should be{craziness_level}
-- The prompt should be focused on {focus_topic} make it focusesd on a very specific detail of this topic.
-- Never ask the user to write with purposefully incorrect grammar or punctuation.
-- Never ask the user to include something if you are not told to include it
-- The prompt should make sense
-- The essay should be 225 words long
-- Essay types: Expository, Argumentative, Narrative, Fictional
-- IF AND ONLY IF a specific writing technique is provided, subtly encourage its use in the prompt
-- IF A WRITING TECHNIQUE IS NOT PROVIDED DO NOT MAKE IT REQUIRED IN YOUR PROMPT.
-- Be specific for example if you need to make a prompt focusing on commas tell the user how many commas they need ect.
-- If you are not asked to make the prompt anything specific ignore focusing the prompt on anything
-- The prompt should make sense examples: "Write an an essay about your favorite food and why its better than any other food" "Write a narrtive about a boy who explores a world where currency is made of your reputation"
-- The prompts focus like for example 'compound sentences' should not actually be about compound sentences but rather require them. For example: 'Write an expository on the lore of your favorite video game, it should have 4 compound sentences' 
-- The prompt does not need to be super postive it should be suited for the comedy and maturness of a 14-18 year old.
-- Never ask for more than than the writing technique requires. For example if the writing tehcinue is topic sentences, do not also ask for conjuntions.
-- Give extra information if the prompt requires the user to know something like a specific topic.
-Output structure:
-First line: The main prompt (1-2 sentences)
-Second line: Important information (If the prompt relies on the user knowing items like data, give it in a list here as examples. This should not be creative details, just details for ideas like expository essays. If none needed, write "None")"""
+Requirements:
+- Topic: {focus_topic} (focus on one specific detail within this topic)
+- Tone/Creativity Level: {craziness_level} (applies to humor, uniqueness, and engagement)
+- Target Audience: Ages 14-18 (match maturity and comedy level accordingly)
+- Target Essay Length: 225 words
+- Essay Types: Expository, Argumentative, Narrative, or Fictional
 
-ESSAY_CHECKER_PROMPT = """Check if the user's essay correctly follows the prompt requirements.
+Writing Technique Rules:
+- ONLY include a writing technique requirement if one is explicitly provided
+- When a technique IS provided, specify the exact quantity needed (e.g., "Include exactly 4 compound sentences")
+- Writing techniques are requirements FOR the essay, not topics ABOUT the technique
+- Never require additional techniques beyond what is specified
 
-CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS EXACTLY:
-- If the essay CORRECTLY follows the prompt requirements, respond with ONLY these 9 characters: <Correct>
-- Do NOT add ANY other text, explanation, or praise when correct - ONLY output: <Correct>
-- The ONLY acceptable response for a correct essay is: <Correct>
-- The user can ALWAYS go over the minimum word count.
-- The prompt word count does not need to be followed.
-- Read the essay very carefuly.
-- Do not make mistakes.
-- You can make mistakes when counting if the prompt asks for a specific number of something and the essay is close allow the user to pass.
-- Try to count accurately.
-Guidelines:
-- Check if the prompt asks for something specific (like "use 3 commas", "include 2 semicolons")
-- Count carefully - if it asks for 3 commas, count the commas in the essay
-- Grammar mistakes do NOT matter - only check if specific prompt requirements are met
-- Be LENIENT - if the essay reasonably follows the prompt, mark it as correct
-- If there are no specific countable requirements, and the essay addresses the topic, it is correct
+Restrictions:
+- Never request intentionally incorrect grammar or punctuation
+- Never add requirements that were not explicitly requested
 
-IF CORRECT:
-Output EXACTLY: <Correct>
-(Nothing else - no "Great job!", no explanations, just the tag)
+Context Information:
+- If the prompt requires specific knowledge (facts, data, historical context), provide that information on the second line
 
-IF NOT CORRECT:
-Return a brief, helpful, encouraging message about what specifically needs to be changed.
+Output Format:
+Line 1: The essay prompt (1-2 sentences)
+Line 2: Supporting information for the writer, OR "None" if not needed
 
-Example outputs for CORRECT essays:
+Example Output:
+"Write an expository essay explaining the lore of your favorite video game. Include exactly 4 compound sentences."
+None
+
+Example Output (with context):
+"Write an argumentative essay defending why the 1969 Moon landing was humanity's greatest achievement."
+Key facts: Apollo 11 mission, Neil Armstrong and Buzz Aldrin, July 20, 1969, 400,000+ NASA employees involved"""
+
+ESSAY_CHECKER_PROMPT = """Task: Verify whether the essay meets the prompt's specific requirements.
+
+Evaluation Criteria:
+- Check ONLY for explicit requirements stated in the prompt (e.g., "use 5 commas", "include 2 semicolons")
+- Count specified elements carefully; allow a margin of ±1 for close attempts
+- Ignore grammar quality—evaluate only requirement compliance
+- Ignore word count—exceeding the minimum is always acceptable
+- If no countable requirements exist, verify the essay addresses the topic
+
+Output Rules:
+- CORRECT ESSAY: Output exactly "<Correct>" with no additional text
+- INCORRECT ESSAY: Provide one brief, specific instruction on what to fix
+
+Example - Correct:
 <Correct>
 
-Example outputs for INCORRECT essays:
-Add 2 more commas to meet the requirement of 5 commas in your essay.
-Your essay needs to include at least one semicolon as specified in the prompt.
+Example - Incorrect:
+Add 2 more commas to reach the required 5 commas.
 
-REMEMBER: When correct, output ONLY: <Correct>"""
+Example - Incorrect:
+Include at least one semicolon as specified in the prompt."""
 
 # Essay reviewer prompt - checks for learning errors in the essay
-REVIEWER_PROMPT = """Task: Review the following essay and output a list of mistakes made in it
+REVIEWER_PROMPT = """Task: Identify grammar and writing errors in the essay.
 
-Guidelines:
-- Give a list of all problems in the essay generalized so if a comma problem comes up multiple times generalize under 'commas'.
-- Do not follow the comma example exactly please tailor it to the essay.
-- The output should be given in a list
-- Separated by ~ add the severity of the issue (1-10)
-- If there are no major errors (very small errors are ok) respond with only <No Errors>
-- NEVER mark small errors.
-- Only mark large errors.
-- Put the µ between the errors and the essay marked
-- You only care about grammar mistakes/writing mistakes you do not care about spelling, flow, or make sentences more "Unique","Creative","Complex" or anything else that is not completly factual and objective.
-- IMPORTANT: Count the number of DISTINCT problem categories and output it at the very start using § delimiters.
+Scope:
+- Report ONLY objective grammar/punctuation/syntax errors
+- Ignore: spelling, style preferences, creativity, flow, word choice suggestions
+- Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry)
+- Report only significant errors; ignore minor issues
 
-DO NOT DO:
-- Never mark someone wrong for something not empirical, for example do not mark the essay wrong for as an example "lack of adjectives"
+Severity Scale: 1 (minor) to 10 (severe)
 
-Output structure:
-§[number of distinct problems]§
-List of problems (Example: - Commas are misused and often end up with run on sentences~7 - Colons are used like periods~5 - Oxford comma is not used in lists~3)
-µ 
-Essay marked(Here put the full essay but with the character ¦ sorounding each error Example: Sentence ¦ error ¦ Sentence ¦ error ¦ Sentence)
+No Errors Found:
+- If no significant errors exist, output exactly: <No Errors>
 
-Example output:
-§3§
-- Commas are misused and often end up with run on sentences~7
-- Colons are used like periods~5
-- Oxford comma is not used in lists~3
+Output Format:
+§[count of distinct error categories]§
+- [Error category and description]~[severity 1-10]
+- [Error category and description]~[severity 1-10]
 µ
-The essay text ¦with errors¦ marked like this."""
+[Full essay with each error wrapped in ¦ markers]
+
+Example:
+§2§
+- Comma splices creating run-on sentences~7
+- Colons used incorrectly as periods~5
+µ
+The dog ran fast¦,¦ it was excited. The weather was nice¦:¦ We went outside."""
 
 # Essay reviewer prompt for re-evaluation (with memory of original errors)
-REVIEWER_REDO_PROMPT = """Task: Re-review the following essay. The user was given one chance to fix their errors.
+REVIEWER_REDO_PROMPT = """Task: Re-evaluate the essay after the user attempted to fix the original errors.
 
-ORIGINAL ERRORS FOUND:
+Original Errors to Check:
 {original_errors}
 
-Guidelines:
-- The user is re-submitting their essay after being shown the above errors.
-- Check if the ORIGINAL errors have been fixed.
-- Also check for any NEW errors that may have been introduced.
-- Give a list of all remaining/new problems generalized.
-- Separated by ~ add the severity of the issue (1-10)
-- If all original errors are fixed AND no new major errors exist, respond with only <No Errors>
-- NEVER mark small errors.
-- Only mark large errors.
-- Put the µ between the errors and the essay marked
-- You only care about grammar mistakes/writing mistakes you do not care about spelling, flow, or make sentences more "Unique","Creative","Complex" or anything else that is not completely factual and objective.
-- IMPORTANT: Count the number of DISTINCT problem categories and output it at the very start using § delimiters.
+Evaluation Steps:
+1. Verify whether each original error has been corrected
+2. Identify any new errors introduced during revision
+3. Report only significant grammar/punctuation/syntax errors
+4. Ignore: spelling, style preferences, creativity, flow
 
-DO NOT DO:
-- Never mark someone wrong for something not empirical
+Severity Scale: 1 (minor) to 10 (severe)
 
-Output structure:
-§[number of distinct problems]§
-List of problems (with note if it was an original unfixed error or a new error)
-µ 
-Essay marked(Here put the full essay but with the character ¦ surrounding each error)"""
+All Fixed:
+- If all original errors are fixed AND no new significant errors exist, output exactly: <No Errors>
+
+Output Format:
+§[count of distinct error categories]§
+- [Error description]~[severity] [UNFIXED or NEW]
+- [Error description]~[severity] [UNFIXED or NEW]
+µ
+[Full essay with each error wrapped in ¦ markers]"""
 
 
 # Quiz decider prompt - determines what quiz to create based on errors
-QUIZ_DECIDER_PROMPT = """Task: Read the following essay problems and make a quiz prompt that will help teach exactly what needs to be taught
+QUIZ_DECIDER_PROMPT = """Task: Design a quiz specification targeting the user's most critical unlearned error.
 
-Guidelines: 
-- Output one target quiz prompt
-- Never make a quiz on something that has already been learned.
-- The numbers given beside the problems are how serious and prevalent the problems are use them to decide what problems to target in the quiz (1 is minimal and 10 is very bad)
-- Separate each section of your output with a ~
-- The amount of questions should be under 10 and depend on the severity of the problem
-- There may also be some skills that have been learned if the skill that is denoted as a problem is already learned move on to the next biggest problem to make quiz requirements.
-- If the user has learned every problem return with <Completed>
-- Add specific examples from the problems to include in the quiz.
+Input: Error list with severity ratings (1=minor, 10=severe) and list of already-learned topics.
 
-Output Structure:
-- First add what the quiz will test (Example: The user needs a quiz targeted on when to capitalize letters when a sentence starts and when the letter 'i' is present. Go on to give more details on how exactly the questions will be posed)
+Selection Logic:
+1. Skip any error topic already marked as learned
+2. Select the highest-severity unlearned error as the quiz focus
+3. If all error topics are learned, output exactly: <Completed>
+
+Quiz Sizing: 3-10 questions based on severity (higher severity = more questions)
+
+Output Format (sections separated by ~):
+[Detailed quiz focus description with specific examples from the errors]
 ~
-- Second add what type of questions the quiz will use (A,B,C,D or Fill in the blank, or type out an answer)
+[Question format: "Multiple Choice (A,B,C,D)" OR "Fill in the Blank" OR "Written Response"]
 ~
-- Last add the amount of questions in the quiz (just the number)"""
+[Number of questions as a single integer]
+
+Example:
+Quiz targeting comma splices: The user incorrectly joins independent clauses with commas instead of semicolons or periods. Questions will present sentences and ask the user to identify or correct comma splice errors.
+~
+Multiple Choice (A,B,C,D)
+~
+6"""
 
 # Quiz creator prompt - generates the actual quiz questions
-QUIZ_CREATOR_PROMPT = """Task: Create a quiz of the amount of questions specified on writing to the requirements specified.
+QUIZ_CREATOR_PROMPT = """Task: Generate quiz questions based on the provided specifications.
 
-Guidelines:
-- Follow the quiz guidelines exactly
-- This quiz is for learning and you are teaching
-- Separate each section with ~
-- The name of the quiz should be short and memorable only being a couple of words
-- The correct answers should be varied for example never put B as the correct answer every time
-- ALWAYS ADD ~ WHERE THEY ARE ADDED IN THE OUTPUT FORMAT
-- NEVER PUT THE CORRECT ANSWER IN THE QUIZ QUESTION ONLY EVER PUT IT IN THE GENERAL RIGHT ANSWER SECTION
-- Do not add extra unneeded words like "original"
-- You will also be given the results from the last quiz if this is empty ignore it.
-- Tailor the quiz to the incorrect answers from the last quiz.
-- Never put the correct answer in the question so if you are asking what punctuation to use never put the punctuation already in the example sentence.
-- Only one answer should ever be grammtically correct there should never be more than more than one answer that is correct.
-- You can make nuanced questions to try to trick the user BUT THERE SHOULD ALWAYS BE A VERIFIABLE CORRECT ANSWER.
-- The questions should always be varied and have different answer from one another.
+Requirements:
+- Create exactly the specified number of questions on the given topic
+- Vary correct answer positions (don't make all answers "B")
+- Ensure exactly ONE grammatically correct answer per question
+- Never reveal the answer within the question text itself
+- If previous quiz results are provided, focus on areas the user got wrong
 
-IMPORTANT - Question Type Formatting:
-You MUST use these exact tags based on question type:
-
-FOR MULTIPLE CHOICE QUESTIONS - Wrap each option with <MULTI> tags:
-Example: Which punctuation separates items in a list?
-<MULTI>A. Period</MULTI>
-<MULTI>B. Comma</MULTI>
-<MULTI>C. Semicolon</MULTI>
-<MULTI>D. Colon</MULTI>
-
-FOR FILL IN THE BLANK QUESTIONS - Wrap the question with <FILL> tags:
-<FILL>Type the punctuation that should go after "craftsmen" in this sentence: "John, a skilled craftsmen worked at the junkyard."</FILL>
-
-FOR TYPE OUT ANSWER QUESTIONS - Wrap the question with <TYPE> tags:
-<TYPE>Rewrite this sentence with correct comma placement: "The dog ran fast and the cat jumped high."</TYPE>
+Question Type Tags (REQUIRED):
+- Multiple Choice: Wrap each option with <MULTI> tags
+- Fill in Blank: Wrap entire question with <FILL> tags  
+- Written Response: Wrap entire question with <TYPE> tags
 
 Output Format:
-Name (Put the name of the quiz - short and memorable)
+[Quiz Name (2-4 words)]
 ~
-Quiz question (Use the appropriate tags as shown above - <MULTI>, <FILL>, or <TYPE>)
-~ 
-Correct answer (The letter for multiple choice like "B", or the actual answer for fill/type)
+[Question with appropriate tags]
 ~
-Repeat for each question. Put ` between each full question."""
+[Correct answer: letter for multiple choice, or exact text for fill/type]
+`
+[Next question...]
+~
+[Answer...]
+`
+[Continue pattern for all questions]
+
+Example - Multiple Choice:
+Comma Quiz
+~
+Which sentence uses commas correctly?
+<MULTI>A. The dog, ran quickly.</MULTI>
+<MULTI>B. I bought apples, oranges, and bananas.</MULTI>
+<MULTI>C. She said, that she would come.</MULTI>
+<MULTI>D. The tall, man walked by.</MULTI>
+~
+B
+`
+
+Example - Fill in Blank:
+~
+<FILL>What punctuation belongs after "craftsman" in: "John, a skilled craftsman worked daily."</FILL>
+~
+,
+`
+
+Example - Written Response:
+~
+<TYPE>Rewrite with correct punctuation: "The dog ran fast the cat jumped high"</TYPE>
+~
+The dog ran fast. The cat jumped high."""
 
 # Grader prompt - grades quiz answers
-GRADER_PROMPT = """Job: Grade the current answers on the quiz.
-- You have been given the users answer, the question, and the correct answer
+GRADER_PROMPT = """Task: Grade each quiz answer for grammatical correctness.
 
-CRITICAL GRADING RULES:
-- Mark the answer CORRECT (✓) if it is GRAMMATICALLY VALID, even if different from the provided "correct answer"
-- For punctuation questions, multiple answers are often correct:
-  * Semicolons (;) CAN join two related independent clauses - this is ALWAYS correct
-  * Periods (.) between independent clauses are correct
-  * Comma + coordinating conjunction (and, but, so, or, yet, for, nor) is correct
-  * These are often interchangeable: "The dog ran; the cat jumped" = "The dog ran. The cat jumped" = "The dog ran, and the cat jumped"
-- DO NOT mark wrong just because the answer differs from the expected answer
-- The user's answer is correct if it creates a grammatically valid sentence
-- For multiple choice, the letter must match exactly
+Grading Rules:
+- Accept ANY grammatically valid answer, even if it differs from the expected answer
+- For punctuation: semicolons, periods, and "comma + conjunction" are often interchangeable between independent clauses
+- Multiple choice: Letter must match exactly
+- Fill-in/Written: Accept equivalent correct forms
 
-Guidelines:
-- The output should be very easy to read
-- Put the percentage correct at the bottom
-- Separate the answers and questions and the percentage correct with a ~
-- Be LENIENT - if the grammar works, it's correct
+Acceptable Equivalents (all correct for joining independent clauses):
+- "The dog ran; the cat jumped."
+- "The dog ran. The cat jumped."  
+- "The dog ran, and the cat jumped."
 
-Output structure:
-Give the users answer (Put it in context). Then give the correct answer plus an X or a Check (✓) if the user got it right or not.
-Go in a list for each question
+Output Format:
+[Question 1]: User answered "[answer]" — Expected "[correct]" — ✓ or ✗
+[Question 2]: User answered "[answer]" — Expected "[correct]" — ✓ or ✗
+[Continue for all questions]
 ~
-Percentage correct (Separated by ~ please give just the number percentage correct with ABSOLUTELY NOTHING ELSE For example: 59) Notice the lack of '%' or '\\n'"""
+[Percentage as integer only, no % symbol]
+
+Example:
+Q1: User answered "B" — Expected "B" — ✓
+Q2: User answered "semicolon" — Expected "period" — ✓ (grammatically valid alternative)
+Q3: User answered "A" — Expected "C" — ✗
+~
+67"""
 
 # Teacher prompt - provides feedback for wrong answers
-TEACHER_PROMPT = """Task: Help the student learn from their mistakes to do better next time
+TEACHER_PROMPT = """Task: Provide friendly, educational feedback for incorrect quiz answers.
 
-- You are a friendly teacher and your job is to help the student
-- The user will give the students grades on a test and you must give them feedback on how to do better
-- IMPORTANT: Use ||| to separate EACH question's feedback (one ||| between each question explanation)
-- Use ~ to separate the explanations section from the memory hooks section
+Tone: Encouraging and supportive—help the student understand, not feel bad.
 
-Feedback structure:
-Question 1 feedback: State the question, what the user answered, the correct answer, and explain WHY it's wrong in a friendly way.
+For Each Wrong Answer, Explain:
+1. The question asked
+2. What the student answered
+3. The correct answer
+4. WHY the correct answer is right (clear explanation)
+
+Output Format:
+[Explanation for wrong answer 1]
 |||
-Question 2 feedback: Same format - question, user's answer, correct answer, and friendly explanation.
+[Explanation for wrong answer 2]
 |||
-(Continue for each wrong answer, separated by |||)
+[Continue for each wrong answer]
 ~
-Memory hooks: Give exactly 2 memory hooks or tips that can help the user remember these concepts in the future. Separate each tip with |||
+[Memory tip 1]
+|||
+[Memory tip 2]
 
-Example output:
-Question: "Which is correct?" Your answer: B. Correct answer: A. The reason A is correct is because...
+Provide exactly 2 memory hooks/tips after the ~ separator.
+
+Example:
+Question: "Which punctuation joins two related sentences?" You answered: comma. Correct answer: semicolon. A comma alone creates a comma splice—semicolons can join two complete, related thoughts without a conjunction.
 |||
-Question: "Fill in the blank..." Your answer: comma. Correct answer: semicolon. A semicolon is needed here because...
+Question: "Add punctuation after 'however'." You answered: period. Correct answer: comma. When "however" interrupts a sentence, it needs commas around it, not a period.
 ~
-Tip 1: Remember that semicolons connect two complete sentences that are related.
+Semicolons are "soft periods"—they connect complete sentences that are closely related in meaning.
 |||
-Tip 2: Think of a semicolon as a "soft period" - it's stronger than a comma but gentler than a period."""
+Conjunctive adverbs (however, therefore, moreover) need commas after them when they start a clause."""
 
 
 def create_client():
