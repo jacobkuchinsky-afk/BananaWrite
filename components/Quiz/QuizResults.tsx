@@ -21,12 +21,12 @@ function parseFeedback(feedback: string) {
   for (const line of lines) {
     const trimmed = line.trim()
     
-    // Detect correct answers
-    if (trimmed.toLowerCase().includes('correct') && !trimmed.toLowerCase().includes('incorrect')) {
+    // Detect correct answers - look for "check" or checkmark symbols
+    if (trimmed.toLowerCase().includes('check') || trimmed.includes('✓') || trimmed.includes('✔')) {
       sections.push({ type: 'correct', content: trimmed })
     }
-    // Detect incorrect answers
-    else if (trimmed.toLowerCase().includes('incorrect') || trimmed.toLowerCase().includes('wrong')) {
+    // Detect incorrect answers - look for "x" or X symbols
+    else if (trimmed.toLowerCase().includes(' x ') || trimmed.includes('✗') || trimmed.includes('✘') || trimmed.includes('❌') || /\bx\b/i.test(trimmed)) {
       sections.push({ type: 'incorrect', content: trimmed })
     }
     // General info
