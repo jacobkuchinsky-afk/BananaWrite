@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
@@ -83,6 +83,9 @@ function QuizContent() {
   // Feedback navigation state
   const [feedbackIndex, setFeedbackIndex] = useState(0)
   
+  // Guard ref to prevent duplicate API calls during generation
+  const isGenerating = useRef(false)
+  
   // Load quiz session on mount
   useEffect(() => {
     async function loadQuizSession() {
@@ -158,6 +161,11 @@ function QuizContent() {
       if (data.completed) {
         // All topics learned! Time for another essay
         await completeQuizSession(user.uid)
+        // Update local state to reflect completion
+        setQuizSessionState(prev => prev ? {
+          ...prev,
+          status: 'complete' as const
+        } : null)
         setPhase('all_topics_done')
         return
       }
@@ -184,6 +192,8 @@ function QuizContent() {
       console.error('Error generating quiz requirements:', err)
       setError('Failed to generate quiz requirements')
       setPhase('error')
+    } finally {
+      isGenerating.current = false
     }
   }, [user, quizSession])
   
@@ -241,6 +251,8 @@ function QuizContent() {
       console.error('Error generating quiz:', err)
       setError('Failed to generate quiz')
       setPhase('error')
+    } finally {
+      isGenerating.current = false
     }
   }, [user, quizSession])
   
@@ -327,6 +339,8 @@ function QuizContent() {
       console.error('Error grading quiz:', err)
       setError('Failed to grade quiz')
       setPhase('error')
+    } finally {
+      isGenerating.current = false
     }
   }, [user, quizSession])
   
@@ -378,110 +392,33 @@ function QuizContent() {
     if (quizSession.quizResults.passed) {
       // Mark topic as learned
       const currentTopic = quizSession.currentQuizRequirements?.topic || ''
-      const updatedLearnedTopics = currentTopic 
-        ? [...quizSession.learnedTopics, currentTopic]
-        : quizSession.learnedTopics
       
       if (currentTopic) {
         await markTopicLearned(user.uid, currentTopic)
       }
       
       // Update local state - clear current quiz for next round
-      setQuizSessionState(prev => prev ? {
-        ...prev,
-        learnedTopics: updatedLearnedTopics,
-        currentQuiz: null,
-        currentQuizRequirements: null,
-        currentQuestionIndex: 0,
-        userAnswers: [],
-        quizResults: null
-      } : null)
-      
-      // Get next quiz requirements with the UPDATED learned topics
-      setPhase('generating_requirements')
-      
-      try {
-        const response = await fetch(`${FLASK_API_URL}/api/get-quiz-requirements`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            essay_errors: quizSession.rawErrorsResponse,
-            learned_topics: updatedLearnedTopics  // Use updated list!
-          })
-        })
-        
-        const data = await response.json()
-        
-        if (data.completed) {
-          // All topics learned! Time for another essay
-          await completeQuizSession(user.uid)
-          setPhase('all_topics_done')
-          return
-        }
-        
-        // Save new requirements
-        await setQuizRequirements(user.uid, {
-          topic: data.topic,
-          questionType: data.question_type,
-          questionCount: data.question_count
-        })
-        
-        // Update local state with new requirements
-        setQuizSessionState(prev => prev ? {
+      // Use functional update to compute updatedLearnedTopics from fresh state
+      setQuizSessionState(prev => {
+        if (!prev) return null
+        const updatedLearnedTopics = currentTopic 
+          ? [...prev.learnedTopics, currentTopic]
+          : prev.learnedTopics
+        return {
           ...prev,
-          currentQuizRequirements: {
-            topic: data.topic,
-            questionType: data.question_type,
-            questionCount: data.question_count
-          }
-        } : null)
-        
-        // Now generate the new quiz
-        setPhase('generating_quiz')
-        
-        const quizResponse = await fetch(`${FLASK_API_URL}/api/create-quiz`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            topic: data.topic,
-            question_type: data.question_type,
-            question_count: data.question_count,
-            last_quiz_results: quizSession.lastQuizResults || ''
-          })
-        })
-        
-        const quizData = await quizResponse.json()
-        
-        const questions = (quizData.questions || []).map((q: { question: string; correct_answer: string }) => ({
-          question: q.question,
-          correctAnswer: q.correct_answer
-        }))
-        
-        if (questions.length === 0) {
-          setError('Failed to generate quiz questions.')
-          setPhase('error')
-          return
-        }
-        
-        await setCurrentQuiz(user.uid, quizData.name || 'Quiz', questions)
-        
-        setQuizSessionState(prev => prev ? {
-          ...prev,
-          currentQuiz: {
-            name: quizData.name || 'Quiz',
-            questions
-          },
+          learnedTopics: updatedLearnedTopics,
+          currentQuiz: null,
+          currentQuizRequirements: null,
           currentQuestionIndex: 0,
-          userAnswers: []
-        } : null)
-        
-        setPhase('answering')
-        
-      } catch (err) {
-        console.error('Error getting next quiz:', err)
-        setError('Failed to get next quiz. Please try again.')
-        setPhase('error')
-      }
+          userAnswers: [],
+          quizResults: null
+        }
+      })
+      
+      // Let useEffect handle generating requirements - it will see 
+      // phase='generating_requirements' and !currentQuizRequirements
+      // and trigger generateQuizRequirements() with the updated learnedTopics
+      setPhase('generating_requirements')
     } else {
       // Failed - get teacher feedback
       await getTeacherFeedbackAction()
@@ -519,8 +456,9 @@ function QuizContent() {
     await resetQuizForRetry(user.uid)
     
     // Reset local state and keep currentQuizRequirements
-    const updatedSession = {
-      ...quizSession,
+    // Use functional update to ensure we're working with fresh state
+    setQuizSessionState(prev => prev ? {
+      ...prev,
       currentQuiz: null,
       currentQuestionIndex: 0,
       userAnswers: [],
@@ -528,61 +466,11 @@ function QuizContent() {
       teacherFeedback: null,
       currentFeedbackIndex: 0,
       status: 'reviewing' as const
-    }
-    setQuizSessionState(updatedSession)
+    } : null)
     
-    // Directly call generateQuiz instead of relying on useEffect
+    // Let useEffect handle the quiz generation - it will see phase='generating_quiz' 
+    // and currentQuiz=null and trigger generateQuiz()
     setPhase('generating_quiz')
-    
-    try {
-      const { topic, questionType, questionCount } = quizSession.currentQuizRequirements!
-      
-      const response = await fetch(`${FLASK_API_URL}/api/create-quiz`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          topic,
-          question_type: questionType,
-          question_count: questionCount,
-          last_quiz_results: quizSession.lastQuizResults || ''
-        })
-      })
-      
-      const data = await response.json()
-      
-      // Convert questions to our format
-      const questions: QuizQuestionType[] = (data.questions || []).map((q: { question: string; correct_answer: string }) => ({
-        question: q.question,
-        correctAnswer: q.correct_answer
-      }))
-      
-      // Check if we got valid questions
-      if (questions.length === 0) {
-        setError('Failed to generate quiz questions. Please try again.')
-        setPhase('error')
-        return
-      }
-      
-      // Save quiz
-      await setCurrentQuiz(user.uid, data.name || 'Quiz', questions)
-      
-      // Update local state
-      setQuizSessionState(prev => prev ? {
-        ...prev,
-        currentQuiz: {
-          name: data.name || 'Quiz',
-          questions
-        },
-        currentQuestionIndex: 0,
-        userAnswers: []
-      } : null)
-      
-      setPhase('answering')
-    } catch (err) {
-      console.error('Error generating retry quiz:', err)
-      setError('Failed to generate quiz. Please try again.')
-      setPhase('error')
-    }
   }
   
   // Handle write another essay
@@ -614,12 +502,19 @@ function QuizContent() {
   }
   
   // Trigger phase-dependent actions
+  // Guard with isGenerating ref to prevent duplicate API calls
   useEffect(() => {
+    // Skip if already generating to prevent race conditions
+    if (isGenerating.current) return
+    
     if (phase === 'generating_requirements' && quizSession && !quizSession.currentQuizRequirements) {
+      isGenerating.current = true
       generateQuizRequirements()
     } else if (phase === 'generating_quiz' && quizSession?.currentQuizRequirements && !quizSession.currentQuiz) {
+      isGenerating.current = true
       generateQuiz()
     } else if (phase === 'grading' && quizSession && !quizSession.quizResults) {
+      isGenerating.current = true
       gradeQuiz()
     }
   }, [phase, quizSession, generateQuizRequirements, generateQuiz, gradeQuiz])
@@ -703,12 +598,11 @@ function QuizContent() {
   if (phase === 'error') {
     const handleRetry = () => {
       setError(null)
+      // Just set the phase - let useEffect handle the API calls
       if (quizSession?.currentQuizRequirements && !quizSession?.currentQuiz) {
         setPhase('generating_quiz')
-        generateQuiz()
       } else if (!quizSession?.currentQuizRequirements) {
         setPhase('generating_requirements')
-        generateQuizRequirements()
       } else {
         setPhase('answering')
       }

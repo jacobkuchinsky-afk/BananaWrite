@@ -699,6 +699,43 @@ def review_essay_with_context(essay: str, original_errors: list) -> dict:
         }
 
 
+def _is_topic_already_learned(topic: str, learned_topics: list) -> bool:
+    """
+    Check if a topic is already in the learned topics list.
+    Uses fuzzy matching to catch similar topics.
+    """
+    if not topic or not learned_topics:
+        return False
+    
+    topic_lower = topic.lower()
+    
+    for learned in learned_topics:
+        learned_lower = learned.lower()
+        
+        # Exact match
+        if topic_lower == learned_lower:
+            return True
+        
+        # Check if one contains the other (for partial matches)
+        if topic_lower in learned_lower or learned_lower in topic_lower:
+            return True
+        
+        # Extract key terms and check for significant overlap
+        # Remove common words and check core topic
+        common_words = {'quiz', 'targeting', 'the', 'a', 'an', 'of', 'in', 'on', 'for', 'with', 'to'}
+        topic_words = set(topic_lower.split()) - common_words
+        learned_words = set(learned_lower.split()) - common_words
+        
+        if topic_words and learned_words:
+            # Check for significant word overlap (more than 50% of smaller set)
+            overlap = topic_words & learned_words
+            min_words = min(len(topic_words), len(learned_words))
+            if min_words > 0 and len(overlap) / min_words > 0.5:
+                return True
+    
+    return False
+
+
 def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dict:
     """
     Get quiz requirements based on essay errors.
@@ -713,10 +750,15 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
     """
     client = create_client()
     
+    # Ensure learned_topics is a list
+    learned_topics = learned_topics or []
+    
     # Build the prompt with learned topics if any
     prompt = essay_errors
     if learned_topics:
         prompt += "\n\nAlready learned: " + ", ".join(learned_topics)
+    
+    logger.debug(f"[GET_QUIZ_REQUIREMENTS] Learned topics: {learned_topics}")
     
     try:
         response = client.chat.completions.create(
@@ -729,8 +771,11 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
         
         result = response.choices[0].message.content.strip()
         
+        logger.debug(f"[GET_QUIZ_REQUIREMENTS] AI response: {result[:200]}...")
+        
         # Check if all topics completed
         if "<Completed>" in result or "<completed>" in result.lower():
+            logger.info("[GET_QUIZ_REQUIREMENTS] AI returned <Completed>")
             return {
                 "completed": True,
                 "topic": None,
@@ -755,6 +800,20 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
             if numbers:
                 question_count = min(int(numbers[0]), 10)  # Cap at 10
         
+        # SAFETY CHECK: If the AI returns a topic that's already learned, force completion
+        # This prevents infinite loops when the AI doesn't return <Completed>
+        if _is_topic_already_learned(topic, learned_topics):
+            logger.warning(f"[GET_QUIZ_REQUIREMENTS] Topic '{topic}' appears to be already learned. Forcing completion.")
+            return {
+                "completed": True,
+                "topic": None,
+                "question_type": None,
+                "question_count": 0,
+                "raw_response": result + "\n[FORCED COMPLETION: Topic already learned]"
+            }
+        
+        logger.info(f"[GET_QUIZ_REQUIREMENTS] New topic to learn: '{topic}'")
+        
         return {
             "completed": False,
             "topic": topic,
@@ -764,6 +823,7 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
         }
         
     except Exception as e:
+        logger.error(f"[GET_QUIZ_REQUIREMENTS] Error: {str(e)}")
         return {
             "completed": False,
             "topic": f"Error: {str(e)}",
@@ -771,6 +831,141 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
             "question_count": 5,
             "raw_response": str(e)
         }
+
+
+def _parse_quiz_with_backticks(result: str) -> tuple:
+    """
+    Parse quiz using backtick delimiters (original format).
+    Returns (quiz_name, questions_list).
+    """
+    question_blocks = result.split("`")
+    questions = []
+    quiz_name = ""
+    
+    for i, block in enumerate(question_blocks):
+        parts = block.split("~")
+        
+        if i == 0:
+            # First block contains the quiz name
+            quiz_name = parts[0].strip() if len(parts) > 0 else "Quiz"
+            # First block might also have the first question
+            if len(parts) >= 3:
+                questions.append({
+                    "question": parts[1].strip() if len(parts) > 1 else "",
+                    "correct_answer": parts[2].strip() if len(parts) > 2 else ""
+                })
+        else:
+            # Skip empty or malformed blocks
+            if len(parts) < 2:
+                continue
+                
+            # Handle blocks that might start with ~ or have different structures
+            question_text = ""
+            answer_text = ""
+            
+            for j, part in enumerate(parts):
+                part = part.strip()
+                if not part:
+                    continue
+                if not question_text:
+                    question_text = part
+                elif not answer_text:
+                    answer_text = part
+                    break
+            
+            if question_text:
+                questions.append({
+                    "question": question_text,
+                    "correct_answer": answer_text
+                })
+    
+    return quiz_name, questions
+
+
+def _parse_quiz_with_tilde_patterns(result: str) -> tuple:
+    """
+    Fallback parser that looks for ~question~answer patterns throughout the text.
+    Used when backtick parsing yields insufficient questions.
+    """
+    import re
+    
+    # Extract quiz name from the first line
+    lines = result.split('\n')
+    quiz_name = lines[0].strip().replace('~', '').strip() if lines else "Quiz"
+    
+    # Find all ~content~ patterns - questions and answers alternate
+    # Pattern: find content between ~ delimiters
+    parts = result.split('~')
+    
+    questions = []
+    # Skip the first part (quiz name), then process pairs
+    # parts[0] = quiz name, parts[1] = question1, parts[2] = answer1, parts[3] = question2, etc.
+    i = 1
+    while i < len(parts) - 1:
+        question_text = parts[i].strip()
+        answer_text = parts[i + 1].strip() if i + 1 < len(parts) else ""
+        
+        # Clean up answer - might have trailing content from next question
+        # Look for where the next question might start (after a backtick or double newline)
+        if '`' in answer_text:
+            answer_text = answer_text.split('`')[0].strip()
+        
+        # Skip empty questions
+        if question_text and len(question_text) > 5:  # Minimum question length
+            questions.append({
+                "question": question_text,
+                "correct_answer": answer_text
+            })
+        
+        i += 2
+    
+    return quiz_name, questions
+
+
+def _parse_quiz_numbered_format(result: str) -> tuple:
+    """
+    Parse quiz in numbered format (e.g., "1. Question\nAnswer: A\n2. Question...")
+    """
+    import re
+    
+    # Extract quiz name from the first line
+    lines = result.split('\n')
+    quiz_name = lines[0].strip() if lines else "Quiz"
+    # Remove any delimiters from quiz name
+    quiz_name = quiz_name.replace('~', '').replace('`', '').strip()
+    
+    questions = []
+    
+    # Pattern to match numbered questions
+    # Match: number followed by period/parenthesis, then question text
+    question_pattern = re.compile(r'(?:^|\n)\s*(\d+)[.)]\s*(.+?)(?=\n\s*(?:\d+[.)]|Answer|Correct|$))', re.DOTALL | re.IGNORECASE)
+    answer_pattern = re.compile(r'(?:Answer|Correct(?:\s+Answer)?)\s*[:\s]*([A-D]|.+?)(?=\n|$)', re.IGNORECASE)
+    
+    # Try to find question-answer pairs
+    matches = question_pattern.findall(result)
+    
+    for num, q_text in matches:
+        q_text = q_text.strip()
+        if not q_text:
+            continue
+            
+        # Look for answer after this question
+        # Find where this question ends in the original text
+        q_pos = result.find(q_text)
+        if q_pos != -1:
+            remaining = result[q_pos + len(q_text):]
+            answer_match = answer_pattern.search(remaining[:500])  # Look in next 500 chars
+            answer = answer_match.group(1).strip() if answer_match else ""
+        else:
+            answer = ""
+        
+        if len(q_text) > 5:  # Minimum question length
+            questions.append({
+                "question": q_text,
+                "correct_answer": answer
+            })
+    
+    return quiz_name, questions
 
 
 def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_results: str = "") -> dict:
@@ -803,48 +998,32 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         
         result = response.choices[0].message.content.strip()
         
-        # Parse the quiz - questions are separated by `
-        question_blocks = result.split("`")
+        logger.debug(f"[CREATE_QUIZ] Raw AI response:\n{result[:500]}...")
         
-        questions = []
-        quiz_name = ""
+        # Try parsing with backticks first (expected format)
+        quiz_name, questions = _parse_quiz_with_backticks(result)
         
-        for i, block in enumerate(question_blocks):
-            parts = block.split("~")
-            
-            if i == 0:
-                # First block contains the quiz name
-                quiz_name = parts[0].strip() if len(parts) > 0 else "Quiz"
-                # First block might also have the first question
-                if len(parts) >= 3:
-                    questions.append({
-                        "question": parts[1].strip() if len(parts) > 1 else "",
-                        "correct_answer": parts[2].strip() if len(parts) > 2 else ""
-                    })
-            else:
-                # Skip empty or malformed blocks
-                if len(parts) < 2:
-                    continue
-                    
-                # Handle blocks that might start with ~ or have different structures
-                question_text = ""
-                answer_text = ""
-                
-                for j, part in enumerate(parts):
-                    part = part.strip()
-                    if not part:
-                        continue
-                    if not question_text:
-                        question_text = part
-                    elif not answer_text:
-                        answer_text = part
-                        break
-                
-                if question_text:
-                    questions.append({
-                        "question": question_text,
-                        "correct_answer": answer_text
-                    })
+        logger.debug(f"[CREATE_QUIZ] Backtick parsing found {len(questions)} questions")
+        
+        # If we got fewer questions than expected, try fallback parsers
+        if len(questions) < question_count:
+            logger.debug(f"[CREATE_QUIZ] Trying tilde pattern parsing...")
+            alt_name, alt_questions = _parse_quiz_with_tilde_patterns(result)
+            if len(alt_questions) > len(questions):
+                quiz_name = alt_name if alt_name and alt_name != "Quiz" else quiz_name
+                questions = alt_questions
+                logger.debug(f"[CREATE_QUIZ] Tilde parsing found {len(questions)} questions")
+        
+        # If still not enough, try numbered format
+        if len(questions) < question_count:
+            logger.debug(f"[CREATE_QUIZ] Trying numbered format parsing...")
+            alt_name, alt_questions = _parse_quiz_numbered_format(result)
+            if len(alt_questions) > len(questions):
+                quiz_name = alt_name if alt_name and alt_name != "Quiz" else quiz_name
+                questions = alt_questions
+                logger.debug(f"[CREATE_QUIZ] Numbered parsing found {len(questions)} questions")
+        
+        logger.info(f"[CREATE_QUIZ] Final result: {len(questions)} questions parsed for '{quiz_name}'")
         
         return {
             "name": quiz_name,
@@ -853,6 +1032,7 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         }
         
     except Exception as e:
+        logger.error(f"[CREATE_QUIZ] Error: {str(e)}")
         return {
             "name": "Error Quiz",
             "questions": [],
