@@ -76,6 +76,7 @@ function WriteContent() {
     markedEssay: string
     errors: string[]
     problemCount: number
+    forceQuiz: boolean
   } | null>(null)
   
   // Redo state - tracks if user has used their one chance to fix errors
@@ -302,24 +303,16 @@ function WriteContent() {
         const errorCount = reviewResult.problem_count || reviewResult.errors.length
         const forceQuiz = reviewResult.force_quiz || false
         
-        // Skip redo option if:
-        // 1. This was already a redo submission
-        // 2. More than 5 errors
-        // 3. AI detected 3+ errors of the same type (force_quiz flag)
-        if (isRedoMode || errorCount > 5 || forceQuiz) {
-          setIsReviewingEssay(false)
-          router.push('/quiz')
-        } else {
-          // First submission with few errors - show marked essay with errors highlighted
-          setMarkedEssayData({
-            markedEssay: reviewResult.marked_essay || essayText,
-            errors: reviewResult.errors,
-            problemCount: errorCount
-          })
-          setOriginalErrors(reviewResult.errors)
-          setIsReviewingEssay(false)
-          setShowMarkedEssay(true)
-        }
+        // ALWAYS show the review screen - never skip directly to quiz
+        setMarkedEssayData({
+          markedEssay: reviewResult.marked_essay || essayText,
+          errors: reviewResult.errors,
+          problemCount: errorCount,
+          forceQuiz: forceQuiz
+        })
+        setOriginalErrors(reviewResult.errors)
+        setIsReviewingEssay(false)
+        setShowMarkedEssay(true)
       }
     } catch (err) {
       console.error('Failed to submit:', err)
@@ -401,12 +394,15 @@ function WriteContent() {
 
   // Show marked essay with errors highlighted
   if (showMarkedEssay && markedEssayData) {
+    // Can only redo if: haven't used redo chance, not force_quiz, and 2 or fewer errors
+    const canRedo = !hasUsedRedoChance && !markedEssayData.forceQuiz && markedEssayData.problemCount <= 2
+    
     return (
       <MarkedEssay
         markedEssay={markedEssayData.markedEssay}
         errors={markedEssayData.errors}
         problemCount={markedEssayData.problemCount}
-        canRedo={!hasUsedRedoChance}
+        canRedo={canRedo}
         onContinue={handleContinueToQuiz}
         onRedo={handleRedo}
       />

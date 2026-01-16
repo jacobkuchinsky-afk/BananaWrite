@@ -55,8 +55,8 @@ export default function MarkedEssay({
 
   const parsedErrors = parseErrors(errors)
 
-  // User can fix errors if there are fewer than 5 problems and they haven't used their redo chance
-  const showRedoOption = canRedo && problemCount < 5 && onRedo
+  // User can fix errors if there are 2 or fewer problems and they haven't used their redo chance
+  const showRedoOption = canRedo && problemCount <= 2 && onRedo
 
   return (
     <div className={styles.markedEssayOverlay}>
