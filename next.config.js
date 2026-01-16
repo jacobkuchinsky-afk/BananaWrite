@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// BananaWrite Config
 const nextConfig = {
   reactStrictMode: true,
   images: {
