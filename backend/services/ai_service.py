@@ -1115,13 +1115,6 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
     """
     client = create_client()
     
-    # #region agent log
-    import json
-    LOG_PATH = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    with open(LOG_PATH, "a") as f:
-        f.write(json.dumps({"location": "ai_service.py:get_teacher_feedback", "message": "Function called", "data": {"grades_feedback_len": len(grades_feedback) if grades_feedback else 0, "answers_provided": bool(answers), "answers_count": len(answers) if answers else 0}, "timestamp": __import__("time").time() * 1000, "sessionId": "debug-session", "hypothesisId": "H3"}) + "\n")
-    # #endregion
-    
     # Build rich context if answers are provided
     user_content = grades_feedback
     if answers and len(answers) > 0:
@@ -1135,11 +1128,6 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
             )
         
         user_content = "GRADING RESULTS:\n" + grades_feedback + "\n\nFULL QUESTION CONTEXT:\n" + "\n---\n".join(question_context)
-        
-        # #region agent log
-        with open(LOG_PATH, "a") as f:
-            f.write(json.dumps({"location": "ai_service.py:get_teacher_feedback", "message": "Built rich context", "data": {"user_content_preview": user_content[:500]}, "timestamp": __import__("time").time() * 1000, "sessionId": "debug-session", "hypothesisId": "H3-fix"}) + "\n")
-        # #endregion
     
     try:
         response = client.chat.completions.create(
