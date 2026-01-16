@@ -299,7 +299,8 @@ def get_teacher_feedback_endpoint():
     
     Request body:
         {
-            "grades_feedback": "The grading feedback string..."
+            "grades_feedback": "The grading feedback string...",
+            "answers": [{"user_answer": "B", "question": "...", "correct_answer": "A"}, ...]  // optional but recommended
         }
     
     Response:
@@ -314,11 +315,19 @@ def get_teacher_feedback_endpoint():
         return jsonify({"error": "No data provided"}), 400
     
     grades_feedback = data.get('grades_feedback')
+    answers = data.get('answers', [])  # Full question/answer context
+    
+    # #region agent log
+    import json
+    LOG_PATH = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
+    with open(LOG_PATH, "a") as f:
+        f.write(json.dumps({"location": "prompt.py:get_teacher_feedback_endpoint", "message": "Received request", "data": {"has_grades_feedback": bool(grades_feedback), "grades_feedback_preview": grades_feedback[:200] if grades_feedback else None, "answers_count": len(answers), "answers_sample": answers[:2] if answers else None}, "timestamp": __import__("time").time() * 1000, "sessionId": "debug-session", "hypothesisId": "H1-H2"}) + "\n")
+    # #endregion
     
     if not grades_feedback:
         return jsonify({"error": "No grades feedback provided"}), 400
     
-    result = get_teacher_feedback(grades_feedback)
+    result = get_teacher_feedback(grades_feedback, answers)
     return jsonify(result)
 
 

@@ -1102,24 +1102,51 @@ def grade_quiz(answers: list) -> dict:
         }
 
 
-def get_teacher_feedback(grades_feedback: str) -> dict:
+def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
     """
     Get detailed teacher feedback for wrong answers.
     
     Args:
         grades_feedback: The grading feedback from grade_quiz
+        answers: Optional list of answer dicts with 'user_answer', 'question', 'correct_answer'
     
     Returns:
         dict: Contains 'explanations' (list of str), 'memory_hooks' (list of str)
     """
     client = create_client()
     
+    # #region agent log
+    import json
+    LOG_PATH = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
+    with open(LOG_PATH, "a") as f:
+        f.write(json.dumps({"location": "ai_service.py:get_teacher_feedback", "message": "Function called", "data": {"grades_feedback_len": len(grades_feedback) if grades_feedback else 0, "answers_provided": bool(answers), "answers_count": len(answers) if answers else 0}, "timestamp": __import__("time").time() * 1000, "sessionId": "debug-session", "hypothesisId": "H3"}) + "\n")
+    # #endregion
+    
+    # Build rich context if answers are provided
+    user_content = grades_feedback
+    if answers and len(answers) > 0:
+        # Build context with full question data for each wrong answer
+        question_context = []
+        for i, a in enumerate(answers):
+            question_context.append(
+                f"Q{i+1}: {a.get('question', 'N/A')}\n"
+                f"User answered: {a.get('user_answer', 'N/A')}\n"
+                f"Correct answer: {a.get('correct_answer', 'N/A')}"
+            )
+        
+        user_content = "GRADING RESULTS:\n" + grades_feedback + "\n\nFULL QUESTION CONTEXT:\n" + "\n---\n".join(question_context)
+        
+        # #region agent log
+        with open(LOG_PATH, "a") as f:
+            f.write(json.dumps({"location": "ai_service.py:get_teacher_feedback", "message": "Built rich context", "data": {"user_content_preview": user_content[:500]}, "timestamp": __import__("time").time() * 1000, "sessionId": "debug-session", "hypothesisId": "H3-fix"}) + "\n")
+        # #endregion
+    
     try:
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
                 {"role": "system", "content": TEACHER_PROMPT},
-                {"role": "user", "content": grades_feedback}
+                {"role": "user", "content": user_content}
             ]
         )
         

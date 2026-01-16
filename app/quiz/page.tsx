@@ -352,11 +352,23 @@ function QuizContent() {
     setPhase('generating_feedback')
     
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/bb7a8b6e-715e-4966-9c81-1b3632d1e02b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'quiz/page.tsx:getTeacherFeedbackAction',message:'Preparing teacher feedback request',data:{hasUserAnswers:!!quizSession.userAnswers,userAnswersCount:quizSession.userAnswers?.length,feedbackPreview:quizSession.quizResults.feedback?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1-H4'})}).catch(()=>{});
+      // #endregion
+      
+      // Build full answers array with question context for the teacher
+      const answersWithContext = quizSession.userAnswers?.map(a => ({
+        user_answer: a.userAnswer,
+        question: a.question,
+        correct_answer: a.correctAnswer
+      })) || []
+      
       const response = await fetch(`${FLASK_API_URL}/api/get-teacher-feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          grades_feedback: quizSession.quizResults.feedback
+          grades_feedback: quizSession.quizResults.feedback,
+          answers: answersWithContext  // Pass full question context
         })
       })
       
