@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
-import { CrazinessSelector, FocusSelector } from '@/components/Setup'
+import { CrazinessSelector, FocusSelector, EssayTypeSelector } from '@/components/Setup'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import { getUserSettings, updateUserSettings } from '@/lib/firestore'
-import { CrazinessLevel, FocusTopic, UserSettings } from '@/types'
+import { CrazinessLevel, FocusTopic, EssayType, UserSettings } from '@/types'
 import styles from '@/components/Settings/Settings.module.css'
 
 function SettingsContent() {
@@ -25,8 +25,10 @@ function SettingsContent() {
   const [settings, setSettings] = useState<UserSettings | null>(null)
   const [editingCraziness, setEditingCraziness] = useState(false)
   const [editingFocus, setEditingFocus] = useState(false)
+  const [editingEssayType, setEditingEssayType] = useState(false)
   const [tempCraziness, setTempCraziness] = useState<CrazinessLevel | null>(null)
   const [tempFocus, setTempFocus] = useState<FocusTopic | null>(null)
+  const [tempEssayType, setTempEssayType] = useState<EssayType | null>(null)
   const [savingSettings, setSavingSettings] = useState(false)
 
   // Fetch settings on mount
@@ -84,11 +86,16 @@ function SettingsContent() {
     setEditingFocus(true)
   }
 
+  const handleEditEssayType = () => {
+    setTempEssayType(settings?.essayType || null)
+    setEditingEssayType(true)
+  }
+
   const handleSaveCraziness = async () => {
     if (!user || !tempCraziness || !settings) return
     setSavingSettings(true)
     try {
-      await updateUserSettings(user.uid, tempCraziness, settings.focus)
+      await updateUserSettings(user.uid, tempCraziness, settings.focus, settings.essayType)
       setSettings({ ...settings, craziness: tempCraziness })
       setEditingCraziness(false)
     } catch (error) {
@@ -102,11 +109,25 @@ function SettingsContent() {
     if (!user || !tempFocus || !settings) return
     setSavingSettings(true)
     try {
-      await updateUserSettings(user.uid, settings.craziness, tempFocus)
+      await updateUserSettings(user.uid, settings.craziness, tempFocus, settings.essayType)
       setSettings({ ...settings, focus: tempFocus })
       setEditingFocus(false)
     } catch (error) {
       console.error('Error saving focus:', error)
+    } finally {
+      setSavingSettings(false)
+    }
+  }
+
+  const handleSaveEssayType = async () => {
+    if (!user || !tempEssayType || !settings) return
+    setSavingSettings(true)
+    try {
+      await updateUserSettings(user.uid, settings.craziness, settings.focus, tempEssayType)
+      setSettings({ ...settings, essayType: tempEssayType })
+      setEditingEssayType(false)
+    } catch (error) {
+      console.error('Error saving essay type:', error)
     } finally {
       setSavingSettings(false)
     }
@@ -256,6 +277,43 @@ function SettingsContent() {
                   onClick={handleEditFocus}
                 >
                   <span>{settings?.focus || 'Not set'}</span>
+                  <span className={styles.editHint}>Click to change</span>
+                </button>
+              )}
+            </div>
+
+            {/* Essay Type Setting */}
+            <div className={styles.preferenceItem}>
+              <div className={styles.preferenceLabel}>Essay Type</div>
+              {editingEssayType ? (
+                <div className={styles.preferenceEditor}>
+                  <EssayTypeSelector 
+                    value={tempEssayType} 
+                    onChange={setTempEssayType} 
+                  />
+                  <div className={styles.editorActions}>
+                    <button
+                      className={styles.cancelButton}
+                      onClick={() => setEditingEssayType(false)}
+                      disabled={savingSettings}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className={styles.saveButton}
+                      onClick={handleSaveEssayType}
+                      disabled={!tempEssayType || savingSettings}
+                    >
+                      {savingSettings ? <span className={styles.spinner} /> : 'Save'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  className={styles.preferenceValue}
+                  onClick={handleEditEssayType}
+                >
+                  <span>{settings?.essayType || 'Not set'}</span>
                   <span className={styles.editHint}>Click to change</span>
                 </button>
               )}

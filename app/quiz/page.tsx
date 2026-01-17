@@ -772,7 +772,7 @@ function QuizContent() {
 
 export default function QuizPage() {
   return (
-    <ProtectedRoute requireSetup={false}>
+    <ProtectedRoute requireSetup={true}>
       <QuizContent />
     </ProtectedRoute>
   )

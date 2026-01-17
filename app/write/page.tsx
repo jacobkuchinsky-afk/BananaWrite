@@ -605,7 +605,7 @@ function WriteContent() {
 
 export default function WritePage() {
   return (
-    <ProtectedRoute requireSetup={false}>
+    <ProtectedRoute requireSetup={true}>
       <WriteContent />
     </ProtectedRoute>
   )

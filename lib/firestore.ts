@@ -30,7 +30,8 @@ import {
   UserSettings,
   DEFAULT_USER_SETTINGS,
   CrazinessLevel,
-  FocusTopic
+  FocusTopic,
+  EssayType
 } from '@/types'
 
 // Collection paths
@@ -474,18 +475,20 @@ export async function getUserSettings(userId: string): Promise<UserSettings | nu
 }
 
 /**
- * Update user's craziness and focus settings
+ * Update user's craziness, focus, and essay type settings
  */
 export async function updateUserSettings(
   userId: string,
   craziness: CrazinessLevel,
-  focus: FocusTopic
+  focus: FocusTopic,
+  essayType: EssayType
 ): Promise<void> {
   const settingsRef = getSettingsDocRef(userId)
   
   await updateDoc(settingsRef, {
     craziness,
     focus,
+    essayType,
     setupComplete: true
   })
 }
@@ -496,13 +499,15 @@ export async function updateUserSettings(
 export async function completeUserSetup(
   userId: string,
   craziness: CrazinessLevel,
-  focus: FocusTopic
+  focus: FocusTopic,
+  essayType: EssayType
 ): Promise<void> {
   const settingsRef = getSettingsDocRef(userId)
   
   await setDoc(settingsRef, {
     craziness,
     focus,
+    essayType,
     setupComplete: true
   })
 }

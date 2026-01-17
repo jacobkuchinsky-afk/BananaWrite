@@ -337,10 +337,19 @@ export const FOCUS_OPTIONS = [
 
 export type FocusTopic = typeof FOCUS_OPTIONS[number]
 
+// Essay type options - Fiction vs Non-Fiction
+export const ESSAY_TYPE_OPTIONS = [
+  'Fiction',
+  'Non-Fiction'
+] as const
+
+export type EssayType = typeof ESSAY_TYPE_OPTIONS[number]
+
 // User settings interface
 export interface UserSettings {
   craziness: CrazinessLevel
   focus: FocusTopic
+  essayType: EssayType
   setupComplete: boolean
 }
 
@@ -348,6 +357,7 @@ export interface UserSettings {
 export const DEFAULT_USER_SETTINGS: UserSettings = {
   craziness: 'Engaging',
   focus: 'Technology',
+  essayType: 'Non-Fiction',
   setupComplete: false
 }
 

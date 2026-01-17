@@ -167,7 +167,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute requireSetup={false}>
+    <ProtectedRoute requireSetup={true}>
       <DashboardContent />
     </ProtectedRoute>
   )

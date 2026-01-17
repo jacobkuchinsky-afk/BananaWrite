@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { CrazinessSelector, FocusSelector } from '@/components/Setup'
+import { CrazinessSelector, FocusSelector, EssayTypeSelector } from '@/components/Setup'
 import { completeUserSetup, getUserSettings } from '@/lib/firestore'
-import { CrazinessLevel, FocusTopic } from '@/types'
+import { CrazinessLevel, FocusTopic, EssayType } from '@/types'
 import styles from '@/components/Setup/Setup.module.css'
 
-type SetupStep = 'craziness' | 'focus'
+type SetupStep = 'craziness' | 'focus' | 'essayType'
 
 export default function SetupPage() {
   const { user, loading: authLoading } = useAuth()
@@ -17,6 +17,7 @@ export default function SetupPage() {
   const [step, setStep] = useState<SetupStep>('craziness')
   const [craziness, setCraziness] = useState<CrazinessLevel | null>(null)
   const [focus, setFocus] = useState<FocusTopic | null>(null)
+  const [essayType, setEssayType] = useState<EssayType | null>(null)
   const [saving, setSaving] = useState(false)
   const [checkingSetup, setCheckingSetup] = useState(true)
 
@@ -50,10 +51,12 @@ export default function SetupPage() {
   const handleContinue = async () => {
     if (step === 'craziness' && craziness) {
       setStep('focus')
-    } else if (step === 'focus' && focus && craziness && user) {
+    } else if (step === 'focus' && focus) {
+      setStep('essayType')
+    } else if (step === 'essayType' && essayType && craziness && focus && user) {
       setSaving(true)
       try {
-        await completeUserSetup(user.uid, craziness, focus)
+        await completeUserSetup(user.uid, craziness, focus, essayType)
         router.push('/dashboard')
       } catch (error) {
         console.error('Error saving settings:', error)
@@ -65,10 +68,15 @@ export default function SetupPage() {
   const handleBack = () => {
     if (step === 'focus') {
       setStep('craziness')
+    } else if (step === 'essayType') {
+      setStep('focus')
     }
   }
 
-  const canContinue = step === 'craziness' ? !!craziness : !!focus
+  const canContinue = 
+    step === 'craziness' ? !!craziness : 
+    step === 'focus' ? !!focus : 
+    !!essayType
 
   // Loading states
   if (authLoading || checkingSetup) {
@@ -89,7 +97,8 @@ export default function SetupPage() {
         {/* Step Indicator */}
         <div className={styles.stepIndicator}>
           <div className={`${styles.stepDot} ${step === 'craziness' ? styles.active : styles.completed}`} />
-          <div className={`${styles.stepDot} ${step === 'focus' ? styles.active : ''}`} />
+          <div className={`${styles.stepDot} ${step === 'focus' ? styles.active : step === 'essayType' ? styles.completed : ''}`} />
+          <div className={`${styles.stepDot} ${step === 'essayType' ? styles.active : ''}`} />
         </div>
 
         {/* Header */}
@@ -101,11 +110,18 @@ export default function SetupPage() {
                 Choose the level of creativity and unexpectedness for your essay prompts
               </p>
             </>
-          ) : (
+          ) : step === 'focus' ? (
             <>
               <h1 className={styles.setupTitle}>What topics interest you?</h1>
               <p className={styles.setupSubtitle}>
                 Pick a focus area for your writing prompts
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className={styles.setupTitle}>What type of essays do you prefer?</h1>
+              <p className={styles.setupSubtitle}>
+                Choose between creative fiction or factual non-fiction writing
               </p>
             </>
           )}
@@ -114,13 +130,15 @@ export default function SetupPage() {
         {/* Content */}
         {step === 'craziness' ? (
           <CrazinessSelector value={craziness} onChange={setCraziness} />
-        ) : (
+        ) : step === 'focus' ? (
           <FocusSelector value={focus} onChange={setFocus} />
+        ) : (
+          <EssayTypeSelector value={essayType} onChange={setEssayType} />
         )}
 
         {/* Actions */}
         <div className={styles.setupActions}>
-          {step === 'focus' && (
+          {(step === 'focus' || step === 'essayType') && (
             <button
               type="button"
               className={styles.backButton}
@@ -138,7 +156,7 @@ export default function SetupPage() {
           >
             {saving ? (
               <span className={styles.spinner} />
-            ) : step === 'focus' ? (
+            ) : step === 'essayType' ? (
               'Get Started'
             ) : (
               'Continue'
