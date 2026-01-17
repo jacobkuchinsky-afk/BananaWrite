@@ -103,9 +103,10 @@
 
 /* ============================================
    1. BUTTON STYLES
+   Soft blurry shadows, no text distortion
    ============================================ */
 
-/* Primary Button - Dark fill with 3D effect */
+/* Primary Button - Dark fill with soft 3D effect */
 .sketchyButtonPrimary {
   display: inline-flex;
   align-items: center;
@@ -122,23 +123,24 @@
   transition: all 0.1s ease;
   border-radius: 50px;
   box-shadow: 
-    0 6px 0 0 #000000,
-    0 8px 15px rgba(0, 0, 0, 0.2);
-  filter: url(#sketchy-filter);
+    0 6px 0 0 rgba(0, 0, 0, 0.8),
+    0 6px 20px rgba(0, 0, 0, 0.25),
+    0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .sketchyButtonPrimary:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 0 0 #000000,
-    0 10px 20px rgba(0, 0, 0, 0.25);
+    0 8px 0 0 rgba(0, 0, 0, 0.8),
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    0 12px 35px rgba(0, 0, 0, 0.2);
 }
 
 .sketchyButtonPrimary:active {
   transform: translateY(4px);
   box-shadow: 
-    0 2px 0 0 #000000,
-    0 3px 8px rgba(0, 0, 0, 0.15);
+    0 2px 0 0 rgba(0, 0, 0, 0.8),
+    0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Large CTA Button - Like Start Lesson */
@@ -160,23 +162,24 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease;
   border-radius: 16px;
   box-shadow: 
-    0 8px 0 0 #000000,
-    0 10px 20px rgba(0, 0, 0, 0.3);
-  filter: url(#sketchy-filter);
+    0 8px 0 0 rgba(0, 0, 0, 0.85),
+    0 8px 25px rgba(0, 0, 0, 0.3),
+    0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
 .sketchyButton:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 10px 0 0 #000000,
-    0 12px 25px rgba(0, 0, 0, 0.35);
+    0 10px 0 0 rgba(0, 0, 0, 0.85),
+    0 10px 30px rgba(0, 0, 0, 0.35),
+    0 18px 45px rgba(0, 0, 0, 0.2);
 }
 
 .sketchyButton:active {
   transform: translateY(6px);
   box-shadow: 
-    0 2px 0 0 #000000,
-    0 4px 10px rgba(0, 0, 0, 0.2);
+    0 2px 0 0 rgba(0, 0, 0, 0.85),
+    0 4px 15px rgba(0, 0, 0, 0.25);
 }
 
 .sketchyButtonText {
@@ -191,7 +194,7 @@
   font-weight: 400;
 }
 
-/* Outline Button with 3D effect */
+/* Outline Button with soft 3D effect */
 .sketchyButtonOutline {
   position: relative;
   display: inline-flex;
@@ -208,23 +211,24 @@
   transition: all 0.1s ease;
   border-radius: 12px;
   box-shadow: 
-    0 5px 0 0 #1a1a1a,
-    0 7px 15px rgba(0, 0, 0, 0.15);
-  filter: url(#sketchy-filter);
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 15px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .sketchyButtonOutline:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 7px 0 0 #1a1a1a,
-    0 9px 20px rgba(0, 0, 0, 0.2);
+    0 7px 0 0 rgba(26, 26, 26, 0.9),
+    0 7px 20px rgba(0, 0, 0, 0.2),
+    0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
 .sketchyButtonOutline:active {
   transform: translateY(4px);
   box-shadow: 
-    0 1px 0 0 #1a1a1a,
-    0 2px 8px rgba(0, 0, 0, 0.1);
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Pill Button - Small settings/email style */
@@ -244,23 +248,24 @@
   transition: all 0.1s ease;
   border-radius: 50px;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
-    0 6px 12px rgba(0, 0, 0, 0.15);
-  filter: url(#sketchy-filter);
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .sketchyPillButton:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 #1a1a1a,
-    0 8px 15px rgba(0, 0, 0, 0.2);
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 15px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .sketchyPillButton:active {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 #1a1a1a,
-    0 2px 5px rgba(0, 0, 0, 0.1);
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* Icon Button */
@@ -278,23 +283,24 @@
   transition: all 0.1s ease;
   border-radius: 12px;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
-    0 5px 10px rgba(0, 0, 0, 0.15);
-  filter: url(#sketchy-filter);
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .sketchyIconButton:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 #1a1a1a,
-    0 7px 12px rgba(0, 0, 0, 0.2);
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 15px rgba(0, 0, 0, 0.15),
+    0 8px 22px rgba(0, 0, 0, 0.1);
 }
 
 .sketchyIconButton:active {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 #1a1a1a,
-    0 2px 5px rgba(0, 0, 0, 0.1);
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* Google Sign-In Button */
@@ -314,23 +320,24 @@
   transition: all 0.1s ease;
   border-radius: 50px;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
-    0 6px 12px rgba(0, 0, 0, 0.15);
-  filter: url(#sketchy-filter);
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .sketchyGoogleButton:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 #1a1a1a,
-    0 8px 15px rgba(0, 0, 0, 0.2);
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 15px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .sketchyGoogleButton:active {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 #1a1a1a,
-    0 2px 5px rgba(0, 0, 0, 0.1);
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .googleIcon {
@@ -340,6 +347,7 @@
 
 /* ============================================
    2. TEXT INPUT STYLES
+   Soft shadows, no text distortion
    ============================================ */
 
 /* Standard Text Input */
@@ -356,9 +364,9 @@
   outline: none;
   transition: all 0.2s ease;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  filter: url(#sketchy-filter);
 }
 
 .sketchyInput::placeholder {
@@ -367,7 +375,8 @@
 
 .sketchyInput:focus {
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05),
     0 0 0 3px rgba(26, 26, 26, 0.1);
 }
@@ -401,9 +410,9 @@
   outline: none;
   transition: all 0.2s ease;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  filter: url(#sketchy-filter);
 }
 
 .sketchySearchInput::placeholder {
@@ -412,7 +421,8 @@
 
 .sketchySearchInput:focus {
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05),
     0 0 0 3px rgba(26, 26, 26, 0.1);
 }
@@ -433,9 +443,9 @@
   resize: vertical;
   transition: all 0.2s ease;
   box-shadow: 
-    0 5px 0 0 #1a1a1a,
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 18px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  filter: url(#sketchy-filter);
 }
 
 .sketchyTextarea::placeholder {
@@ -444,7 +454,8 @@
 
 .sketchyTextarea:focus {
   box-shadow: 
-    0 5px 0 0 #1a1a1a,
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 18px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05),
     0 0 0 3px rgba(26, 26, 26, 0.1);
 }
@@ -462,9 +473,9 @@
   border-radius: 50px;
   overflow: hidden;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  filter: url(#sketchy-filter);
 }
 
 .sketchyProgressFill {
@@ -497,6 +508,7 @@
 
 /* ============================================
    4. SELECTION COMPONENTS
+   Soft shadows, no text distortion
    ============================================ */
 
 /* Grid Option Card (like craziness selector) */
@@ -514,16 +526,17 @@
   text-align: center;
   min-height: 100px;
   box-shadow: 
-    0 5px 0 0 #1a1a1a,
-    0 6px 12px rgba(0, 0, 0, 0.1);
-  filter: url(#sketchy-filter);
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
 .sketchyOptionCard:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 7px 0 0 #1a1a1a,
-    0 8px 15px rgba(0, 0, 0, 0.15);
+    0 7px 0 0 rgba(26, 26, 26, 0.9),
+    0 7px 20px rgba(0, 0, 0, 0.12),
+    0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .sketchyOptionCard.selected {
@@ -531,8 +544,8 @@
   color: #ffffff;
   transform: translateY(3px);
   box-shadow: 
-    0 2px 0 0 #000000,
-    0 3px 8px rgba(0, 0, 0, 0.2);
+    0 2px 0 0 rgba(0, 0, 0, 0.9),
+    0 3px 12px rgba(0, 0, 0, 0.2);
 }
 
 .sketchyOptionIcon {
@@ -561,16 +574,17 @@
   font-weight: 500;
   transition: all 0.1s ease;
   box-shadow: 
-    0 3px 0 0 #1a1a1a,
-    0 4px 8px rgba(0, 0, 0, 0.1);
-  filter: url(#sketchy-filter);
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08),
+    0 5px 18px rgba(0, 0, 0, 0.05);
 }
 
 .sketchyPillToggle:hover {
   transform: translateY(-1px);
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
-    0 5px 10px rgba(0, 0, 0, 0.15);
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .sketchyPillToggle.selected {
@@ -578,8 +592,8 @@
   color: #ffffff;
   transform: translateY(2px);
   box-shadow: 
-    0 1px 0 0 #000000,
-    0 2px 5px rgba(0, 0, 0, 0.15);
+    0 1px 0 0 rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Quiz Option Button */
@@ -599,16 +613,17 @@
   text-align: left;
   transition: all 0.1s ease;
   box-shadow: 
-    0 4px 0 0 #1a1a1a,
-    0 5px 12px rgba(0, 0, 0, 0.1);
-  filter: url(#sketchy-filter);
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    0 6px 22px rgba(0, 0, 0, 0.05);
 }
 
 .sketchyQuizOption:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 #1a1a1a,
-    0 7px 15px rgba(0, 0, 0, 0.15);
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 18px rgba(0, 0, 0, 0.12),
+    0 8px 28px rgba(0, 0, 0, 0.08);
 }
 
 .sketchyQuizOption.selected {
@@ -616,8 +631,8 @@
   color: #ffffff;
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 #000000,
-    0 2px 6px rgba(0, 0, 0, 0.2);
+    0 1px 0 0 rgba(0, 0, 0, 0.9),
+    0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .sketchyQuizLetter {
@@ -640,6 +655,7 @@
 
 /* ============================================
    5. CARD STYLES
+   Soft shadows, no text distortion
    ============================================ */
 
 /* Auth Card */
@@ -651,9 +667,9 @@
   border-radius: 24px;
   padding: 2rem;
   box-shadow: 
-    0 8px 0 0 #1a1a1a,
-    0 10px 25px rgba(0, 0, 0, 0.15);
-  filter: url(#sketchy-filter);
+    0 8px 0 0 rgba(26, 26, 26, 0.9),
+    0 8px 25px rgba(0, 0, 0, 0.12),
+    0 15px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* Content Card (prompt/question style) */
@@ -664,9 +680,9 @@
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 
-    0 5px 0 0 #1a1a1a,
-    0 6px 15px rgba(0, 0, 0, 0.1);
-  filter: url(#sketchy-filter);
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 18px rgba(0, 0, 0, 0.1),
+    0 8px 30px rgba(0, 0, 0, 0.05);
 }
 
 .sketchyContentLabel {
@@ -692,9 +708,9 @@
   border-radius: 20px;
   padding: 1.5rem;
   box-shadow: 
-    0 5px 0 0 #ca8a04,
-    0 6px 15px rgba(202, 138, 4, 0.2);
-  filter: url(#sketchy-filter);
+    0 5px 0 0 rgba(202, 138, 4, 0.9),
+    0 5px 18px rgba(202, 138, 4, 0.15),
+    0 8px 30px rgba(202, 138, 4, 0.08);
 }
 
 .sketchyFeedbackTitle {
@@ -721,9 +737,9 @@
   border-radius: 20px;
   padding: 1.5rem;
   box-shadow: 
-    0 5px 0 0 #16a34a,
-    0 6px 15px rgba(22, 163, 74, 0.2);
-  filter: url(#sketchy-filter);
+    0 5px 0 0 rgba(22, 163, 74, 0.9),
+    0 5px 18px rgba(22, 163, 74, 0.15),
+    0 8px 30px rgba(22, 163, 74, 0.08);
 }
 
 .sketchySuccessTitle {
@@ -744,6 +760,7 @@
 
 /* ============================================
    6. BADGES & PILLS
+   Soft shadows
    ============================================ */
 
 /* Skill Badge */
@@ -757,8 +774,9 @@
   font-size: 0.75rem;
   font-weight: 600;
   color: #1a1a1a;
-  box-shadow: 0 2px 0 0 #1a1a1a;
-  filter: url(#sketchy-filter);
+  box-shadow: 
+    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* XP Badge */
@@ -773,8 +791,9 @@
   font-size: 1rem;
   font-weight: 700;
   color: #d97706;
-  box-shadow: 0 3px 0 0 #f59e0b;
-  filter: url(#sketchy-filter);
+  box-shadow: 
+    0 3px 0 0 rgba(245, 158, 11, 0.9),
+    0 3px 12px rgba(245, 158, 11, 0.2);
 }
 
 /* Notification Badge */
@@ -791,11 +810,14 @@
   font-size: 0.75rem;
   font-weight: 700;
   color: #ffffff;
-  box-shadow: 0 2px 0 0 #16a34a;
+  box-shadow: 
+    0 2px 0 0 rgba(22, 163, 74, 0.9),
+    0 2px 8px rgba(22, 163, 74, 0.3);
 }
 
 /* ============================================
    7. MESSAGE BOXES
+   Soft blurry shadows, no text distortion
    ============================================ */
 
 /* Error Message */
@@ -807,8 +829,10 @@
   border-radius: 12px;
   font-size: 0.9375rem;
   color: #dc2626;
-  box-shadow: 0 4px 0 0 #ef4444;
-  filter: url(#sketchy-filter);
+  box-shadow: 
+    0 4px 0 0 rgba(239, 68, 68, 0.85),
+    0 4px 15px rgba(239, 68, 68, 0.2),
+    0 6px 25px rgba(239, 68, 68, 0.1);
 }
 
 /* Success Message */
@@ -820,8 +844,10 @@
   border-radius: 12px;
   font-size: 0.9375rem;
   color: #16a34a;
-  box-shadow: 0 4px 0 0 #22c55e;
-  filter: url(#sketchy-filter);
+  box-shadow: 
+    0 4px 0 0 rgba(34, 197, 94, 0.85),
+    0 4px 15px rgba(34, 197, 94, 0.2),
+    0 6px 25px rgba(34, 197, 94, 0.1);
 }
 
 /* Warning Banner */
@@ -833,8 +859,10 @@
   border-radius: 12px;
   font-size: 0.9375rem;
   color: #92400e;
-  box-shadow: 0 4px 0 0 #f59e0b;
-  filter: url(#sketchy-filter);
+  box-shadow: 
+    0 4px 0 0 rgba(245, 158, 11, 0.85),
+    0 4px 15px rgba(245, 158, 11, 0.2),
+    0 6px 25px rgba(245, 158, 11, 0.1);
 }
 
 /* ============================================
@@ -860,9 +888,9 @@
   outline: none;
   cursor: pointer;
   box-shadow: 
-    0 3px 0 0 #1a1a1a,
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 12px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  filter: url(#sketchy-filter);
 }
 
 .sketchySlider::-webkit-slider-thumb {
@@ -873,7 +901,9 @@
   background: #1a1a1a;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 3px 0 0 #000000;
+  box-shadow: 
+    0 3px 0 0 rgba(0, 0, 0, 0.8),
+    0 3px 10px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease;
 }
 
@@ -888,7 +918,9 @@
   border-radius: 50%;
   cursor: pointer;
   border: none;
-  box-shadow: 0 3px 0 0 #000000;
+  box-shadow: 
+    0 3px 0 0 rgba(0, 0, 0, 0.8),
+    0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .sketchySliderValue {
@@ -915,7 +947,9 @@
   border: 2px solid #1a1a1a;
   border-radius: 50%;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 0 0 #1a1a1a;
+  box-shadow: 
+    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .sketchyStepDot.active {
@@ -926,7 +960,9 @@
 .sketchyStepDot.completed {
   background-color: #22c55e;
   border-color: #16a34a;
-  box-shadow: 0 2px 0 0 #16a34a;
+  box-shadow: 
+    0 2px 0 0 rgba(22, 163, 74, 0.9),
+    0 2px 6px rgba(22, 163, 74, 0.2);
 }
 
 /* Hidden SVG for filters */

@@ -12,27 +12,6 @@ export default function UITestingPage() {
 
   return (
     <div className={styles.testingPage}>
-      {/* SVG Filters for sketchy hand-drawn effect */}
-      <svg className={styles.svgFilters} xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="sketchy-filter" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence 
-              type="fractalNoise" 
-              baseFrequency="0.04" 
-              numOctaves="3" 
-              result="noise"
-            />
-            <feDisplacementMap 
-              in="SourceGraphic" 
-              in2="noise" 
-              scale="2" 
-              xChannelSelector="R" 
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
       <header>
         <h1 className={styles.pageTitle}>UI Component Showcase</h1>
         <p className={styles.pageSubtitle}>Sketchy 3D Hand-Drawn Style</p>
