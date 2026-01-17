@@ -1,6 +1,6 @@
 ﻿'use client'
 
-// Admin Control Panel for BananaWrite
+// Admin Dashboard for BananaWrite
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
