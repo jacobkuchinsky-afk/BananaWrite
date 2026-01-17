@@ -1,0 +1,233 @@
+/* UI Testing - Sketchy Hand-Drawn Button Styles */
+
+.testingPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #fafafa;
+  gap: 3rem;
+}
+
+.pageTitle {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.pageSubtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+  width: 100%;
+  text-align: center;
+}
+
+/* ============================================
+   SKETCHY BUTTON STYLES
+   Hand-drawn/marker aesthetic
+   ============================================ */
+
+.sketchyButton {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 280px;
+  min-height: 140px;
+  padding: 1.5rem 3rem;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-family: 'Patrick Hand', 'Caveat', cursive, var(--font-body);
+  transition: transform 0.1s ease;
+  
+  /* Rough, hand-drawn border radius - slightly uneven */
+  border-radius: 12px 14px 10px 16px;
+  
+  /* Multiple layered shadows create rough/sketchy edges */
+  box-shadow: 
+    /* Main shadow layers - creates rough edge effect */
+    3px 3px 0 0 rgba(26, 26, 26, 0.9),
+    -2px 4px 0 0 rgba(26, 26, 26, 0.7),
+    4px -2px 0 0 rgba(26, 26, 26, 0.8),
+    -3px -3px 0 0 rgba(26, 26, 26, 0.6),
+    /* Outer glow for depth */
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    /* Inner texture shadows */
+    inset 2px 2px 4px rgba(255, 255, 255, 0.05),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.2);
+  
+  /* SVG filter for hand-drawn roughness */
+  filter: url(#sketchy-filter);
+}
+
+.sketchyButton::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  background: transparent;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px 12px 18px 14px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.sketchyButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.sketchyButton:hover {
+  transform: translateY(-2px) rotate(0.5deg);
+}
+
+.sketchyButton:active {
+  transform: translateY(1px) rotate(-0.3deg);
+}
+
+.sketchyButtonText {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sketchyButtonSubtext {
+  font-size: 1rem;
+  opacity: 0.85;
+  font-weight: 400;
+}
+
+/* Alternative sketchy outline button */
+.sketchyButtonOutline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background-color: transparent;
+  color: #1a1a1a;
+  border: 3px solid #1a1a1a;
+  cursor: pointer;
+  font-family: 'Patrick Hand', 'Caveat', cursive, var(--font-body);
+  font-size: 1.125rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  
+  /* Uneven border radius for hand-drawn look */
+  border-radius: 8px 12px 6px 14px;
+  
+  /* Sketchy shadow effect */
+  box-shadow: 
+    2px 2px 0 0 #1a1a1a,
+    4px 4px 0 0 rgba(26, 26, 26, 0.2);
+  
+  filter: url(#sketchy-filter);
+}
+
+.sketchyButtonOutline:hover {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  transform: translate(-2px, -2px);
+  box-shadow: 
+    4px 4px 0 0 #1a1a1a,
+    6px 6px 0 0 rgba(26, 26, 26, 0.2);
+}
+
+.sketchyButtonOutline:active {
+  transform: translate(1px, 1px);
+  box-shadow: 
+    1px 1px 0 0 #1a1a1a;
+}
+
+/* Pill-shaped sketchy button (like the email/settings buttons in image) */
+.sketchyPillButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  cursor: pointer;
+  font-family: 'Patrick Hand', 'Caveat', cursive, var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  
+  /* Pill shape with slight irregularity */
+  border-radius: 50px 48px 52px 50px;
+  
+  filter: url(#sketchy-filter);
+}
+
+.sketchyPillButton:hover {
+  background-color: rgba(26, 26, 26, 0.05);
+  transform: scale(1.02);
+}
+
+.sketchyPillButton:active {
+  transform: scale(0.98);
+}
+
+/* Sketchy progress bar */
+.sketchyProgressContainer {
+  width: 100%;
+  max-width: 400px;
+  height: 12px;
+  background-color: transparent;
+  border: 3px solid #1a1a1a;
+  border-radius: 50px 48px 52px 50px;
+  overflow: hidden;
+  filter: url(#sketchy-filter);
+}
+
+.sketchyProgressFill {
+  height: 100%;
+  background-color: #1a1a1a;
+  border-radius: 50px;
+  transition: width 0.3s ease;
+}
+
+/* Hidden SVG for filters - will be in the component */
+.svgFilters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
