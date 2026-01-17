@@ -183,7 +183,7 @@ export default function SettingsPanel({ settings, onUpdate, userEmail }: Setting
       <div className={styles.saveSection}>
         <span className={styles.lastUpdated}>
           Last updated: {formatLastUpdated()}
-          {settings.updatedBy && \ by \\}
+          {settings.updatedBy && ` by ${settings.updatedBy}`}
         </span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

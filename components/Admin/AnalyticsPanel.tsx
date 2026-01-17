@@ -75,43 +75,43 @@ export default function AnalyticsPanel() {
       {/* Stats Cards */}
       <div className={styles.analyticsGrid}>
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>ðŸ‘¥</span>
+          <span className={styles.statCardIcon}>👥</span>
           <span className={styles.statCardValue}>{totalUsers}</span>
           <span className={styles.statCardLabel}>Total Users</span>
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>ðŸ“</span>
+          <span className={styles.statCardIcon}>📝</span>
           <span className={styles.statCardValue}>{todayStats?.essaysSubmitted || 0}</span>
           <span className={styles.statCardLabel}>Essays Today</span>
-          <span className={\\ \\}>
+          <span className={styles.statCardSubtext}>
             {weeklyTotals.essays} this week
           </span>
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>ðŸŽ¯</span>
+          <span className={styles.statCardIcon}>🎯</span>
           <span className={styles.statCardValue}>{todayStats?.quizzesCompleted || 0}</span>
           <span className={styles.statCardLabel}>Quizzes Today</span>
-          <span className={\\ \\}>
+          <span className={styles.statCardSubtext}>
             {weeklyTotals.quizzes} this week
           </span>
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>âœ…</span>
+          <span className={styles.statCardIcon}>✅</span>
           <span className={styles.statCardValue}>
             {todayStats?.quizzesCompleted ? 
               Math.round((todayStats.quizzesPassed || 0) / todayStats.quizzesCompleted * 100) : 0}%
           </span>
           <span className={styles.statCardLabel}>Pass Rate Today</span>
-          <span className={\\ \\}>
+          <span className={styles.statCardSubtext}>
             {weeklyPassRate}% weekly avg
           </span>
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>ðŸ“Š</span>
+          <span className={styles.statCardIcon}>📊</span>
           <span className={styles.statCardValue}>
             {todayStats?.averageQuizScore ? Math.round(todayStats.averageQuizScore) : 0}%
           </span>
@@ -131,7 +131,7 @@ export default function AnalyticsPanel() {
                 <div className={styles.barContainer}>
                   <div 
                     className={styles.barFill}
-                    style={{ width: \\%\ }}
+                    style={{ width: `${(count / maxErrorCount) * 100}%` }}
                   />
                 </div>
                 <span className={styles.barValue}>{count}</span>
@@ -140,7 +140,7 @@ export default function AnalyticsPanel() {
           </div>
         ) : (
           <div className={styles.emptyState}>
-            <span className={styles.emptyStateIcon}>ðŸ“‰</span>
+            <span className={styles.emptyStateIcon}>📉</span>
             <p className={styles.emptyStateText}>No error data available yet</p>
           </div>
         )}
@@ -163,11 +163,11 @@ export default function AnalyticsPanel() {
                   <div className={styles.barContainer}>
                     <div 
                       className={styles.barFill}
-                      style={{ width: \\%\ }}
+                      style={{ width: `${(totalActivity / maxActivity) * 100}%` }}
                     />
                   </div>
                   <span className={styles.barValue}>
-                    {day.essaysSubmitted || 0}ðŸ“ / {day.quizzesCompleted || 0}ðŸŽ¯
+                    {day.essaysSubmitted || 0}📝 / {day.quizzesCompleted || 0}🎯
                   </span>
                 </div>
               )
@@ -175,7 +175,7 @@ export default function AnalyticsPanel() {
           </div>
         ) : (
           <div className={styles.emptyState}>
-            <span className={styles.emptyStateIcon}>ðŸ“…</span>
+            <span className={styles.emptyStateIcon}>📅</span>
             <p className={styles.emptyStateText}>No activity data available yet</p>
           </div>
         )}
