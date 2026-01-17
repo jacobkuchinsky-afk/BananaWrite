@@ -106,19 +106,19 @@ function AdminContent() {
       {/* Tab Navigation */}
       <nav className={styles.tabNav}>
         <button
-          className={`${styles.tabButton} ${activeTab === 'settings' ? styles.active : ''}`}
+          className={`${styles.tabButton} ${activeTab === 'settings' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('settings')}
         >
           Settings
         </button>
         <button
-          className={`${styles.tabButton} ${activeTab === 'analytics' ? styles.active : ''}`}
+          className={`${styles.tabButton} ${activeTab === 'analytics' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('analytics')}
         >
           Analytics
         </button>
         <button
-          className={`${styles.tabButton} ${activeTab === 'sessions' ? styles.active : ''}`}
+          className={`${styles.tabButton} ${activeTab === 'sessions' ? styles.tabActive : ''}`}
           onClick={() => setActiveTab('sessions')}
         >
           Active Sessions
@@ -159,7 +159,7 @@ function AdminContent() {
 
         {/* Tab Content */}
         <div className={styles.tabContent}>
-          {activeTab === 'settings' && settings && (
+          {activeTab === 'settings' && settings && user.email && (
             <SettingsPanel 
               settings={settings} 
               onUpdate={handleSettingsUpdate}

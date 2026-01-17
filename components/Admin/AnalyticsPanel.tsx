@@ -75,13 +75,11 @@ export default function AnalyticsPanel() {
       {/* Stats Cards */}
       <div className={styles.analyticsGrid}>
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>👥</span>
           <span className={styles.statCardValue}>{totalUsers}</span>
           <span className={styles.statCardLabel}>Total Users</span>
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>📝</span>
           <span className={styles.statCardValue}>{todayStats?.essaysSubmitted || 0}</span>
           <span className={styles.statCardLabel}>Essays Today</span>
           <span className={styles.statCardSubtext}>
@@ -90,7 +88,6 @@ export default function AnalyticsPanel() {
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>🎯</span>
           <span className={styles.statCardValue}>{todayStats?.quizzesCompleted || 0}</span>
           <span className={styles.statCardLabel}>Quizzes Today</span>
           <span className={styles.statCardSubtext}>
@@ -99,7 +96,6 @@ export default function AnalyticsPanel() {
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>✅</span>
           <span className={styles.statCardValue}>
             {todayStats?.quizzesCompleted ? 
               Math.round((todayStats.quizzesPassed || 0) / todayStats.quizzesCompleted * 100) : 0}%
@@ -111,7 +107,6 @@ export default function AnalyticsPanel() {
         </div>
 
         <div className={styles.statCard}>
-          <span className={styles.statCardIcon}>📊</span>
           <span className={styles.statCardValue}>
             {todayStats?.averageQuizScore ? Math.round(todayStats.averageQuizScore) : 0}%
           </span>
@@ -140,7 +135,6 @@ export default function AnalyticsPanel() {
           </div>
         ) : (
           <div className={styles.emptyState}>
-            <span className={styles.emptyStateIcon}>📉</span>
             <p className={styles.emptyStateText}>No error data available yet</p>
           </div>
         )}
@@ -167,7 +161,7 @@ export default function AnalyticsPanel() {
                     />
                   </div>
                   <span className={styles.barValue}>
-                    {day.essaysSubmitted || 0}📝 / {day.quizzesCompleted || 0}🎯
+                    {day.essaysSubmitted || 0}E / {day.quizzesCompleted || 0}Q
                   </span>
                 </div>
               )
@@ -175,7 +169,6 @@ export default function AnalyticsPanel() {
           </div>
         ) : (
           <div className={styles.emptyState}>
-            <span className={styles.emptyStateIcon}>📅</span>
             <p className={styles.emptyStateText}>No activity data available yet</p>
           </div>
         )}

@@ -401,6 +401,12 @@
   color: var(--color-text-muted);
 }
 
+.statCardSubtext {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
 .statCardTrend {
   font-size: 0.8125rem;
   font-weight: 500;
