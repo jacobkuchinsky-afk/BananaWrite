@@ -19,6 +19,33 @@
   width: auto;
 }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.adminLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adminLink:hover {
+  background-color: #333;
+  transform: translateY(-1px);
+}
+
 .logoutBtn {
   padding: 0.625rem 1.5rem;
   font-size: 0.9375rem;

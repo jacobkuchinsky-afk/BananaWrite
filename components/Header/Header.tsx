@@ -4,11 +4,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { ADMIN_EMAIL } from '@/types'
 import styles from './Header.module.css'
 
 export default function Header() {
   const { user, logout, loading } = useAuth()
   const router = useRouter()
+  
+  const isAdmin = user?.email === ADMIN_EMAIL
 
   const handleLogout = async () => {
     try {
@@ -37,6 +40,11 @@ export default function Header() {
           <nav className={styles.nav}>
             {user ? (
               <>
+                {isAdmin && (
+                  <Link href="/admin" className={styles.adminLink}>
+                    Admin
+                  </Link>
+                )}
                 <Link href="/dashboard" className={styles.navLink}>
                   Dashboard
                 </Link>

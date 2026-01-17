@@ -9,6 +9,7 @@ import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import StartLessonButton from '@/components/Dashboard/StartLessonButton'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
 import { SettingsIcon } from '@/components/Icons/Icons'
+import { ADMIN_EMAIL } from '@/types'
 import styles from '@/components/Dashboard/Dashboard.module.css'
 
 // Writing techniques - same order as backend
@@ -51,6 +52,9 @@ function DashboardContent() {
 
   // Get display name
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'Writer'
+  
+  // Check if user is admin
+  const isAdmin = user?.email === ADMIN_EMAIL
 
   return (
     <div className={styles.dashboardPage}>
@@ -81,13 +85,20 @@ function DashboardContent() {
             className={styles.dashboardLogo}
           />
         </Link>
-        <Link href="/settings">
-          <ProfilePicture
-            photoURL={user?.photoURL}
-            displayName={displayName}
-            size="small"
-          />
-        </Link>
+        <div className={styles.headerRight}>
+          {isAdmin && (
+            <Link href="/admin" className={styles.adminLink}>
+              Admin
+            </Link>
+          )}
+          <Link href="/settings">
+            <ProfilePicture
+              photoURL={user?.photoURL}
+              displayName={displayName}
+              size="small"
+            />
+          </Link>
+        </div>
       </header>
 
       {/* Content */}

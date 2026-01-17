@@ -351,3 +351,55 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   setupComplete: false
 }
 
+
+// ============================================
+// Admin & App Settings Types
+// ============================================
+
+// Admin email constant
+export const ADMIN_EMAIL = 'jacob.kuchinsky@gmail.com'
+
+// Global app settings (configurable by admin)
+export interface AppSettings {
+  maxErrorsForRedo: number         // Default: 2 (max errors to allow fixing)
+  sameErrorQuizThreshold: number   // Default: 3 (same error type triggers quiz)
+  totalErrorQuizThreshold: number  // Default: 5 (total errors triggers quiz)
+  quizPassingScore: number         // Default: 75 (percentage)
+  updatedAt: Timestamp | null
+  updatedBy: string
+}
+
+// Default app settings
+export const DEFAULT_APP_SETTINGS: Omit<AppSettings, 'updatedAt'> & { updatedAt: null } = {
+  maxErrorsForRedo: 2,
+  sameErrorQuizThreshold: 3,
+  totalErrorQuizThreshold: 5,
+  quizPassingScore: 75,
+  updatedAt: null,
+  updatedBy: ''
+}
+
+// Daily analytics data
+export interface DailyAnalytics {
+  date: string
+  totalUsers: number
+  essaysSubmitted: number
+  quizzesCompleted: number
+  quizzesPassed: number
+  averageQuizScore: number
+  errorTypesBreakdown: Record<string, number>
+}
+
+// Active session for admin view
+export interface ActiveSession {
+  oderId: string  // Note: keeping as-is to match existing code references
+  userEmail: string
+  displayName: string | null
+  sessionType: 'essay' | 'quiz'
+  status: string
+  startedAt: Timestamp | null
+  writingTechnique?: string
+  wordCount?: number
+  quizTopic?: string
+  quizProgress?: string
+}

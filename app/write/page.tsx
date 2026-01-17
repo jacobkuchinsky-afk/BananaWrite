@@ -15,7 +15,8 @@ import SubmitButton from '@/components/Write/SubmitButton'
 import MarkedEssay from '@/components/Write/MarkedEssay'
 import { ModuleComplete, WinScreen } from '@/components/Quiz'
 import { startQuizSession, completeLesson, resetSession, getQuizSession, getUserSettings } from '@/lib/firestore'
-import { UserSettings } from '@/types'
+import { getAppSettings } from '@/lib/adminFirestore'
+import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS } from '@/types'
 import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Write/Write.module.css'
 
@@ -71,6 +72,7 @@ function WriteContent() {
   const [isChecking, setIsChecking] = useState(false)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [settingsLoaded, setSettingsLoaded] = useState(false)
+  const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS as AppSettings)
   const [showMarkedEssay, setShowMarkedEssay] = useState(false)
   const [markedEssayData, setMarkedEssayData] = useState<{
     markedEssay: string
@@ -84,15 +86,19 @@ function WriteContent() {
   const [originalErrors, setOriginalErrors] = useState<string[]>([])
   const [isRedoMode, setIsRedoMode] = useState(false)
 
-  // Fetch user settings
+  // Fetch user settings and app settings
   useEffect(() => {
     async function fetchSettings() {
       if (!user) return
       try {
-        const settings = await getUserSettings(user.uid)
+        const [settings, globalSettings] = await Promise.all([
+          getUserSettings(user.uid),
+          getAppSettings()
+        ])
         setUserSettings(settings)
+        setAppSettings(globalSettings)
       } catch (error) {
-        console.error('Error fetching user settings:', error)
+        console.error('Error fetching settings:', error)
       } finally {
         setSettingsLoaded(true)
       }
@@ -394,8 +400,8 @@ function WriteContent() {
 
   // Show marked essay with errors highlighted
   if (showMarkedEssay && markedEssayData) {
-    // Can only redo if: haven't used redo chance, not force_quiz, and 2 or fewer errors
-    const canRedo = !hasUsedRedoChance && !markedEssayData.forceQuiz && markedEssayData.problemCount <= 2
+    // Can only redo if: haven't used redo chance, not force_quiz, and errors within threshold
+    const canRedo = !hasUsedRedoChance && !markedEssayData.forceQuiz && markedEssayData.problemCount <= appSettings.maxErrorsForRedo
     
     return (
       <MarkedEssay
@@ -403,6 +409,7 @@ function WriteContent() {
         errors={markedEssayData.errors}
         problemCount={markedEssayData.problemCount}
         canRedo={canRedo}
+        maxErrorsForRedo={appSettings.maxErrorsForRedo}
         onContinue={handleContinueToQuiz}
         onRedo={handleRedo}
       />

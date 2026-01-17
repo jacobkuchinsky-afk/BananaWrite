@@ -67,6 +67,102 @@ WRITING_TECHNIQUES = [
 DEFAULT_CRAZINESS = "Engaging"
 DEFAULT_FOCUS = "Technology"
 
+# Dynamic thresholds (can be updated by admin)
+DYNAMIC_THRESHOLDS = {
+    'same_error_quiz_threshold': 3,    # Default: 3+ of same error triggers quiz
+    'total_error_quiz_threshold': 5,   # Default: 5+ total errors triggers quiz
+    'quiz_passing_score': 75           # Default: 75% to pass
+}
+
+def set_dynamic_thresholds(same_error_threshold: int = None, total_error_threshold: int = None, passing_score: int = None):
+    """
+    Update the dynamic thresholds used by the AI service.
+    Called by admin panel to sync settings.
+    """
+    global DYNAMIC_THRESHOLDS
+    if same_error_threshold is not None:
+        DYNAMIC_THRESHOLDS['same_error_quiz_threshold'] = same_error_threshold
+    if total_error_threshold is not None:
+        DYNAMIC_THRESHOLDS['total_error_quiz_threshold'] = total_error_threshold
+    if passing_score is not None:
+        DYNAMIC_THRESHOLDS['quiz_passing_score'] = passing_score
+    logger.info(f"Updated dynamic thresholds: {DYNAMIC_THRESHOLDS}")
+
+def get_reviewer_prompt():
+    """Generate reviewer prompt with dynamic threshold."""
+    threshold = DYNAMIC_THRESHOLDS['same_error_quiz_threshold']
+    return f"""Task: Identify grammar and writing errors in the essay.
+
+Scope:
+- Report ONLY objective grammar/punctuation/syntax errors
+- Ignore: spelling, style preferences, creativity, flow, word choice suggestions
+- Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry)
+- Report only significant errors; ignore minor issues
+- Count individual error instances within each category
+
+Severity Scale: 1 (minor) to 10 (severe)
+
+No Errors Found:
+- If no significant errors exist, output exactly: <No Errors>
+
+Quiz Tag Rule:
+- If any single error category has {threshold} or more individual instances, add <quiz> as the FIRST line of output
+- Example: {threshold} comma errors in the essay = add <quiz> tag
+
+Output Format:
+<quiz> (ONLY if {threshold}+ instances of the same error type exist)
+§[count of distinct error categories]§
+- [Error category and description] (X instances)~[severity 1-10]
+- [Error category and description] (X instances)~[severity 1-10]
+µ
+[Full essay with each error wrapped in ¦ markers]
+
+Example WITHOUT quiz tag (fewer than {threshold} of any single type):
+§2§
+- Comma splices creating run-on sentences (2 instances)~7
+- Colons used incorrectly as periods (1 instance)~5
+µ
+The dog ran fast¦,¦ it was excited. The weather was nice¦:¦ We went outside.
+
+Example WITH quiz tag ({threshold}+ of same type):
+<quiz>
+§2§
+- Comma splices creating run-on sentences ({threshold + 1} instances)~7
+- Colons used incorrectly as periods (1 instance)~5
+µ
+The dog ran fast¦,¦ it was excited¦,¦ the cat jumped¦,¦ they played¦,¦ it was fun. The weather was nice¦:¦ We went outside."""
+
+def get_reviewer_redo_prompt(original_errors: str):
+    """Generate reviewer redo prompt with dynamic threshold."""
+    threshold = DYNAMIC_THRESHOLDS['same_error_quiz_threshold']
+    return f"""Task: Re-evaluate the essay after the user attempted to fix the original errors.
+
+Original Errors to Check:
+{original_errors}
+
+Evaluation Steps:
+1. Verify whether each original error has been corrected
+2. Identify any new errors introduced during revision
+3. Report only significant grammar/punctuation/syntax errors
+4. Ignore: spelling, style preferences, creativity, flow
+5. Count individual error instances within each category
+
+Severity Scale: 1 (minor) to 10 (severe)
+
+All Fixed:
+- If all original errors are fixed AND no new significant errors exist, output exactly: <No Errors>
+
+Quiz Tag Rule:
+- If any single error category has {threshold} or more individual instances, add <quiz> as the FIRST line of output
+
+Output Format:
+<quiz> (ONLY if {threshold}+ instances of the same error type exist)
+§[count of distinct error categories]§
+- [Error description] (X instances)~[severity] [UNFIXED or NEW]
+- [Error description] (X instances)~[severity] [UNFIXED or NEW]
+µ
+[Full essay with each error wrapped in ¦ markers]"""
+
 def get_essay_prompt_creator(craziness: str = None, focus: str = None) -> str:
     """
     Generate the essay prompt creator system instruction with dynamic craziness and focus.
@@ -633,11 +729,14 @@ def review_essay(essay: str) -> dict:
     """
     client = create_client()
     
+    # Use dynamic reviewer prompt with configurable threshold
+    reviewer_prompt = get_reviewer_prompt()
+    
     try:
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
-                {"role": "system", "content": REVIEWER_PROMPT},
+                {"role": "system", "content": reviewer_prompt},
                 {"role": "user", "content": essay}
             ]
         )
@@ -674,8 +773,8 @@ def review_essay_with_context(essay: str, original_errors: list) -> dict:
     # Format original errors for the prompt
     original_errors_str = "\n".join(f"- {error}" for error in original_errors)
     
-    # Create the redo prompt with original errors context
-    redo_prompt = REVIEWER_REDO_PROMPT.format(original_errors=original_errors_str)
+    # Create the redo prompt with dynamic threshold
+    redo_prompt = get_reviewer_redo_prompt(original_errors_str)
     
     try:
         response = client.chat.completions.create(
@@ -1086,10 +1185,13 @@ def grade_quiz(answers: list) -> dict:
             if numbers:
                 score = int(numbers[0])
         
+        # Use dynamic passing score
+        passing_score = DYNAMIC_THRESHOLDS['quiz_passing_score']
+        
         return {
             "score": score,
             "feedback": feedback,
-            "passed": score >= 75,
+            "passed": score >= passing_score,
             "raw_response": result
         }
         

@@ -15,7 +15,8 @@ from services.ai_service import (
     get_quiz_requirements,
     create_quiz,
     grade_quiz,
-    get_teacher_feedback
+    get_teacher_feedback,
+    set_dynamic_thresholds
 )
 
 prompt_bp = Blueprint('prompt', __name__)
@@ -363,3 +364,50 @@ def review_essay_redo_endpoint():
     
     result = review_essay_with_context(essay, original_errors)
     return jsonify(result)
+
+
+@prompt_bp.route('/api/app-settings', methods=['POST'])
+def update_app_settings_endpoint():
+    """
+    Update dynamic app settings for AI prompts.
+    Called by admin panel to sync settings to the backend.
+    
+    Request body:
+        {
+            "sameErrorQuizThreshold": 3,
+            "totalErrorQuizThreshold": 5,
+            "quizPassingScore": 75
+        }
+    
+    Response:
+        {
+            "success": true,
+            "settings": { ... }
+        }
+    """
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    same_error_threshold = data.get('sameErrorQuizThreshold', 3)
+    total_error_threshold = data.get('totalErrorQuizThreshold', 5)
+    passing_score = data.get('quizPassingScore', 75)
+    
+    # Update the dynamic thresholds in AI service
+    set_dynamic_thresholds(
+        same_error_threshold=same_error_threshold,
+        total_error_threshold=total_error_threshold,
+        passing_score=passing_score
+    )
+    
+    print(f"[APP_SETTINGS] Updated thresholds: same_error={same_error_threshold}, total={total_error_threshold}, passing={passing_score}")
+    
+    return jsonify({
+        "success": True,
+        "settings": {
+            "sameErrorQuizThreshold": same_error_threshold,
+            "totalErrorQuizThreshold": total_error_threshold,
+            "quizPassingScore": passing_score
+        }
+    })

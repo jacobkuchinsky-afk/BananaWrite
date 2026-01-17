@@ -42,6 +42,27 @@
   opacity: 0.7;
 }
 
+.adminLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adminLink:hover {
+  background-color: #333;
+  transform: translateY(-1px);
+}
+
 .btnPrimary {
   display: inline-flex;
   align-items: center;

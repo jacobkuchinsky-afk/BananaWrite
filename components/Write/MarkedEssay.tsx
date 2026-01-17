@@ -7,6 +7,7 @@ interface MarkedEssayProps {
   errors: string[]
   problemCount: number
   canRedo: boolean
+  maxErrorsForRedo?: number
   onContinue: () => void
   onRedo?: () => void
 }
@@ -21,6 +22,7 @@ export default function MarkedEssay({
   errors, 
   problemCount,
   canRedo,
+  maxErrorsForRedo = 2,
   onContinue,
   onRedo 
 }: MarkedEssayProps) {
@@ -55,8 +57,8 @@ export default function MarkedEssay({
 
   const parsedErrors = parseErrors(errors)
 
-  // User can fix errors if there are 2 or fewer problems and they haven't used their redo chance
-  const showRedoOption = canRedo && problemCount <= 2 && onRedo
+  // User can fix errors if there are errors within threshold and they haven't used their redo chance
+  const showRedoOption = canRedo && problemCount <= maxErrorsForRedo && onRedo
 
   return (
     <div className={styles.markedEssayOverlay}>
