@@ -69,10 +69,79 @@
 }
 
 /* ============================================
-   SKETCHY BUTTON STYLES
-   Hand-drawn/marker aesthetic with 3D effect
+   SECTION STYLING - Wider for showcase
    ============================================ */
 
+.sectionWide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 900px;
+  width: 100%;
+}
+
+.componentRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.componentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+/* ============================================
+   1. BUTTON STYLES
+   ============================================ */
+
+/* Primary Button - Dark fill with 3D effect */
+.sketchyButtonPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.1s ease;
+  border-radius: 50px;
+  box-shadow: 
+    0 6px 0 0 #000000,
+    0 8px 15px rgba(0, 0, 0, 0.2);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyButtonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 0 0 #000000,
+    0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.sketchyButtonPrimary:active {
+  transform: translateY(4px);
+  box-shadow: 
+    0 2px 0 0 #000000,
+    0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Large CTA Button - Like Start Lesson */
 .sketchyButton {
   position: relative;
   display: flex;
@@ -87,18 +156,12 @@
   color: #ffffff;
   border: none;
   cursor: pointer;
-  font-family: 'Patrick Hand', 'Caveat', cursive, var(--font-body);
+  font-family: var(--font-body);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  
-  /* Rounded corners */
   border-radius: 16px;
-  
-  /* 3D raised effect - thick solid shadow at bottom */
   box-shadow: 
     0 8px 0 0 #000000,
     0 10px 20px rgba(0, 0, 0, 0.3);
-  
-  /* SVG filter for hand-drawn roughness */
   filter: url(#sketchy-filter);
 }
 
@@ -120,7 +183,6 @@
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .sketchyButtonSubtext {
@@ -129,7 +191,7 @@
   font-weight: 400;
 }
 
-/* Alternative sketchy outline button with 3D effect */
+/* Outline Button with 3D effect */
 .sketchyButtonOutline {
   position: relative;
   display: inline-flex;
@@ -140,37 +202,32 @@
   color: #1a1a1a;
   border: 3px solid #1a1a1a;
   cursor: pointer;
-  font-family: 'Patrick Hand', 'Caveat', cursive, var(--font-body);
-  font-size: 1.125rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
   font-weight: 600;
   transition: all 0.1s ease;
-  
-  /* Rounded corners */
   border-radius: 12px;
-  
-  /* 3D raised effect */
   box-shadow: 
-    0 6px 0 0 #1a1a1a,
-    0 8px 15px rgba(0, 0, 0, 0.2);
-  
+    0 5px 0 0 #1a1a1a,
+    0 7px 15px rgba(0, 0, 0, 0.15);
   filter: url(#sketchy-filter);
 }
 
 .sketchyButtonOutline:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 0 0 #1a1a1a,
-    0 10px 20px rgba(0, 0, 0, 0.25);
+    0 7px 0 0 #1a1a1a,
+    0 9px 20px rgba(0, 0, 0, 0.2);
 }
 
 .sketchyButtonOutline:active {
   transform: translateY(4px);
   box-shadow: 
-    0 2px 0 0 #1a1a1a,
-    0 3px 8px rgba(0, 0, 0, 0.15);
+    0 1px 0 0 #1a1a1a,
+    0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Pill-shaped sketchy button with 3D effect */
+/* Pill Button - Small settings/email style */
 .sketchyPillButton {
   display: inline-flex;
   align-items: center;
@@ -181,19 +238,14 @@
   color: #1a1a1a;
   border: 2px solid #1a1a1a;
   cursor: pointer;
-  font-family: 'Patrick Hand', 'Caveat', cursive, var(--font-body);
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 500;
   transition: all 0.1s ease;
-  
-  /* Pill shape */
   border-radius: 50px;
-  
-  /* 3D raised effect */
   box-shadow: 
     0 4px 0 0 #1a1a1a,
     0 6px 12px rgba(0, 0, 0, 0.15);
-  
   filter: url(#sketchy-filter);
 }
 
@@ -211,16 +263,204 @@
     0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Sketchy progress bar with 3D effect */
+/* Icon Button */
+.sketchyIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: all 0.1s ease;
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    0 5px 10px rgba(0, 0, 0, 0.15);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyIconButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 0 #1a1a1a,
+    0 7px 12px rgba(0, 0, 0, 0.2);
+}
+
+.sketchyIconButton:active {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 0 #1a1a1a,
+    0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Google Sign-In Button */
+.sketchyGoogleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0.875rem 2rem;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.1s ease;
+  border-radius: 50px;
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    0 6px 12px rgba(0, 0, 0, 0.15);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyGoogleButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 0 #1a1a1a,
+    0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sketchyGoogleButton:active {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 0 #1a1a1a,
+    0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   2. TEXT INPUT STYLES
+   ============================================ */
+
+/* Standard Text Input */
+.sketchyInput {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyInput::placeholder {
+  color: #888;
+}
+
+.sketchyInput:focus {
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+/* Search Input with Icon */
+.sketchySearchWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.sketchySearchIcon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+  font-size: 1.125rem;
+}
+
+.sketchySearchInput {
+  width: 100%;
+  padding: 0.875rem 1.5rem 0.875rem 52px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  filter: url(#sketchy-filter);
+}
+
+.sketchySearchInput::placeholder {
+  color: #888;
+}
+
+.sketchySearchInput:focus {
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+/* Textarea / Writing Area */
+.sketchyTextarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 1.25rem;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  line-height: 1.7;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px;
+  outline: none;
+  resize: vertical;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 5px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyTextarea::placeholder {
+  color: #888;
+}
+
+.sketchyTextarea:focus {
+  box-shadow: 
+    0 5px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+/* ============================================
+   3. PROGRESS BAR STYLES
+   ============================================ */
+
 .sketchyProgressContainer {
   width: 100%;
   max-width: 400px;
-  height: 14px;
+  height: 16px;
   background-color: #ffffff;
   border: 3px solid #1a1a1a;
   border-radius: 50px;
   overflow: hidden;
-  /* 3D inset effect */
   box-shadow: 
     0 4px 0 0 #1a1a1a,
     inset 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -234,7 +474,462 @@
   transition: width 0.3s ease;
 }
 
-/* Hidden SVG for filters - will be in the component */
+.sketchyProgressFillComplete {
+  height: 100%;
+  background-color: #22c55e;
+  border-radius: 50px;
+  transition: width 0.3s ease;
+}
+
+.sketchyProgressFillWarning {
+  height: 100%;
+  background-color: #f59e0b;
+  border-radius: 50px;
+  transition: width 0.3s ease;
+}
+
+.sketchyProgressFillError {
+  height: 100%;
+  background-color: #ef4444;
+  border-radius: 50px;
+  transition: width 0.3s ease;
+}
+
+/* ============================================
+   4. SELECTION COMPONENTS
+   ============================================ */
+
+/* Grid Option Card (like craziness selector) */
+.sketchyOptionCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem;
+  background-color: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: center;
+  min-height: 100px;
+  box-shadow: 
+    0 5px 0 0 #1a1a1a,
+    0 6px 12px rgba(0, 0, 0, 0.1);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyOptionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 7px 0 0 #1a1a1a,
+    0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.sketchyOptionCard.selected {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  transform: translateY(3px);
+  box-shadow: 
+    0 2px 0 0 #000000,
+    0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sketchyOptionIcon {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.sketchyOptionLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Pill Toggle (like focus options) */
+.sketchyPillToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 3px 0 0 #1a1a1a,
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyPillToggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.sketchyPillToggle.selected {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 0 #000000,
+    0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Quiz Option Button */
+.sketchyQuizOption {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 3px solid #1a1a1a;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 4px 0 0 #1a1a1a,
+    0 5px 12px rgba(0, 0, 0, 0.1);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyQuizOption:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 0 #1a1a1a,
+    0 7px 15px rgba(0, 0, 0, 0.15);
+}
+
+.sketchyQuizOption.selected {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 0 #000000,
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.sketchyQuizLetter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(26, 26, 26, 0.1);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.sketchyQuizOption.selected .sketchyQuizLetter {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+/* ============================================
+   5. CARD STYLES
+   ============================================ */
+
+/* Auth Card */
+.sketchyAuthCard {
+  width: 100%;
+  max-width: 400px;
+  background-color: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 
+    0 8px 0 0 #1a1a1a,
+    0 10px 25px rgba(0, 0, 0, 0.15);
+  filter: url(#sketchy-filter);
+}
+
+/* Content Card (prompt/question style) */
+.sketchyContentCard {
+  width: 100%;
+  background-color: #fafafa;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 5px 0 0 #1a1a1a,
+    0 6px 15px rgba(0, 0, 0, 0.1);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyContentLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+
+.sketchyContentText {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+/* Feedback Card (yellow theme) */
+.sketchyFeedbackCard {
+  width: 100%;
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+  border: 3px solid #ca8a04;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 5px 0 0 #ca8a04,
+    0 6px 15px rgba(202, 138, 4, 0.2);
+  filter: url(#sketchy-filter);
+}
+
+.sketchyFeedbackTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 0.75rem;
+}
+
+.sketchyFeedbackText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #78350f;
+}
+
+/* Success Card (green theme) */
+.sketchySuccessCard {
+  width: 100%;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 3px solid #16a34a;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 5px 0 0 #16a34a,
+    0 6px 15px rgba(22, 163, 74, 0.2);
+  filter: url(#sketchy-filter);
+}
+
+.sketchySuccessTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #166534;
+  margin-bottom: 0.75rem;
+}
+
+.sketchySuccessText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #14532d;
+}
+
+/* ============================================
+   6. BADGES & PILLS
+   ============================================ */
+
+/* Skill Badge */
+.sketchyBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.875rem;
+  background-color: #f5f5f5;
+  border: 2px solid #1a1a1a;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  box-shadow: 0 2px 0 0 #1a1a1a;
+  filter: url(#sketchy-filter);
+}
+
+/* XP Badge */
+.sketchyXpBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d97706;
+  box-shadow: 0 3px 0 0 #f59e0b;
+  filter: url(#sketchy-filter);
+}
+
+/* Notification Badge */
+.sketchyNotificationBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background-color: #22c55e;
+  border: 2px solid #16a34a;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 2px 0 0 #16a34a;
+}
+
+/* ============================================
+   7. MESSAGE BOXES
+   ============================================ */
+
+/* Error Message */
+.sketchyErrorMessage {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background-color: #fef2f2;
+  border: 3px solid #ef4444;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #dc2626;
+  box-shadow: 0 4px 0 0 #ef4444;
+  filter: url(#sketchy-filter);
+}
+
+/* Success Message */
+.sketchySuccessMessage {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background-color: #f0fdf4;
+  border: 3px solid #22c55e;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #16a34a;
+  box-shadow: 0 4px 0 0 #22c55e;
+  filter: url(#sketchy-filter);
+}
+
+/* Warning Banner */
+.sketchyWarningBanner {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background-color: #fffbeb;
+  border: 3px solid #f59e0b;
+  border-radius: 12px;
+  font-size: 0.9375rem;
+  color: #92400e;
+  box-shadow: 0 4px 0 0 #f59e0b;
+  filter: url(#sketchy-filter);
+}
+
+/* ============================================
+   8. SLIDER
+   ============================================ */
+
+.sketchySliderContainer {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sketchySlider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 10px;
+  background: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 50px;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 
+    0 3px 0 0 #1a1a1a,
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  filter: url(#sketchy-filter);
+}
+
+.sketchySlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 3px 0 0 #000000;
+  transition: transform 0.1s ease;
+}
+
+.sketchySlider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.sketchySlider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 3px 0 0 #000000;
+}
+
+.sketchySliderValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+/* ============================================
+   9. STEP INDICATORS
+   ============================================ */
+
+.sketchyStepsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sketchyStepDot {
+  width: 14px;
+  height: 14px;
+  background-color: #e5e5e5;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 0 0 #1a1a1a;
+}
+
+.sketchyStepDot.active {
+  background-color: #1a1a1a;
+  transform: scale(1.2);
+}
+
+.sketchyStepDot.completed {
+  background-color: #22c55e;
+  border-color: #16a34a;
+  box-shadow: 0 2px 0 0 #16a34a;
+}
+
+/* Hidden SVG for filters */
 .svgFilters {
   position: absolute;
   width: 0;
