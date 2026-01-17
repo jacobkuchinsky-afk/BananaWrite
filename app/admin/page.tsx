@@ -30,17 +30,19 @@ function AdminContent() {
   } | null>(null)
   const [loadingData, setLoadingData] = useState(true)
 
-  // Check admin access
+  // Check admin access (case-insensitive)
+  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+  
   useEffect(() => {
-    if (!loading && (!user || user.email !== ADMIN_EMAIL)) {
+    if (!loading && (!user || !isAdmin)) {
       router.push('/dashboard')
     }
-  }, [user, loading, router])
+  }, [user, loading, router, isAdmin])
 
   // Load initial data
   useEffect(() => {
     async function loadData() {
-      if (!user || user.email !== ADMIN_EMAIL) return
+      if (!user || !isAdmin) return
 
       try {
         // Initialize settings if needed
@@ -60,10 +62,10 @@ function AdminContent() {
       }
     }
 
-    if (user && user.email === ADMIN_EMAIL) {
+    if (user && isAdmin) {
       loadData()
     }
-  }, [user])
+  }, [user, isAdmin])
 
   // Handle settings update
   const handleSettingsUpdate = (newSettings: AppSettings) => {
@@ -83,7 +85,7 @@ function AdminContent() {
   }
 
   // Not admin - should redirect but show nothing while redirecting
-  if (!user || user.email !== ADMIN_EMAIL) {
+  if (!user || !isAdmin) {
     return null
   }
 
@@ -104,19 +106,19 @@ function AdminContent() {
       {/* Tab Navigation */}
       <nav className={styles.tabNav}>
         <button
-          className={\\ \\}
+          className={`${styles.tabButton} ${activeTab === 'settings' ? styles.active : ''}`}
           onClick={() => setActiveTab('settings')}
         >
           Settings
         </button>
         <button
-          className={\\ \\}
+          className={`${styles.tabButton} ${activeTab === 'analytics' ? styles.active : ''}`}
           onClick={() => setActiveTab('analytics')}
         >
           Analytics
         </button>
         <button
-          className={\\ \\}
+          className={`${styles.tabButton} ${activeTab === 'sessions' ? styles.active : ''}`}
           onClick={() => setActiveTab('sessions')}
         >
           Active Sessions

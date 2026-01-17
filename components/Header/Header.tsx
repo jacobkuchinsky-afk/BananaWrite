@@ -11,7 +11,7 @@ export default function Header() {
   const { user, logout, loading } = useAuth()
   const router = useRouter()
   
-  const isAdmin = user?.email === ADMIN_EMAIL
+  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   const handleLogout = async () => {
     try {

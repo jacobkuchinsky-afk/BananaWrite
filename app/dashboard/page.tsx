@@ -53,8 +53,8 @@ function DashboardContent() {
   // Get display name
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'Writer'
   
-  // Check if user is admin
-  const isAdmin = user?.email === ADMIN_EMAIL
+  // Check if user is admin (case-insensitive comparison)
+  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   return (
     <div className={styles.dashboardPage}>
