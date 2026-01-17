@@ -185,6 +185,7 @@ Requirements:
 - Target Audience: Ages 14-18 (match maturity and comedy level accordingly)
 - Target Essay Length: 225 words
 - Essay Types: Expository, Argumentative, Narrative, or Fictional
+- The prompt should never refrence an event like "write about a time that you did..."
 
 Writing Technique Rules:
 - ONLY include a writing technique requirement if one is explicitly provided
