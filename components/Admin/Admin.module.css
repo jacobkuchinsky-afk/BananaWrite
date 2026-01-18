@@ -1,4 +1,4 @@
-﻿/* Admin Page Styles - Charcoal Theme */
+/* Admin Page Styles - Charcoal Theme */
 .adminPage {
   min-height: 100vh;
   display: flex;
@@ -25,16 +25,29 @@
   font-family: var(--font-body);
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   text-decoration: none;
+  box-shadow: 
+    0 3px 0 0 rgba(255, 255, 255, 0.3),
+    0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .backButton:hover {
   background-color: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 5px 0 0 rgba(255, 255, 255, 0.3),
+    0 5px 12px rgba(0, 0, 0, 0.25);
+}
+
+.backButton:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 0 rgba(255, 255, 255, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .adminTitle {
@@ -79,35 +92,44 @@
   font-family: var(--font-body);
   color: var(--color-text-secondary);
   background-color: transparent;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
 }
 
 .tabButton:hover {
   background-color: rgba(45, 45, 45, 0.08);
   color: #2d2d2d;
+  border-color: rgba(26, 26, 26, 0.2);
 }
 
 .tabActive {
-  background-color: rgba(45, 45, 45, 0.12);
+  background-color: #ffffff;
   color: #1a1a1a;
   font-weight: 600;
+  border: 2px solid #1a1a1a;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .sessionBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   padding: 0 6px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
   background-color: #22c55e;
+  border: 2px solid #16a34a;
   border-radius: 50px;
+  box-shadow: 
+    0 2px 0 0 rgba(22, 163, 74, 0.9),
+    0 2px 8px rgba(22, 163, 74, 0.3);
 }
 
 /* Admin Content */
@@ -122,7 +144,7 @@
   gap: var(--spacing-lg);
 }
 
-/* Quick Stats Bar */
+/* Quick Stats Bar - Sketchy 3D */
 .quickStats {
   display: flex;
   align-items: center;
@@ -130,9 +152,11 @@
   gap: var(--spacing-lg);
   padding: var(--spacing-md) var(--spacing-xl);
   background-color: #ffffff;
-  border: 1px solid rgba(45, 45, 45, 0.15);
+  border: 3px solid #1a1a1a;
   border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 18px rgba(0, 0, 0, 0.1);
 }
 
 .quickStatItem {
@@ -195,13 +219,15 @@
   color: var(--color-text-secondary);
 }
 
-/* Settings Panel */
+/* Settings Panel - Sketchy 3D */
 .settingsSection {
   background-color: #ffffff;
-  border: 1px solid rgba(26, 26, 26, 0.1);
+  border: 3px solid #1a1a1a;
   border-radius: 24px;
   padding: var(--spacing-xl);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .sectionTitle {
@@ -230,9 +256,12 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   padding: var(--spacing-lg);
-  background-color: rgba(45, 45, 45, 0.03);
-  border: 1px solid rgba(45, 45, 45, 0.1);
+  background-color: #fafafa;
+  border: 3px solid #1a1a1a;
   border-radius: 16px;
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .settingLabel {
@@ -273,23 +302,30 @@
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 8px;
-  background: rgba(45, 45, 45, 0.2);
+  height: 10px;
+  background: #ffffff;
+  border: 3px solid #1a1a1a;
   border-radius: 50px;
   outline: none;
   cursor: pointer;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, #2d2d2d 0%, #404040 100%);
+  width: 28px;
+  height: 28px;
+  background: #1a1a1a;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
+  box-shadow: 
+    0 3px 0 0 rgba(0, 0, 0, 0.8),
+    0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
 }
 
 .slider::-webkit-slider-thumb:hover {
@@ -297,13 +333,15 @@
 }
 
 .slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, #2d2d2d 0%, #404040 100%);
+  width: 28px;
+  height: 28px;
+  background: #1a1a1a;
   border-radius: 50%;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 3px 0 0 rgba(0, 0, 0, 0.8),
+    0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Save Button */
@@ -327,19 +365,31 @@
   font-weight: 600;
   font-family: var(--font-body);
   color: #ffffff;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background-color: #1a1a1a;
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 
+    0 5px 0 0 rgba(0, 0, 0, 0.8),
+    0 5px 18px rgba(0, 0, 0, 0.2);
 }
 
 .saveButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 
+    0 7px 0 0 rgba(0, 0, 0, 0.8),
+    0 7px 22px rgba(0, 0, 0, 0.25);
+}
+
+.saveButton:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 
+    0 1px 0 0 rgba(0, 0, 0, 0.8),
+    0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .saveButton:disabled {
@@ -355,8 +405,11 @@
   font-size: 0.875rem;
   color: #16a34a;
   background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  border: 2px solid #22c55e;
   border-radius: 50px;
+  box-shadow: 
+    0 3px 0 0 rgba(34, 197, 94, 0.85),
+    0 3px 10px rgba(34, 197, 94, 0.15);
 }
 
 /* Analytics Panel */
@@ -373,9 +426,11 @@
   gap: 8px;
   padding: var(--spacing-lg);
   background-color: #ffffff;
-  border: 1px solid rgba(26, 26, 26, 0.1);
+  border: 3px solid #1a1a1a;
   border-radius: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 18px rgba(0, 0, 0, 0.08);
 }
 
 .statCardIcon {
@@ -413,12 +468,15 @@
   color: #dc2626;
 }
 
-/* Error Types Chart */
+/* Error Types Chart - Sketchy 3D */
 .chartSection {
   background-color: #ffffff;
-  border: 1px solid rgba(26, 26, 26, 0.1);
+  border: 3px solid #1a1a1a;
   border-radius: 24px;
   padding: var(--spacing-xl);
+  box-shadow: 
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .chartTitle {
@@ -450,14 +508,18 @@
 .barContainer {
   flex: 1;
   height: 24px;
-  background-color: rgba(45, 45, 45, 0.1);
+  background-color: #ffffff;
+  border: 2px solid #1a1a1a;
   border-radius: 50px;
   overflow: hidden;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .barFill {
   height: 100%;
-  background: linear-gradient(90deg, #2d2d2d 0%, #404040 100%);
+  background-color: #1a1a1a;
   border-radius: 50px;
   transition: width 0.5s ease;
 }
@@ -494,21 +556,37 @@
   font-weight: 500;
   color: var(--color-text-secondary);
   background-color: transparent;
-  border: 1px solid rgba(26, 26, 26, 0.15);
+  border: 2px solid #1a1a1a;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .filterButton:hover {
-  border-color: #2d2d2d;
   color: #1a1a1a;
+  transform: translateY(-1px);
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.filterButton:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 5px rgba(0, 0, 0, 0.06);
 }
 
 .filterActive {
-  background-color: rgba(45, 45, 45, 0.1);
-  border-color: #2d2d2d;
-  color: #1a1a1a;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  transform: translateY(1px);
+  box-shadow: 
+    0 1px 0 0 rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .refreshButton {
@@ -519,15 +597,28 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #1a1a1a;
-  background-color: rgba(45, 45, 45, 0.1);
-  border: none;
+  background-color: #ffffff;
+  border: 2px solid #1a1a1a;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .refreshButton:hover {
-  background-color: rgba(45, 45, 45, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.refreshButton:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .refreshButton:disabled {
@@ -535,13 +626,16 @@
   cursor: not-allowed;
 }
 
-/* Sessions Table */
+/* Sessions Table - Sketchy 3D */
 .sessionsTable {
   width: 100%;
   background-color: #ffffff;
-  border: 1px solid rgba(26, 26, 26, 0.1);
+  border: 3px solid #1a1a1a;
   border-radius: 20px;
   overflow: hidden;
+  box-shadow: 
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 18px rgba(0, 0, 0, 0.08);
 }
 
 .sessionsTableHeader {

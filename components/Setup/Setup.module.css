@@ -44,20 +44,28 @@
 }
 
 .stepDot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background-color: rgba(26, 26, 26, 0.15);
-  transition: all 0.3s ease;
+  background-color: #e5e5e5;
+  border: 2px solid #1a1a1a;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .stepDot.active {
-  background-color: var(--color-button-dark);
+  background-color: #1a1a1a;
   transform: scale(1.2);
 }
 
 .stepDot.completed {
-  background-color: #16a34a;
+  background-color: #22c55e;
+  border-color: #16a34a;
+  box-shadow: 
+    0 2px 0 0 rgba(22, 163, 74, 0.9),
+    0 2px 6px rgba(22, 163, 74, 0.2);
 }
 
 /* Craziness Selector */
@@ -75,24 +83,33 @@
   justify-content: center;
   padding: var(--spacing-md) var(--spacing-sm);
   background-color: var(--color-background);
-  border: 2px solid rgba(26, 26, 26, 0.1);
+  border: 3px solid #1a1a1a;
   border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   text-align: center;
   min-height: 100px;
+  box-shadow: 
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
 .crazinessOption:hover {
-  border-color: rgba(26, 26, 26, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 7px 0 0 rgba(26, 26, 26, 0.9),
+    0 7px 20px rgba(0, 0, 0, 0.12),
+    0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .crazinessOption.selected {
-  border-color: var(--color-button-dark);
   background-color: var(--color-button-dark);
   color: var(--color-button-dark-text);
+  transform: translateY(3px);
+  box-shadow: 
+    0 2px 0 0 rgba(0, 0, 0, 0.9),
+    0 3px 12px rgba(0, 0, 0, 0.2);
 }
 
 .crazinessOption.selected .crazinessLabel {
@@ -143,10 +160,14 @@
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background-color: var(--color-background);
-  border: 2px solid rgba(26, 26, 26, 0.15);
+  border: 3px solid #1a1a1a;
   border-radius: 50px;
   outline: none;
   transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .searchInput::placeholder {
@@ -154,8 +175,11 @@
 }
 
 .searchInput:focus {
-  border-color: var(--color-button-dark);
-  box-shadow: 0 0 0 4px rgba(26, 26, 26, 0.05);
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 0 0 3px rgba(26, 26, 26, 0.1);
 }
 
 .focusGrid {
@@ -164,9 +188,12 @@
   gap: var(--spacing-xs);
   max-height: 400px;
   overflow-y: auto;
-  padding: var(--spacing-xs);
-  border: 1px solid rgba(26, 26, 26, 0.1);
+  padding: var(--spacing-sm);
+  border: 3px solid #1a1a1a;
   border-radius: 20px;
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .focusGrid::-webkit-scrollbar {
@@ -194,25 +221,35 @@
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background-color: var(--color-background);
-  border: 2px solid rgba(26, 26, 26, 0.1);
+  border: 2px solid #1a1a1a;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08),
+    0 5px 18px rgba(0, 0, 0, 0.05);
 }
 
 .focusOption:hover {
-  border-color: rgba(26, 26, 26, 0.3);
-  background-color: rgba(26, 26, 26, 0.02);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .focusOption.selected {
-  border-color: var(--color-button-dark);
   background-color: var(--color-button-dark);
   color: var(--color-button-dark-text);
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 0 rgba(0, 0, 0, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .noResults {
@@ -240,15 +277,30 @@
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background-color: transparent;
-  border: 2px solid rgba(26, 26, 26, 0.15);
+  border: 2px solid #1a1a1a;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 6px 20px rgba(0, 0, 0, 0.05);
 }
 
 .backButton:hover {
-  border-color: var(--color-text-primary);
   background-color: rgba(26, 26, 26, 0.02);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 15px rgba(0, 0, 0, 0.12),
+    0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.backButton:active {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .continueButton {
@@ -264,16 +316,26 @@
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 5px 0 0 rgba(0, 0, 0, 0.8),
+    0 5px 18px rgba(0, 0, 0, 0.2),
+    0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .continueButton:hover:not(:disabled) {
-  background-color: #333;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 7px 0 0 rgba(0, 0, 0, 0.8),
+    0 7px 22px rgba(0, 0, 0, 0.25),
+    0 10px 35px rgba(0, 0, 0, 0.15);
 }
 
 .continueButton:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(4px);
+  box-shadow: 
+    0 1px 0 0 rgba(0, 0, 0, 0.8),
+    0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .continueButton:disabled {
@@ -347,25 +409,34 @@
   justify-content: center;
   padding: var(--spacing-xl) var(--spacing-lg);
   background-color: var(--color-background);
-  border: 2px solid rgba(26, 26, 26, 0.1);
+  border: 3px solid #1a1a1a;
   border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   text-align: center;
   min-height: 180px;
   gap: var(--spacing-sm);
+  box-shadow: 
+    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 18px rgba(0, 0, 0, 0.1),
+    0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .essayTypeOption:hover {
-  border-color: rgba(26, 26, 26, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 8px 0 0 rgba(26, 26, 26, 0.9),
+    0 8px 22px rgba(0, 0, 0, 0.12),
+    0 12px 35px rgba(0, 0, 0, 0.08);
 }
 
 .essayTypeOption.selected {
-  border-color: var(--color-button-dark);
   background-color: var(--color-button-dark);
   color: var(--color-button-dark-text);
+  transform: translateY(4px);
+  box-shadow: 
+    0 2px 0 0 rgba(0, 0, 0, 0.9),
+    0 3px 12px rgba(0, 0, 0, 0.2);
 }
 
 .essayTypeOption.selected .essayTypeLabel,
