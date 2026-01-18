@@ -214,24 +214,24 @@
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 4px 0 0 rgba(0, 0, 0, 0.8),
-    0 4px 15px rgba(0, 0, 0, 0.2),
-    0 6px 25px rgba(0, 0, 0, 0.1);
+    0 4px 0 0 rgba(120, 120, 120, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.15),
+    0 6px 25px rgba(0, 0, 0, 0.08);
 }
 
 .resetButton:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(0, 0, 0, 0.8),
-    0 6px 18px rgba(0, 0, 0, 0.25),
-    0 8px 30px rgba(0, 0, 0, 0.12);
+    0 6px 0 0 rgba(120, 120, 120, 0.9),
+    0 6px 18px rgba(0, 0, 0, 0.18),
+    0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .resetButton:active:not(:disabled) {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 rgba(0, 0, 0, 0.8),
-    0 2px 8px rgba(0, 0, 0, 0.15);
+    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .resetButton:disabled {
@@ -458,22 +458,22 @@
   justify-content: center;
   min-width: 80px;
   box-shadow: 
-    0 4px 0 0 rgba(0, 0, 0, 0.8),
-    0 4px 12px rgba(0, 0, 0, 0.15);
+    0 4px 0 0 rgba(120, 120, 120, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .saveButton:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(0, 0, 0, 0.8),
-    0 6px 15px rgba(0, 0, 0, 0.2);
+    0 6px 0 0 rgba(120, 120, 120, 0.9),
+    0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .saveButton:active:not(:disabled) {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 rgba(0, 0, 0, 0.8),
-    0 2px 8px rgba(0, 0, 0, 0.12);
+    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .saveButton:disabled {
