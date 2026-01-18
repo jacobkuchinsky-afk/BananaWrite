@@ -199,6 +199,7 @@ Restrictions:
 
 Context Information:
 - If the prompt requires specific knowledge (facts, data, historical context), provide that information on the second line
+- This information should be used if you want hte user to write about something specific like historical events or specific facts.
 
 Output Format:
 Line 1: The essay prompt (1-2 sentences)
@@ -243,6 +244,7 @@ Scope:
 - Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry)
 - Report only significant errors; ignore minor issues
 - Count individual error instances within each category
+- Only report actual errors, non-errors or flow mistakes should not be reported.
 
 Severity Scale: 1 (minor) to 10 (severe)
 
@@ -341,6 +343,8 @@ Requirements:
 - Ensure exactly ONE grammatically correct answer per question
 - Never reveal the answer within the question text itself
 - If previous quiz results are provided, focus on areas the user got wrong
+- Every quiz should use atleast 2 types of questions.
+- Follow the formatting exactly otherwise the quiz will not be created correctly.
 
 Question Type Tags (REQUIRED):
 - Multiple Choice: Wrap each option with <MULTI> tags

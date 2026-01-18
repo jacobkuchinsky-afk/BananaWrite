@@ -57,7 +57,10 @@ export async function initializeUser(userId: string, email: string, displayName:
   const settingsRef = getSettingsDocRef(userId)
 
   // Check if user already exists
-  const profileSnap = await getDoc(profileRef)
+  const [profileSnap, settingsSnap] = await Promise.all([
+    getDoc(profileRef),
+    getDoc(settingsRef)
+  ])
   
   if (!profileSnap.exists()) {
     // Create parent user document first (required for subcollections)
@@ -81,8 +84,11 @@ export async function initializeUser(userId: string, email: string, displayName:
     // Create session
     await setDoc(sessionRef, DEFAULT_CURRENT_SESSION)
 
-    // Create settings (setupComplete: false by default)
-    await setDoc(settingsRef, DEFAULT_USER_SETTINGS)
+    // Only create settings if they don't already exist
+    // (User may have completed setup before profile was created)
+    if (!settingsSnap.exists()) {
+      await setDoc(settingsRef, DEFAULT_USER_SETTINGS)
+    }
     
     console.log('New user documents created successfully')
   } else {
@@ -546,4 +552,3 @@ export async function getFullUserDataWithSettings(userId: string): Promise<{
     settings: settingsSnap.exists() ? settingsSnap.data() as UserSettings : null
   }
 }
-
