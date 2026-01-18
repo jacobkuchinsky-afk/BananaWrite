@@ -53,15 +53,16 @@ def generate_prompt():
         lesson_index = data.get('lessonIndex', 0)
         writing_technique = get_writing_technique(lesson_index)
     
-    # Get user's craziness and focus settings (optional)
+    # Get user's craziness, focus, and essay type settings (optional)
     craziness = data.get('craziness')
     focus = data.get('focus')
+    essay_type = data.get('essayType')
     
-    print(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}")
+    print(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}, Essay Type: {essay_type}")
     
     def generate():
         """Generator function for SSE streaming"""
-        for chunk_data in generate_essay_prompt_stream(writing_technique, craziness, focus):
+        for chunk_data in generate_essay_prompt_stream(writing_technique, craziness, focus, essay_type):
             # Format as Server-Sent Event
             json_data = json.dumps(chunk_data)
             yield f"data: {json_data}\n\n"

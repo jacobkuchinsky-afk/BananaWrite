@@ -147,7 +147,8 @@ function WriteContent() {
             lessonIndex,
             writingTechnique: technique,
             craziness: userSettings?.craziness,
-            focus: userSettings?.focus
+            focus: userSettings?.focus,
+            essayType: userSettings?.essayType
           })
             .then(async (fullPrompt) => {
               setCurrentPrompt(fullPrompt)
@@ -167,7 +168,8 @@ function WriteContent() {
           lessonIndex,
           writingTechnique: technique,
           craziness: userSettings?.craziness,
-          focus: userSettings?.focus
+          focus: userSettings?.focus,
+          essayType: userSettings?.essayType
         })
           .then(async (fullPrompt) => {
             setCurrentPrompt(fullPrompt)
@@ -189,7 +191,8 @@ function WriteContent() {
         lessonIndex,
         writingTechnique: technique,
         craziness: userSettings?.craziness,
-        focus: userSettings?.focus
+        focus: userSettings?.focus,
+        essayType: userSettings?.essayType
       })
         .then(async (fullPrompt) => {
           setCurrentPrompt(fullPrompt)
@@ -362,7 +365,8 @@ function WriteContent() {
         lessonIndex: currentLesson,
         writingTechnique: currentTechnique,
         craziness: userSettings?.craziness,
-        focus: userSettings?.focus
+        focus: userSettings?.focus,
+        essayType: userSettings?.essayType
       })
       
       setCurrentPrompt(fullPrompt)

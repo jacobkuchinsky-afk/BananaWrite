@@ -163,19 +163,29 @@ Output Format:
 µ
 [Full essay with each error wrapped in ¦ markers]"""
 
-def get_essay_prompt_creator(craziness: str = None, focus: str = None) -> str:
+def get_essay_prompt_creator(craziness: str = None, focus: str = None, essay_type: str = None) -> str:
     """
     Generate the essay prompt creator system instruction with dynamic craziness and focus.
     
     Args:
         craziness: The craziness level (e.g., "Wild", "Absurd", "Mundane")
         focus: The topic focus (e.g., "Technology", "Sports", "History")
+        essay_type: The essay type preference ("Fiction" or "Non-Fiction")
     
     Returns:
         The system prompt for essay prompt generation
     """
     craziness_level = craziness or DEFAULT_CRAZINESS
     focus_topic = focus or DEFAULT_FOCUS
+    
+    # Determine essay type instruction based on user preference
+    if essay_type == "Fiction":
+        essay_type_instruction = "- Essay Type: Fiction ONLY (Narrative or Creative/Imaginative stories)"
+    elif essay_type == "Non-Fiction":
+        essay_type_instruction = "- Essay Type: Non-Fiction ONLY (Expository or Argumentative essays)"
+    else:
+        # Default: allow any type
+        essay_type_instruction = "- Essay Types: Expository, Argumentative, or Narrative"
     
     return f"""Task: Generate a 1-2 sentence essay prompt for a student.
 
@@ -184,7 +194,7 @@ Requirements:
 - Tone/Creativity Level: {craziness_level} (applies to humor, uniqueness, and engagement)
 - Target Audience: Ages 14-18 (match maturity and comedy level accordingly)
 - Target Essay Length: 225 words
-- Essay Types: Expository, Argumentative, Narrative, or Fictional
+{essay_type_instruction}
 - The prompt should never refrence an event like "write about a time that you did..."
 
 Writing Technique Rules:
@@ -459,7 +469,7 @@ def create_client():
     )
 
 
-def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, focus: str = None):
+def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, focus: str = None, essay_type: str = None):
     """
     Generator function that yields chunks of the essay prompt as they stream in.
     
@@ -467,14 +477,15 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
         writing_technique: The current writing skill to focus on (e.g., "Commas")
         craziness: The craziness level for the prompt (e.g., "Wild", "Absurd")
         focus: The topic focus for the prompt (e.g., "Technology", "Sports")
+        essay_type: The essay type preference ("Fiction" or "Non-Fiction")
     
     Yields:
         dict: Contains 'type' ('chunk' or 'done') and 'content' (the text chunk or full prompt)
     """
     client = create_client()
     
-    # Get the system prompt with dynamic craziness and focus
-    system_prompt = get_essay_prompt_creator(craziness, focus)
+    # Get the system prompt with dynamic craziness, focus, and essay type
+    system_prompt = get_essay_prompt_creator(craziness, focus, essay_type)
     
     # Build the user message based on whether there's a specific technique
     if writing_technique and writing_technique.lower() != "none":
