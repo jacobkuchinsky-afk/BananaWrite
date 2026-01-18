@@ -99,14 +99,7 @@ export default function ModuleComplete({
       <div className={styles.moduleCompleteContent}>
         <span className={styles.moduleCompleteIcon}>
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            {/* Star shape */}
             <path d="M12 2L14.09 8.26L21 9.27L16 14.14L17.18 21.02L12 17.77L6.82 21.02L8 14.14L3 9.27L9.91 8.26L12 2Z" fill="#fbbf24"/>
-            {/* Inner highlight */}
-            <path d="M12 5L13.45 9.47L18 10.18L14.5 13.59L15.36 18.36L12 16.27L8.64 18.36L9.5 13.59L6 10.18L10.55 9.47L12 5Z" fill="#fde047"/>
-            {/* Trophy base */}
-            <path d="M8 20H16V22H8V20Z" fill="#a16207"/>
-            {/* Trophy stem */}
-            <path d="M10 18H14V20H10V18Z" fill="#d97706"/>
           </svg>
         </span>
         
