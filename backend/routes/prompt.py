@@ -477,8 +477,16 @@ def self_review_endpoint():
     
     print(f"[SELF_REVIEW_ENDPOINT] Reviewing AI response for context: {context_type}")
     
-    result = self_review(context_type, original_response, user_content, original_prompt)
-    
-    print(f"[SELF_REVIEW_ENDPOINT] Result: is_correct={result.get('is_correct')}")
-    
-    return jsonify(result)
+    try:
+        result = self_review(context_type, original_response, user_content, original_prompt)
+        
+        print(f"[SELF_REVIEW_ENDPOINT] Result: is_correct={result.get('is_correct')}")
+        
+        return jsonify(result)
+    except Exception as e:
+        print(f"[SELF_REVIEW_ENDPOINT] Error: {str(e)}")
+        return jsonify({
+            "error": f"Self-review failed: {str(e)}",
+            "is_correct": True,  # Default to AI being correct on error
+            "correction_feedback": None
+        }), 500

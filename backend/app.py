@@ -11,15 +11,25 @@ from routes.prompt import prompt_bp
 # Create Flask app
 app = Flask(__name__)
 
-# Configure CORS - allow all origins for now (debug)
-# TODO: Restrict to specific origins in production
-CORS(app, resources={
-    r"/api/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
-    }
-})
+# Configure CORS - allow all origins
+# supports_credentials allows cookies/auth if needed
+CORS(app, 
+     origins="*",
+     methods=["GET", "POST", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"],
+     supports_credentials=True)
+
+
+# Error handler to ensure CORS headers on errors
+@app.errorhandler(Exception)
+def handle_exception(e):
+    """Handle all exceptions with proper CORS headers"""
+    response = jsonify({
+        "error": str(e),
+        "type": type(e).__name__
+    })
+    response.status_code = 500
+    return response
 
 
 # Register blueprints
