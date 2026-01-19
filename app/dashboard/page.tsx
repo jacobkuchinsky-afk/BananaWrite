@@ -12,7 +12,7 @@ import { SettingsIcon } from '@/components/Icons/Icons'
 import { ADMIN_EMAIL } from '@/types'
 import styles from '@/components/Dashboard/Dashboard.module.css'
 
-// Writing techniques - same order as backend
+// Writing techniques - same order as backend (33 total, indices 0-32)
 const WRITING_TECHNIQUES = [
   "None", "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
   "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
@@ -21,8 +21,8 @@ const WRITING_TECHNIQUES = [
   "Parallel structure", "Modifiers", "Compound sentences", "Complex sentences",
   "Compound-complex sentences", "Subordinating conjunctions", "Coordinating conjunctions",
   "Transitional phrases", "Point of view", "Paragraph structure", "Topic sentences",
-  "Thesis statements", "Metaphors and similes", "Capitalization", "Italics",
-  "Dialogue formatting", "Direct and indirect quotations", "Citation styles", "Homophones"
+  "Thesis statements", "Metaphors and similes", "Capitalization", "Dialogue formatting",
+  "Citation styles"
 ]
 
 function DashboardContent() {
@@ -44,9 +44,10 @@ function DashboardContent() {
     }
   }
 
-  // Get current skill name
+  // Get current skill name (display "Anything" instead of "None")
   const currentLesson = progress?.currentLesson ?? 0
-  const currentSkill = WRITING_TECHNIQUES[currentLesson] || 'None'
+  const rawSkill = WRITING_TECHNIQUES[currentLesson] || 'None'
+  const currentSkill = rawSkill === 'None' ? 'Anything' : rawSkill
   const totalSkills = WRITING_TECHNIQUES.length
   const progressPercent = (currentLesson / totalSkills) * 100
 

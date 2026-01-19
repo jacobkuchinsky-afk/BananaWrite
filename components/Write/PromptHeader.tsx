@@ -22,9 +22,9 @@ export default function PromptHeader({ prompt, writingTechnique }: PromptHeaderP
           {additionalInfo}
         </p>
       )}
-      {writingTechnique && writingTechnique !== 'None' && (
+      {writingTechnique && (
         <span className={styles.skillBadge}>
-          Focus: {writingTechnique}
+          Focus: {writingTechnique === 'None' ? 'Anything' : writingTechnique}
         </span>
       )}
     </div>

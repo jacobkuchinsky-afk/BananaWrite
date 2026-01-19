@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { ActiveSession } from '@/types'
@@ -71,7 +71,8 @@ export default function ActiveSessionsPanel() {
 
   const getSessionDetails = (session: ActiveSession) => {
     if (session.sessionType === 'essay') {
-      return `${session.writingTechnique || 'None'} - ${session.wordCount || 0} words`
+      const technique = session.writingTechnique === 'None' ? 'Anything' : (session.writingTechnique || 'Anything')
+      return `${technique} - ${session.wordCount || 0} words`
     }
     const topic = session.quizTopic || 'Loading...'
     const progress = session.quizProgress ? ` - ${session.quizProgress}` : ''

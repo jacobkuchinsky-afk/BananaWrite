@@ -17,7 +17,7 @@ export interface UserProfile {
 
 // User progress tracking
 export interface UserProgress {
-  currentLesson: number  // Index into WRITING_TECHNIQUES array (0-35)
+  currentLesson: number  // Index into WRITING_TECHNIQUES array (0-32, 33 total)
   completedLessons: number[]  // Indices of completed lessons
   totalXP: number
 }

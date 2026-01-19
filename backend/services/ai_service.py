@@ -58,10 +58,46 @@ WRITING_TECHNIQUES = [
     "Metaphors and similes",
     "Capitalization",
     "Dialogue formatting",
-    "Direct and indirect quotations",
     "Citation styles",
-    "Homophones",
 ]
+
+# Specific prompt instructions for each writing technique
+# These get appended to the AI prompt creator to guide essay requirements
+WRITING_TECHNIQUE_PROMPTS = {
+    "None": "",
+    "Commas": "Request the user to include exactly 1 list with commas, 2 sentences using commas with coordinating conjunctions, and 2 introductory commas after introductory phrases or clauses.",
+    "Periods": "Request the user to write at least 8 complete declarative sentences that end with periods, ensuring each sentence expresses a complete thought.",
+    "Semicolons": "Request the user to connect exactly 3 pairs of related independent clauses using semicolons instead of periods or conjunctions.",
+    "Colons": "Request the user to use exactly 2 colons: one to introduce a list and one to introduce an explanation or elaboration.",
+    "Apostrophes": "Request the user to include exactly 3 possessive nouns (singular or plural) and 2 contractions, using apostrophes correctly in each.",
+    "Quotation marks": "Request the user to include exactly 2 direct quotes from people or sources, properly enclosed in quotation marks with correct punctuation placement.",
+    "Question marks": "Request the user to include exactly 2 rhetorical questions that engage the reader and 1 direct question, all ending with question marks.",
+    "Hyphens": "Request the user to use exactly 3 hyphenated compound adjectives (like 'well-known' or 'high-quality') before nouns they modify.",
+    "Dashes (em dash, en dash)": "Request the user to use exactly 2 em dashes to set off parenthetical information or create emphasis, and 1 en dash for a range.",
+    "Parentheses": "Request the user to include exactly 2 parenthetical asides that add supplementary information without disrupting the main sentence flow.",
+    "Brackets": "Request the user to include exactly 1 quote where brackets are used to add clarifying information or modify the original text for context.",
+    "Ellipses": "Request the user to use exactly 2 ellipses: one to show a trailing thought and one to indicate omitted words in a quotation.",
+    "Subject-verb agreement": "Request the user to include exactly 3 sentences with compound subjects, 2 sentences with collective nouns, and 2 sentences with indefinite pronouns as subjects, all with correct verb agreement.",
+    "Verb conjugation": "Request the user to use at least 3 different verb tenses (past, present, future) correctly and include 2 irregular verbs conjugated properly.",
+    "Pronoun-antecedent agreement": "Request the user to include exactly 4 sentences where pronouns clearly and correctly refer back to their antecedents, including at least 1 plural and 1 singular antecedent.",
+    "Active vs. passive voice": "Request the user to write exactly 3 sentences in active voice and 2 sentences in passive voice, using each voice intentionally and appropriately.",
+    "Parallel structure": "Request the user to include exactly 2 sentences with parallel lists and 1 sentence with parallel clauses or phrases in a comparison.",
+    "Modifiers": "Request the user to include exactly 3 sentences with correctly placed adjective phrases and 2 sentences with correctly placed adverb phrases, avoiding dangling or misplaced modifiers.",
+    "Compound sentences": "Request the user to write exactly 4 compound sentences, each joining two independent clauses with a comma and coordinating conjunction (FANBOYS).",
+    "Complex sentences": "Request the user to write exactly 4 complex sentences, each containing one independent clause and at least one dependent clause beginning with a subordinating conjunction.",
+    "Compound-complex sentences": "Request the user to write exactly 2 compound-complex sentences, each containing at least two independent clauses and one dependent clause.",
+    "Subordinating conjunctions": "Request the user to use exactly 4 different subordinating conjunctions (such as because, although, when, if, while, since) to begin dependent clauses.",
+    "Coordinating conjunctions": "Request the user to use all 7 coordinating conjunctions (for, and, nor, but, or, yet, so) at least once each throughout the essay to connect words, phrases, or clauses.",
+    "Transitional phrases": "Request the user to use exactly 5 different transitional phrases (such as 'however,' 'in addition,' 'consequently,' 'for example,' 'on the other hand') to connect ideas between sentences or paragraphs.",
+    "Point of view": "Request the user to write the entire essay in a consistent point of view (first person, second person, or third person) without shifting perspective.",
+    "Paragraph structure": "Request the user to write exactly 3 well-structured paragraphs, each with a clear topic sentence, at least 2 supporting sentences, and a concluding sentence.",
+    "Topic sentences": "Request the user to begin each paragraph with a clear topic sentence that states the main idea, followed by supporting details.",
+    "Thesis statements": "Request the user to include a clear thesis statement in the introduction that presents the main argument or purpose of the essay.",
+    "Metaphors and similes": "Request the user to include exactly 2 metaphors (direct comparisons) and 2 similes (comparisons using 'like' or 'as') to enhance descriptions.",
+    "Capitalization": "Request the user to correctly capitalize at least 3 proper nouns, 2 titles or headings, and the first word of at least 5 sentences.",
+    "Dialogue formatting": "Request the user to include a short dialogue exchange (at least 4 lines) between two characters, with correct punctuation, quotation marks, and new paragraphs for each speaker.",
+    "Citation styles": "Request the user to include exactly 2 in-text citations attributing information to sources, using a consistent format (author, year) or similar.",
+}
 
 # Default craziness and focus (used if not provided)
 DEFAULT_CRAZINESS = "Engaging"
@@ -210,6 +246,7 @@ Restrictions:
 Context Information:
 - If the prompt requires specific knowledge (facts, data, historical context), provide that information on the second line
 - This information should be used if you want hte user to write about something specific like historical events or specific facts.
+- Add a basic explination of the specific writing technique to the prompt if there is one.
 
 Output Format:
 Line 1: The essay prompt (1-2 sentences)
@@ -489,7 +526,11 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
     
     # Build the user message based on whether there's a specific technique
     if writing_technique and writing_technique.lower() != "none":
-        user_message = f"Create an essay prompt. The student is currently learning about: {writing_technique}. Subtly incorporate opportunities to practice this skill."
+        # Get the specific prompt instruction for this technique
+        technique_prompt = WRITING_TECHNIQUE_PROMPTS.get(writing_technique, "")
+        user_message = f"Create an essay prompt. The student is currently learning about: {writing_technique}."
+        if technique_prompt:
+            user_message += f" {technique_prompt}"
     else:
         user_message = "Create an essay prompt with no specific writing techinque needed."
     

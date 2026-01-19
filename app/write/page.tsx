@@ -20,7 +20,7 @@ import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS } from '@/types'
 import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Write/Write.module.css'
 
-// Writing techniques - same order as backend
+// Writing techniques - same order as backend (33 total, indices 0-32)
 const WRITING_TECHNIQUES = [
   "None", "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
   "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
@@ -29,8 +29,8 @@ const WRITING_TECHNIQUES = [
   "Parallel structure", "Modifiers", "Compound sentences", "Complex sentences",
   "Compound-complex sentences", "Subordinating conjunctions", "Coordinating conjunctions",
   "Transitional phrases", "Point of view", "Paragraph structure", "Topic sentences",
-  "Thesis statements", "Metaphors and similes", "Capitalization", "Italics",
-  "Dialogue formatting", "Direct and indirect quotations", "Citation styles", "Homophones"
+  "Thesis statements", "Metaphors and similes", "Capitalization", "Dialogue formatting",
+  "Citation styles"
 ]
 
 // Count words in text
@@ -120,7 +120,9 @@ function WriteContent() {
 
     const lessonIndex = progress?.currentLesson ?? 0
     setCurrentLesson(lessonIndex)
-    const technique = WRITING_TECHNIQUES[lessonIndex] || 'None'
+    const rawTechnique = WRITING_TECHNIQUES[lessonIndex] || 'None'
+    // Display "Anything" instead of "None" for user-facing text
+    const technique = rawTechnique === 'None' ? 'Anything' : rawTechnique
     setCurrentTechnique(technique)
 
     // Check if we have an existing session with a prompt
