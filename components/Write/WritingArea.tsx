@@ -1,6 +1,7 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
+import FormattingToolbar from './FormattingToolbar'
 import styles from './Write.module.css'
 
 interface WritingAreaProps {
@@ -10,42 +11,96 @@ interface WritingAreaProps {
   disabled?: boolean
 }
 
+// Extract plain text from HTML for word counting and storage
+function extractPlainText(html: string): string {
+  if (typeof document === 'undefined') return html
+  const temp = document.createElement('div')
+  temp.innerHTML = html
+  return temp.textContent || temp.innerText || ''
+}
+
 export default function WritingArea({ 
   value, 
   onChange, 
   placeholder = 'Start writing your essay here...',
   disabled = false
 }: WritingAreaProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
+  const isInternalChange = useRef(false)
 
-  // Auto-resize textarea based on content
+  // Initialize content when value changes externally
   useEffect(() => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = 'auto'
-      // Set height to scrollHeight, with a minimum height
-      const minHeight = 400
-      const newHeight = Math.max(textarea.scrollHeight, minHeight)
-      textarea.style.height = `${newHeight}px`
+    const editor = editorRef.current
+    if (editor && !isInternalChange.current) {
+      // Only update if the plain text is different (to preserve formatting during edits)
+      const currentPlainText = extractPlainText(editor.innerHTML)
+      if (currentPlainText !== value) {
+        // If value is plain text without HTML, just set it
+        if (value === extractPlainText(value)) {
+          editor.innerText = value
+        } else {
+          editor.innerHTML = value
+        }
+      }
     }
+    isInternalChange.current = false
   }, [value])
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value)
-  }
+  // Handle content changes from the editor
+  const handleInput = useCallback(() => {
+    const editor = editorRef.current
+    if (editor) {
+      isInternalChange.current = true
+      // Pass the plain text for word counting and storage
+      const plainText = extractPlainText(editor.innerHTML)
+      onChange(plainText)
+    }
+  }, [onChange])
+
+  // Handle paste - allow formatted text
+  const handlePaste = useCallback((_e: React.ClipboardEvent) => {
+    // Let the browser handle paste normally for rich text
+    // The input event will handle updating the value
+  }, [])
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Tab key for indentation
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      if (e.shiftKey) {
+        document.execCommand('outdent')
+      } else {
+        document.execCommand('indent')
+      }
+      handleInput()
+    }
+  }, [handleInput])
+
+  // Focus the editor on mount
+  useEffect(() => {
+    const editor = editorRef.current
+    if (editor && !disabled) {
+      // Small delay to ensure the element is ready
+      setTimeout(() => {
+        editor.focus()
+      }, 100)
+    }
+  }, [disabled])
 
   return (
     <div className={styles.writingSection}>
-      <textarea
-        ref={textareaRef}
+      <FormattingToolbar editorRef={editorRef} onContentChange={handleInput} />
+      <div
+        ref={editorRef}
         className={styles.writingArea}
-        value={value}
-        onChange={handleChange}
-        placeholder={placeholder}
-        disabled={disabled}
+        contentEditable={!disabled}
+        onInput={handleInput}
+        onPaste={handlePaste}
+        onKeyDown={handleKeyDown}
+        data-placeholder={placeholder}
         spellCheck={true}
-        autoFocus
+        suppressContentEditableWarning={true}
       />
     </div>
   )
