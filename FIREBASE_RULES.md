@@ -4,6 +4,20 @@ Copy these rules into your Firebase Console.
 
 ---
 
+## FIRESTORE INDEXES
+
+Go to: **Firebase Console** → **Firestore Database** → **Indexes** → **Add Index**
+
+Create this composite index for bug reports queries:
+
+| Collection ID | Fields indexed | Query scope |
+|---------------|----------------|-------------|
+| bugReports | userId (Ascending), createdAt (Descending) | Collection |
+
+Or click the link in the console error message to auto-create the index.
+
+---
+
 ## FIRESTORE RULES
 
 Go to: **Firebase Console** → **Firestore Database** → **Rules**
