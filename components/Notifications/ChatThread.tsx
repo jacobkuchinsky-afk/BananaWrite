@@ -88,7 +88,7 @@ export default function ChatThread({
   if (!report) {
     return (
       <div className={styles.emptyChat}>
-        <span className={styles.emptyChatIcon}>💬</span>
+        <span className={styles.emptyChatIcon}>Select a report</span>
         <h3 className={styles.emptyChatTitle}>Select a Report</h3>
         <p className={styles.emptyChatText}>
           Choose a report from the list to view the conversation, or submit a new report above.
