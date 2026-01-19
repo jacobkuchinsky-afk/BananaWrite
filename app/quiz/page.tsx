@@ -741,6 +741,10 @@ function QuizContent() {
             onContestSuccess={handleQuizGradeContestSuccess}
             onContestConfirmed={handleQuizGradeContestConfirmed}
             contestConfirmed={quizGradeContestConfirmed}
+            // User info for bug reports
+            userId={user?.uid}
+            userEmail={user?.email || undefined}
+            displayName={user?.displayName}
           />
         </main>
       </div>

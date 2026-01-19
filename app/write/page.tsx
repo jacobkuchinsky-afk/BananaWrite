@@ -568,6 +568,10 @@ function WriteContent() {
         onContestSuccess={handleEssayReviewContestSuccess}
         onContestConfirmed={handleEssayReviewContestConfirmed}
         contestConfirmed={essayReviewContestConfirmed}
+        // User info for bug reports
+        userId={user?.uid}
+        userEmail={user?.email || undefined}
+        displayName={user?.displayName}
       />
     )
   }
@@ -754,6 +758,9 @@ function WriteContent() {
                     onContestSuccess={handleEssayCheckContestSuccess}
                     onContestConfirmed={handleEssayCheckContestConfirmed}
                     disabled={isChecking || essayCheckContestConfirmed}
+                    userId={user?.uid}
+                    userEmail={user?.email || undefined}
+                    displayName={user?.displayName}
                   />
                 </div>
               )}

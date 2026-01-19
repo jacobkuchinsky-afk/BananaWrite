@@ -233,6 +233,7 @@ Requirements:
 - Target Essay Length: 225 words
 {essay_type_instruction}
 - The prompt should never refrence an event like "write about a time that you did..."
+- The prompt should never use the writing technique in it but add to the end the specified writing technique and exactly what is required in the essay.
 
 Writing Technique Rules:
 - ONLY include a writing technique requirement if one is explicitly provided
@@ -251,7 +252,8 @@ Context Information:
 
 Output Format:
 Line 1: The essay prompt (1-2 sentences)
-Line 2: Supporting information for the writer, OR "None" if not needed
+Line 2: The writing technique to practice and exactly what is required in the essay.
+Line 3: Supporting information for the writer, OR "None" if not needed
 
 Example Output:
 "Write an expository essay explaining the lore of your favorite video game. Include exactly 4 compound sentences."

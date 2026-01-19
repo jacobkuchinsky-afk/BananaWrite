@@ -1,21 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import styles from './Contest.module.css'
+import { saveBugReport } from '@/lib/adminFirestore'
+import { BugReportContextType } from '@/types'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
 
 type ContestState = 'idle' | 'loading' | 'success' | 'failure'
-type ContextType = 'essay_check' | 'essay_review' | 'quiz_grade'
 
 interface ContestButtonProps {
-  contextType: ContextType
+  contextType: BugReportContextType
   originalResponse: string
   userContent: string
   originalPrompt?: string  // Required for essay_check context
   onContestSuccess: (correctionFeedback: string) => void
   onContestConfirmed: () => void  // Called when AI confirms it was correct
   disabled?: boolean
+  // User info for bug reports
+  userId?: string
+  userEmail?: string
+  displayName?: string | null
 }
 
 // Checkmark SVG icon
@@ -56,7 +61,10 @@ export default function ContestButton({
   originalPrompt,
   onContestSuccess,
   onContestConfirmed,
-  disabled = false
+  disabled = false,
+  userId,
+  userEmail,
+  displayName
 }: ContestButtonProps) {
   const [state, setState] = useState<ContestState>('idle')
   const [showResultBox, setShowResultBox] = useState(false)
@@ -88,6 +96,28 @@ export default function ContestButton({
       }
 
       const result = await response.json()
+
+      // Save bug report to Firestore (regardless of outcome)
+      if (userId && userEmail) {
+        try {
+          await saveBugReport({
+            userId,
+            userEmail,
+            displayName: displayName || null,
+            contextType,
+            originalResponse,
+            userContent,
+            originalPrompt,
+            selfReviewResult: {
+              isCorrect: result.is_correct,
+              correctionFeedback: result.correction_feedback || null
+            }
+          })
+        } catch (reportError) {
+          console.error('Failed to save bug report:', reportError)
+          // Don't block the main flow if report fails
+        }
+      }
 
       if (result.is_correct) {
         // AI was correct - show checkmark and disable button
@@ -155,15 +185,22 @@ export default function ContestButton({
         </div>
       )}
 
-      {/* The contest button */}
-      <button
-        className={buttonClasses}
-        onClick={handleContest}
-        disabled={disabled || state === 'loading' || isConfirmed}
-      >
-        {getButtonIcon()}
-        {getButtonText()}
-      </button>
+      {/* The contest button with tooltip */}
+      <div className={styles.buttonWrapper}>
+        <button
+          className={buttonClasses}
+          onClick={handleContest}
+          disabled={disabled || state === 'loading' || isConfirmed}
+        >
+          {getButtonIcon()}
+          {getButtonText()}
+        </button>
+        {!isConfirmed && state !== 'loading' && (
+          <div className={styles.tooltip}>
+            Clicking this button will send a bug report and employ another AI to verify and try to fix the problem ~1 minute to fix
+          </div>
+        )}
+      </div>
     </div>
   )
 }

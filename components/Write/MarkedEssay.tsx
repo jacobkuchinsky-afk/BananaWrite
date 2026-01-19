@@ -17,6 +17,10 @@ interface MarkedEssayProps {
   onContestSuccess?: (correctionFeedback: string) => void
   onContestConfirmed?: () => void
   contestConfirmed?: boolean
+  // User info for bug reports
+  userId?: string
+  userEmail?: string
+  displayName?: string | null
 }
 
 /**
@@ -37,7 +41,11 @@ export default function MarkedEssay({
   essayReviewResponse,
   onContestSuccess,
   onContestConfirmed,
-  contestConfirmed = false
+  contestConfirmed = false,
+  // User info for bug reports
+  userId,
+  userEmail,
+  displayName
 }: MarkedEssayProps) {
   // Parse the marked essay - split by ¦ to get alternating normal/error segments
   const parseMarkedEssay = (text: string) => {
@@ -155,6 +163,9 @@ export default function MarkedEssay({
                 onContestSuccess={onContestSuccess}
                 onContestConfirmed={onContestConfirmed}
                 disabled={contestConfirmed}
+                userId={userId}
+                userEmail={userEmail}
+                displayName={displayName}
               />
             </div>
           )}

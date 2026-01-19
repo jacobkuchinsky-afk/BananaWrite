@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Admin Firestore helper functions for BananaWrite
  * Handles global app settings, analytics, and active session monitoring
  */
@@ -28,13 +28,18 @@ import {
   ActiveSession,
   CurrentSession,
   QuizSession,
-  UserProfile
+  UserProfile,
+  BugReport,
+  BugReportStatus,
+  BugReportContextType
 } from '@/types'
+import { addDoc } from 'firebase/firestore'
 
 // Collection paths
 const APP_SETTINGS_COLLECTION = 'appSettings'
 const ANALYTICS_COLLECTION = 'analytics'
 const USERS_COLLECTION = 'users'
+const BUG_REPORTS_COLLECTION = 'bugReports'
 
 // Document references
 const getAppSettingsDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'global')
@@ -331,4 +336,94 @@ export async function getAdminDashboardStats(): Promise<{
     todayQuizzes: todayAnalytics?.quizzesCompleted || 0,
     todayPassRate
   }
+}
+
+// ============================================
+// Bug Reports Functions
+// ============================================
+
+/**
+ * Save a new bug report
+ */
+export async function saveBugReport(report: {
+  userId: string
+  userEmail: string
+  displayName: string | null
+  contextType: BugReportContextType
+  originalResponse: string
+  userContent: string
+  originalPrompt?: string
+  selfReviewResult: {
+    isCorrect: boolean
+    correctionFeedback: string | null
+  }
+}): Promise<string> {
+  const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
+  
+  const docRef = await addDoc(bugReportsRef, {
+    ...report,
+    status: 'pending' as BugReportStatus,
+    createdAt: serverTimestamp()
+  })
+  
+  return docRef.id
+}
+
+/**
+ * Get bug reports with optional status filter
+ */
+export async function getBugReports(statusFilter?: BugReportStatus): Promise<BugReport[]> {
+  const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
+  
+  let q
+  if (statusFilter) {
+    q = query(
+      bugReportsRef, 
+      where('status', '==', statusFilter),
+      orderBy('createdAt', 'desc')
+    )
+  } else {
+    q = query(bugReportsRef, orderBy('createdAt', 'desc'))
+  }
+  
+  const snapshot = await getDocs(q)
+  
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as BugReport))
+}
+
+/**
+ * Get count of pending bug reports
+ */
+export async function getPendingBugReportsCount(): Promise<number> {
+  const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
+  const q = query(bugReportsRef, where('status', '==', 'pending'))
+  const snapshot = await getDocs(q)
+  return snapshot.size
+}
+
+/**
+ * Update bug report status
+ */
+export async function updateBugReportStatus(
+  reportId: string,
+  status: BugReportStatus,
+  adminEmail: string,
+  adminNotes?: string
+): Promise<void> {
+  const reportRef = doc(db, BUG_REPORTS_COLLECTION, reportId)
+  
+  const updateData: Record<string, unknown> = {
+    status,
+    reviewedAt: serverTimestamp(),
+    reviewedBy: adminEmail
+  }
+  
+  if (adminNotes !== undefined) {
+    updateData.adminNotes = adminNotes
+  }
+  
+  await updateDoc(reportRef, updateData)
 }

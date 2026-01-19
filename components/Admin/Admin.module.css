@@ -753,6 +753,231 @@
   color: var(--color-text-muted);
 }
 
+/* Bug Reports Badge */
+.reportsBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #f59e0b;
+  border: 2px solid #d97706;
+  border-radius: 50px;
+  box-shadow: 
+    0 2px 0 0 rgba(217, 119, 6, 0.9),
+    0 2px 8px rgba(217, 119, 6, 0.3);
+}
+
+/* Bug Reports List */
+.bugReportsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.bugReportCard {
+  background-color: #ffffff;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.bugReportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.bugReportHeader:hover {
+  background-color: rgba(45, 45, 45, 0.03);
+}
+
+.bugReportHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.bugReportHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Bug Report Status Badges */
+.bugReportStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 50px;
+}
+
+.statusPending {
+  color: #92400e;
+  background-color: #fef3c7;
+  border: 2px solid #f59e0b;
+}
+
+.statusReviewed {
+  color: #1e40af;
+  background-color: #dbeafe;
+  border: 2px solid #3b82f6;
+}
+
+.statusResolved {
+  color: #166534;
+  background-color: #dcfce7;
+  border: 2px solid #22c55e;
+}
+
+.bugReportType {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.bugReportUser {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.bugReportResult {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.aiCorrect {
+  color: #16a34a;
+}
+
+.aiWrong {
+  color: #dc2626;
+}
+
+.bugReportDate {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.expandIcon {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+/* Bug Report Details */
+.bugReportDetails {
+  padding: var(--spacing-lg);
+  border-top: 1px solid rgba(26, 26, 26, 0.1);
+  background-color: #fafafa;
+}
+
+.bugReportSection {
+  margin-bottom: var(--spacing-lg);
+}
+
+.bugReportSection:last-child {
+  margin-bottom: 0;
+}
+
+.bugReportSectionTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-sm);
+}
+
+.bugReportPre {
+  background-color: #ffffff;
+  border: 2px solid rgba(26, 26, 26, 0.15);
+  border-radius: 12px;
+  padding: var(--spacing-md);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: inherit;
+}
+
+/* Bug Report Actions */
+.bugReportActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(26, 26, 26, 0.1);
+}
+
+.actionButton {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: #1a1a1a;
+  background-color: #ffffff;
+  border: 2px solid #1a1a1a;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.actionButton:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 5px rgba(0, 0, 0, 0.06);
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.actionButtonPrimary {
+  color: #ffffff;
+  background-color: #22c55e;
+  border-color: #16a34a;
+  box-shadow: 
+    0 2px 0 0 rgba(22, 163, 74, 0.9),
+    0 2px 8px rgba(22, 163, 74, 0.2);
+}
+
+.actionButtonPrimary:hover:not(:disabled) {
+  box-shadow: 
+    0 3px 0 0 rgba(22, 163, 74, 0.9),
+    0 3px 10px rgba(22, 163, 74, 0.25);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .adminHeader {
@@ -789,5 +1014,15 @@
 
   .sessionsTableHeaderCell:not(:first-child) {
     display: none;
+  }
+
+  .bugReportHeaderLeft,
+  .bugReportHeaderRight {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .bugReportActions {
+    flex-direction: column;
   }
 }

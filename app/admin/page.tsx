@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 // BananaWrite Admin Panel
 import { useState, useEffect } from 'react'
@@ -6,14 +6,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { ADMIN_EMAIL, AppSettings } from '@/types'
-import { getAppSettings, getAdminDashboardStats, initializeAppSettings } from '@/lib/adminFirestore'
+import { getAppSettings, getAdminDashboardStats, initializeAppSettings, getPendingBugReportsCount } from '@/lib/adminFirestore'
 import SettingsPanel from '@/components/Admin/SettingsPanel'
 import AnalyticsPanel from '@/components/Admin/AnalyticsPanel'
 import ActiveSessionsPanel from '@/components/Admin/ActiveSessionsPanel'
+import BugReportsPanel from '@/components/Admin/BugReportsPanel'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Admin/Admin.module.css'
 
-type TabType = 'settings' | 'analytics' | 'sessions'
+type TabType = 'settings' | 'analytics' | 'sessions' | 'reports'
 
 function AdminContent() {
   const router = useRouter()
@@ -28,6 +29,7 @@ function AdminContent() {
     todayQuizzes: number
     todayPassRate: number
   } | null>(null)
+  const [pendingReports, setPendingReports] = useState(0)
   const [loadingData, setLoadingData] = useState(true)
 
   // Check admin access (case-insensitive)
@@ -48,13 +50,15 @@ function AdminContent() {
         // Initialize settings if needed
         await initializeAppSettings(user.email)
         
-        const [settingsData, statsData] = await Promise.all([
+        const [settingsData, statsData, pendingCount] = await Promise.all([
           getAppSettings(),
-          getAdminDashboardStats()
+          getAdminDashboardStats(),
+          getPendingBugReportsCount()
         ])
         
         setSettings(settingsData)
         setStats(statsData)
+        setPendingReports(pendingCount)
       } catch (error) {
         console.error('Error loading admin data:', error)
       } finally {
@@ -128,6 +132,17 @@ function AdminContent() {
             </span>
           )}
         </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'reports' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('reports')}
+        >
+          Bug Reports
+          {pendingReports > 0 && (
+            <span className={styles.reportsBadge}>
+              {pendingReports}
+            </span>
+          )}
+        </button>
       </nav>
 
       {/* Content */}
@@ -171,6 +186,9 @@ function AdminContent() {
           )}
           {activeTab === 'sessions' && (
             <ActiveSessionsPanel />
+          )}
+          {activeTab === 'reports' && user.email && (
+            <BugReportsPanel adminEmail={user.email} />
           )}
         </div>
       </main>

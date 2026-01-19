@@ -413,3 +413,34 @@ export interface ActiveSession {
   quizTopic?: string
   quizProgress?: string
 }
+
+// ============================================
+// Bug Report Types
+// ============================================
+
+// Bug report status
+export type BugReportStatus = 'pending' | 'reviewed' | 'resolved'
+
+// Context type for bug reports
+export type BugReportContextType = 'essay_check' | 'essay_review' | 'quiz_grade'
+
+// Bug report from "I think this is wrong" feature
+export interface BugReport {
+  id: string
+  userId: string
+  userEmail: string
+  displayName: string | null
+  contextType: BugReportContextType
+  originalResponse: string      // The AI response being contested
+  userContent: string           // Essay text or quiz answers
+  originalPrompt?: string       // For essay_check context
+  selfReviewResult: {
+    isCorrect: boolean          // Was AI confirmed correct?
+    correctionFeedback: string | null
+  }
+  status: BugReportStatus
+  createdAt: Timestamp
+  reviewedAt?: Timestamp
+  reviewedBy?: string
+  adminNotes?: string
+}

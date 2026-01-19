@@ -171,6 +171,70 @@
   }
 }
 
+/* Button wrapper for tooltip positioning */
+.buttonWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip that appears on hover */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  background-color: var(--color-background);
+  border: 1px solid rgba(26, 26, 26, 0.15);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Tooltip arrow */
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--color-background) transparent transparent transparent;
+}
+
+/* Tooltip border arrow (slightly larger for border effect) */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: rgba(26, 26, 26, 0.15) transparent transparent transparent;
+}
+
+/* Show tooltip on hover */
+.buttonWrapper:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Don't show tooltip when button is disabled */
+.buttonWrapper:has(.contestBtn:disabled) .tooltip {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .contestBtn {
@@ -181,5 +245,10 @@
   .resultBox {
     width: 70px;
     height: 45px;
+  }
+  
+  .tooltip {
+    width: 200px;
+    font-size: 0.6875rem;
   }
 }

@@ -15,6 +15,10 @@ interface QuizResultsProps {
   onContestSuccess?: (correctionFeedback: string) => void
   onContestConfirmed?: () => void
   contestConfirmed?: boolean
+  // User info for bug reports
+  userId?: string
+  userEmail?: string
+  displayName?: string | null
 }
 
 // Parse feedback into structured sections
@@ -54,7 +58,11 @@ export default function QuizResults({
   formattedAnswers,
   onContestSuccess,
   onContestConfirmed,
-  contestConfirmed = false
+  contestConfirmed = false,
+  // User info for bug reports
+  userId,
+  userEmail,
+  displayName
 }: QuizResultsProps) {
   const feedbackSections = parseFeedback(feedback)
   
@@ -131,6 +139,9 @@ export default function QuizResults({
             onContestSuccess={onContestSuccess}
             onContestConfirmed={onContestConfirmed}
             disabled={contestConfirmed}
+            userId={userId}
+            userEmail={userEmail}
+            displayName={displayName}
           />
         </div>
       )}
