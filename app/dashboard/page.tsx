@@ -8,7 +8,7 @@ import { useUserSession } from '@/hooks/useUserSession'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import StartLessonButton from '@/components/Dashboard/StartLessonButton'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
-import { SettingsIcon } from '@/components/Icons/Icons'
+import { SettingsIcon, BellIcon } from '@/components/Icons/Icons'
 import { ADMIN_EMAIL } from '@/types'
 import styles from '@/components/Dashboard/Dashboard.module.css'
 
@@ -92,6 +92,9 @@ function DashboardContent() {
               Admin
             </Link>
           )}
+          <Link href="/notifications" className={styles.bellButton}>
+            <BellIcon size={22} />
+          </Link>
           <Link href="/settings">
             <ProfilePicture
               photoURL={user?.photoURL}

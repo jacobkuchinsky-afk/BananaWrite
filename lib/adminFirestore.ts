@@ -31,7 +31,8 @@ import {
   UserProfile,
   BugReport,
   BugReportStatus,
-  BugReportContextType
+  BugReportContextType,
+  BugReportMessage
 } from '@/types'
 import { addDoc } from 'firebase/firestore'
 
@@ -356,6 +357,7 @@ export async function saveBugReport(report: {
   selfReviewResult: {
     isCorrect: boolean
     correctionFeedback: string | null
+    rawResponse: string
   }
 }): Promise<string> {
   const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
@@ -426,4 +428,114 @@ export async function updateBugReportStatus(
   }
   
   await updateDoc(reportRef, updateData)
+}
+
+/**
+ * Create a general bug report (user-initiated from notification center)
+ */
+export async function createGeneralBugReport(report: {
+  userId: string
+  userEmail: string
+  displayName: string | null
+  message: string
+}): Promise<string> {
+  const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
+  
+  const docRef = await addDoc(bugReportsRef, {
+    userId: report.userId,
+    userEmail: report.userEmail,
+    displayName: report.displayName,
+    contextType: 'general' as BugReportContextType,
+    originalResponse: '',
+    userContent: report.message,
+    status: 'pending' as BugReportStatus,
+    createdAt: serverTimestamp()
+  })
+  
+  // Also add the initial message to the messages subcollection
+  const messagesRef = collection(db, BUG_REPORTS_COLLECTION, docRef.id, 'messages')
+  await addDoc(messagesRef, {
+    senderId: report.userId,
+    senderEmail: report.userEmail,
+    senderName: report.displayName,
+    isAdmin: false,
+    content: report.message,
+    createdAt: serverTimestamp()
+  })
+  
+  return docRef.id
+}
+
+/**
+ * Add a message to a bug report (chat functionality)
+ */
+export async function addMessageToBugReport(
+  reportId: string,
+  message: {
+    senderId: string
+    senderEmail: string
+    senderName: string | null
+    isAdmin: boolean
+    content: string
+  }
+): Promise<string> {
+  const messagesRef = collection(db, BUG_REPORTS_COLLECTION, reportId, 'messages')
+  
+  const docRef = await addDoc(messagesRef, {
+    ...message,
+    createdAt: serverTimestamp()
+  })
+  
+  return docRef.id
+}
+
+/**
+ * Get all messages for a bug report
+ */
+export async function getBugReportMessages(reportId: string): Promise<BugReportMessage[]> {
+  const messagesRef = collection(db, BUG_REPORTS_COLLECTION, reportId, 'messages')
+  const q = query(messagesRef, orderBy('createdAt', 'asc'))
+  
+  const snapshot = await getDocs(q)
+  
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as BugReportMessage))
+}
+
+/**
+ * Get all bug reports for a specific user
+ */
+export async function getUserBugReports(userId: string): Promise<BugReport[]> {
+  const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
+  const q = query(
+    bugReportsRef,
+    where('userId', '==', userId),
+    orderBy('createdAt', 'desc')
+  )
+  
+  const snapshot = await getDocs(q)
+  
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as BugReport))
+}
+
+/**
+ * Get a single bug report by ID
+ */
+export async function getBugReportById(reportId: string): Promise<BugReport | null> {
+  const reportRef = doc(db, BUG_REPORTS_COLLECTION, reportId)
+  const reportSnap = await getDoc(reportRef)
+  
+  if (reportSnap.exists()) {
+    return {
+      id: reportSnap.id,
+      ...reportSnap.data()
+    } as BugReport
+  }
+  
+  return null
 }

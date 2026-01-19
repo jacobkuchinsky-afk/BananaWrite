@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { BugReport, BugReportStatus } from '@/types'
-import { getBugReports, updateBugReportStatus } from '@/lib/adminFirestore'
-import { RefreshIcon } from '@/components/Icons/Icons'
+import { useState, useEffect, useCallback, useRef, FormEvent } from 'react'
+import { BugReport, BugReportStatus, BugReportMessage } from '@/types'
+import { getBugReports, updateBugReportStatus, getBugReportMessages, addMessageToBugReport } from '@/lib/adminFirestore'
+import { RefreshIcon, SendIcon } from '@/components/Icons/Icons'
 import styles from './Admin.module.css'
 
 type FilterType = 'all' | 'pending' | 'reviewed' | 'resolved'
@@ -20,6 +20,13 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  
+  // Chat state
+  const [messages, setMessages] = useState<BugReportMessage[]>([])
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  const [messageText, setMessageText] = useState('')
+  const [sendingMessage, setSendingMessage] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const loadReports = useCallback(async () => {
     try {
@@ -78,6 +85,7 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
       case 'essay_check': return 'Essay Check'
       case 'essay_review': return 'Essay Review'
       case 'quiz_grade': return 'Quiz Grade'
+      case 'general': return 'General Report'
       default: return type
     }
   }
@@ -91,8 +99,68 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
     }
   }
 
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id)
+  const toggleExpand = async (id: string) => {
+    if (expandedId === id) {
+      setExpandedId(null)
+      setMessages([])
+    } else {
+      setExpandedId(id)
+      setLoadingMessages(true)
+      try {
+        const reportMessages = await getBugReportMessages(id)
+        setMessages(reportMessages)
+      } catch (error) {
+        console.error('Error loading messages:', error)
+      } finally {
+        setLoadingMessages(false)
+      }
+    }
+  }
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Handle sending admin message
+  const handleSendMessage = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!messageText.trim() || sendingMessage || !expandedId) return
+
+    setSendingMessage(true)
+    try {
+      await addMessageToBugReport(expandedId, {
+        senderId: 'admin',
+        senderEmail: adminEmail,
+        senderName: 'Admin',
+        isAdmin: true,
+        content: messageText.trim()
+      })
+      
+      // Reload messages
+      const updatedMessages = await getBugReportMessages(expandedId)
+      setMessages(updatedMessages)
+      setMessageText('')
+      
+      // Auto-update status to reviewed if pending
+      const report = reports.find(r => r.id === expandedId)
+      if (report && report.status === 'pending') {
+        await updateBugReportStatus(expandedId, 'reviewed', adminEmail)
+        setReports(prev => prev.map(r => 
+          r.id === expandedId ? { ...r, status: 'reviewed' } : r
+        ))
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+    } finally {
+      setSendingMessage(false)
+    }
+  }
+
+  const formatMessageTimestamp = (timestamp: BugReportMessage['createdAt']) => {
+    if (!timestamp) return ''
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp as unknown as string)
+    return date.toLocaleString()
   }
 
   if (loading) {
@@ -172,13 +240,15 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
                   </span>
                 </div>
                 <div className={styles.bugReportHeaderRight}>
-                  <span className={styles.bugReportResult}>
-                    {report.selfReviewResult.isCorrect ? (
-                      <span className={styles.aiCorrect}>AI Correct</span>
-                    ) : (
-                      <span className={styles.aiWrong}>AI Wrong</span>
-                    )}
-                  </span>
+                  {report.selfReviewResult && (
+                    <span className={styles.bugReportResult}>
+                      {report.selfReviewResult.isCorrect ? (
+                        <span className={styles.aiCorrect}>AI Correct</span>
+                      ) : (
+                        <span className={styles.aiWrong}>AI Wrong</span>
+                      )}
+                    </span>
+                  )}
                   <span className={styles.bugReportDate}>
                     {formatDate(report.createdAt)}
                   </span>
@@ -198,40 +268,66 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
                     <p><strong>User ID:</strong> {report.userId}</p>
                   </div>
 
-                  {report.originalPrompt && (
+                  {/* General report shows user message */}
+                  {report.contextType === 'general' && (
                     <div className={styles.bugReportSection}>
-                      <h4 className={styles.bugReportSectionTitle}>Original Prompt</h4>
-                      <pre className={styles.bugReportPre}>{report.originalPrompt}</pre>
+                      <h4 className={styles.bugReportSectionTitle}>User Message</h4>
+                      <pre className={styles.bugReportPre}>{report.userContent}</pre>
                     </div>
                   )}
 
-                  <div className={styles.bugReportSection}>
-                    <h4 className={styles.bugReportSectionTitle}>User Content</h4>
-                    <pre className={styles.bugReportPre}>{report.userContent}</pre>
-                  </div>
-
-                  <div className={styles.bugReportSection}>
-                    <h4 className={styles.bugReportSectionTitle}>AI Response (Contested)</h4>
-                    <pre className={styles.bugReportPre}>{report.originalResponse}</pre>
-                  </div>
-
-                  <div className={styles.bugReportSection}>
-                    <h4 className={styles.bugReportSectionTitle}>Self-Review Result</h4>
-                    <p>
-                      <strong>AI was:</strong>{' '}
-                      {report.selfReviewResult.isCorrect ? (
-                        <span className={styles.aiCorrect}>Correct</span>
-                      ) : (
-                        <span className={styles.aiWrong}>Wrong</span>
+                  {/* AI-related report details */}
+                  {report.contextType !== 'general' && (
+                    <>
+                      {report.originalPrompt && (
+                        <div className={styles.bugReportSection}>
+                          <h4 className={styles.bugReportSectionTitle}>Original Prompt</h4>
+                          <pre className={styles.bugReportPre}>{report.originalPrompt}</pre>
+                        </div>
                       )}
-                    </p>
-                    {report.selfReviewResult.correctionFeedback && (
-                      <>
-                        <p><strong>Correction Feedback:</strong></p>
-                        <pre className={styles.bugReportPre}>{report.selfReviewResult.correctionFeedback}</pre>
-                      </>
-                    )}
-                  </div>
+
+                      <div className={styles.bugReportSection}>
+                        <h4 className={styles.bugReportSectionTitle}>User Content</h4>
+                        <pre className={styles.bugReportPre}>{report.userContent}</pre>
+                      </div>
+
+                      {report.originalResponse && (
+                        <div className={styles.bugReportSection}>
+                          <h4 className={styles.bugReportSectionTitle}>AI Response (Contested)</h4>
+                          <pre className={styles.bugReportPre}>{report.originalResponse}</pre>
+                        </div>
+                      )}
+
+                      {report.selfReviewResult && (
+                        <>
+                          <div className={styles.bugReportSection}>
+                            <h4 className={styles.bugReportSectionTitle}>Self-Review Result</h4>
+                            <p>
+                              <strong>AI was:</strong>{' '}
+                              {report.selfReviewResult.isCorrect ? (
+                                <span className={styles.aiCorrect}>Correct</span>
+                              ) : (
+                                <span className={styles.aiWrong}>Wrong</span>
+                              )}
+                            </p>
+                            {report.selfReviewResult.correctionFeedback && (
+                              <>
+                                <p><strong>Correction Feedback:</strong></p>
+                                <pre className={styles.bugReportPre}>{report.selfReviewResult.correctionFeedback}</pre>
+                              </>
+                            )}
+                          </div>
+
+                          {report.selfReviewResult.rawResponse && (
+                            <div className={styles.bugReportSection}>
+                              <h4 className={styles.bugReportSectionTitle}>Full Self-Review AI Response</h4>
+                              <pre className={styles.bugReportPre}>{report.selfReviewResult.rawResponse}</pre>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
 
                   {report.adminNotes && (
                     <div className={styles.bugReportSection}>
@@ -239,6 +335,64 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
                       <p>{report.adminNotes}</p>
                     </div>
                   )}
+
+                  {/* Chat Section */}
+                  <div className={styles.bugReportSection}>
+                    <h4 className={styles.bugReportSectionTitle}>Conversation</h4>
+                    <div className={styles.chatContainer}>
+                      {loadingMessages ? (
+                        <div className={styles.chatLoading}>
+                          <div className={styles.spinner} style={{ width: 24, height: 24 }} />
+                          <span>Loading messages...</span>
+                        </div>
+                      ) : messages.length === 0 ? (
+                        <div className={styles.chatEmpty}>
+                          No messages yet. Send a response to the user.
+                        </div>
+                      ) : (
+                        <div className={styles.chatMessages}>
+                          {messages.map((msg) => (
+                            <div 
+                              key={msg.id} 
+                              className={`${styles.chatMessage} ${msg.isAdmin ? styles.chatMessageAdmin : styles.chatMessageUser}`}
+                            >
+                              <div className={styles.chatMessageBubble}>
+                                {msg.content}
+                              </div>
+                              <div className={styles.chatMessageMeta}>
+                                <span className={styles.chatMessageSender}>
+                                  {msg.isAdmin ? 'Admin' : (msg.senderName || 'User')}
+                                </span>
+                                <span>{formatMessageTimestamp(msg.createdAt)}</span>
+                              </div>
+                            </div>
+                          ))}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      )}
+                      
+                      {/* Message Input */}
+                      {report.status !== 'resolved' && (
+                        <form onSubmit={handleSendMessage} className={styles.chatInputForm}>
+                          <input
+                            type="text"
+                            value={messageText}
+                            onChange={(e) => setMessageText(e.target.value)}
+                            placeholder="Type your response to the user..."
+                            className={styles.chatInput}
+                            disabled={sendingMessage}
+                          />
+                          <button
+                            type="submit"
+                            className={styles.chatSendButton}
+                            disabled={!messageText.trim() || sendingMessage}
+                          >
+                            <SendIcon size={18} />
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Actions */}
                   <div className={styles.bugReportActions}>

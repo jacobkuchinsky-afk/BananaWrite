@@ -227,42 +227,43 @@ def get_essay_prompt_creator(craziness: str = None, focus: str = None, essay_typ
     return f"""Task: Generate a 1-2 sentence essay prompt for a student.
 
 Requirements:
-- Topic: {focus_topic} (focus on one specific detail within this topic)
-- Tone/Creativity Level: {craziness_level} (applies to humor, uniqueness, and engagement)
-- Target Audience: Ages 14-18 (match maturity and comedy level accordingly)
-- Target Essay Length: 225 words
+- Topic: {focus_topic} (ruthlessly narrow down to ONE hyper-specific, laser-focused detail within this topic—no wandering allowed)
+- Tone/Creativity Level: {craziness_level} (dictates the intensity of humor, wild originality, and raw engagement—push boundaries accordingly)
+- Target Audience: Ages 14-18 (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
+- Target Essay Length: Strictly 225 words (not 224, not 226—hit this target with precision)
 {essay_type_instruction}
-- The prompt should never refrence an event like "write about a time that you did..."
-- The prompt should never use the writing technique in it but add to the end the specified writing technique and exactly what is required in the essay.
+- The prompt is FORBIDDEN from referencing personal experiences or events like "write about a time that you did..."
+- The prompt must NEVER mention the writing technique within the main prompt itself, but MUST brutally specify the exact writing technique requirement and precise expectations at the end
 
 Writing Technique Rules:
-- ONLY include a writing technique requirement if one is explicitly provided
-- When a technique IS provided, specify the exact quantity needed (e.g., "Include exactly 4 compound sentences")
-- Writing techniques are requirements FOR the essay, not topics ABOUT the technique
+- ONLY include a writing technique requirement if one is explicitly, undeniably provided—no assumptions
+- When a technique IS provided, demand the EXACT quantity needed with zero ambiguity (e.g., "Include exactly 4 compound sentences—no more, no less")
+- Writing techniques are mandatory requirements FOR the essay content, NOT topics ABOUT the technique itself
+- Be merciless in clarity about what is required
 
 Restrictions:
-- Never request intentionally incorrect grammar or punctuation
-- Never add requirements that were not explicitly requested
-- NEVER require additional techniques beyond what is specified
-- If no writing technique is specified, do not add one to the prompt.
+- Absolutely NEVER request intentionally incorrect grammar or punctuation—this is non-negotiable
+- NEVER add sneaky requirements that were not explicitly requested—stick to what's given
+- NEVER require additional techniques beyond what is specifically provided—no creative additions
+- If no writing technique is specified, do NOT fabricate one under any circumstances
 
 Context Information:
-- If the prompt requires specific knowledge (facts, data, historical context), provide that information on the second line
-- This information should be used if you want hte user to write about something specific like historical events or specific facts.
-- Add a basic explination of the specific writing technique to the prompt if there is one.
+- If the prompt demands specific knowledge (concrete facts, hard data, precise historical context), you MUST provide that critical information on the second line—no vague generalities
+- This information should be leveraged when you want the user to write about something extremely specific like particular historical events or exact factual details
+- Add a clear, no-nonsense explanation of the specific writing technique to the prompt if one is required
 
 Output Format:
-Line 1: The essay prompt (1-2 sentences)
-Line 2: The writing technique to practice and exactly what is required in the essay.
-Line 3: Supporting information for the writer, OR "None" if not needed
+Line 1: The essay prompt (1-2 sharp, focused sentences)
+Line 2: The writing technique to practice and the exact, unambiguous requirements for the essay
+Line 3: Essential supporting information for the writer, OR "None" if genuinely not needed
 
 Example Output:
-"Write an expository essay explaining the lore of your favorite video game. Include exactly 4 compound sentences."
+"Write an expository essay ruthlessly explaining the lore of your favorite video game. Include exactly 4 compound sentences—no more, no less."
 None
 
 Example Output (with context):
-"Write an argumentative essay defending why the 1969 Moon landing was humanity's greatest achievement."
-Key facts: Apollo 11 mission, Neil Armstrong and Buzz Aldrin, July 20, 1969, 400,000+ NASA employees involved"""
+"Write an argumentative essay fiercely defending why the 1969 Moon landing was humanity's greatest achievement."
+Key facts: Apollo 11 mission, Neil Armstrong and Buzz Aldrin, July 20, 1969, 400,000+ NASA employees involved
 
 ESSAY_CHECKER_PROMPT = """Task: Verify whether the essay meets the prompt's specific requirements.
 

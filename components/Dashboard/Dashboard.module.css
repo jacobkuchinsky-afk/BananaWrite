@@ -58,6 +58,39 @@
     0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
+.bellButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--color-text-primary);
+  background-color: #ffffff;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.bellButton:hover {
+  transform: translateY(-2px);
+  background-color: var(--color-button-dark);
+  color: var(--color-button-dark-text);
+  box-shadow: 
+    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+.bellButton:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
 .logoutBtn {
   padding: 0.625rem 1.5rem;
   font-size: 0.9375rem;

@@ -978,6 +978,155 @@
     0 3px 10px rgba(22, 163, 74, 0.25);
 }
 
+/* Chat Styles for Bug Reports */
+.chatContainer {
+  background-color: #ffffff;
+  border: 2px solid rgba(26, 26, 26, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chatLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--spacing-lg);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.chatEmpty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.chatMessages {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.chatMessage {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 80%;
+}
+
+.chatMessageUser {
+  align-self: flex-start;
+}
+
+.chatMessageAdmin {
+  align-self: flex-end;
+}
+
+.chatMessageBubble {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.chatMessageUser .chatMessageBubble {
+  background-color: #f0f0f0;
+  color: var(--color-text-primary);
+  border-bottom-left-radius: 4px;
+}
+
+.chatMessageAdmin .chatMessageBubble {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.chatMessageMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.chatMessageAdmin .chatMessageMeta {
+  justify-content: flex-end;
+}
+
+.chatMessageSender {
+  font-weight: 500;
+}
+
+.chatInputForm {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-top: 1px solid rgba(26, 26, 26, 0.1);
+  background-color: #fafafa;
+}
+
+.chatInput {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background-color: #ffffff;
+  border: 2px solid rgba(26, 26, 26, 0.2);
+  border-radius: 50px;
+  transition: border-color 0.2s ease;
+}
+
+.chatInput:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+.chatInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.chatSendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow: 
+    0 2px 0 0 rgba(120, 120, 120, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chatSendButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 3px 0 0 rgba(120, 120, 120, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.chatSendButton:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 
+    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 1px 5px rgba(0, 0, 0, 0.08);
+}
+
+.chatSendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .adminHeader {

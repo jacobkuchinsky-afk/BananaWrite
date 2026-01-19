@@ -109,7 +109,8 @@ export default function ContestButton({
           originalPrompt,
           selfReviewResult: {
             isCorrect: result.is_correct,
-            correctionFeedback: result.correction_feedback || null
+            correctionFeedback: result.correction_feedback || null,
+            rawResponse: result.raw_response || ''
           }
         }).catch(reportError => {
           console.error('Failed to save bug report:', reportError)

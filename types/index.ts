@@ -422,25 +422,38 @@ export interface ActiveSession {
 export type BugReportStatus = 'pending' | 'reviewed' | 'resolved'
 
 // Context type for bug reports
-export type BugReportContextType = 'essay_check' | 'essay_review' | 'quiz_grade'
+export type BugReportContextType = 'essay_check' | 'essay_review' | 'quiz_grade' | 'general'
 
-// Bug report from "I think this is wrong" feature
+// Chat message within a bug report
+export interface BugReportMessage {
+  id: string
+  senderId: string
+  senderEmail: string
+  senderName: string | null
+  isAdmin: boolean
+  content: string
+  createdAt: Timestamp
+}
+
+// Bug report from "I think this is wrong" feature or general user feedback
 export interface BugReport {
   id: string
   userId: string
   userEmail: string
   displayName: string | null
   contextType: BugReportContextType
-  originalResponse: string      // The AI response being contested
-  userContent: string           // Essay text or quiz answers
+  originalResponse: string      // The AI response being contested (empty for general reports)
+  userContent: string           // Essay text or quiz answers (user message for general reports)
   originalPrompt?: string       // For essay_check context
-  selfReviewResult: {
+  selfReviewResult?: {          // Optional - not present for general reports
     isCorrect: boolean          // Was AI confirmed correct?
     correctionFeedback: string | null
+    rawResponse: string         // Full AI self-review response
   }
   status: BugReportStatus
   createdAt: Timestamp
   reviewedAt?: Timestamp
   reviewedBy?: string
   adminNotes?: string
+  // Messages are stored in a subcollection, not directly on the document
 }
