@@ -104,7 +104,6 @@ export default function ReportList({
       <div className={styles.reportListBody}>
         {reports.length === 0 ? (
           <div className={styles.emptyReports}>
-            <span className={styles.emptyReportsIcon}>No reports</span>
             <p className={styles.emptyReportsText}>
               No reports yet. Submit a report above or use the "I think this is wrong" button when you disagree with AI feedback.
             </p>
