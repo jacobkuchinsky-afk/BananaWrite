@@ -263,7 +263,7 @@ None
 
 Example Output (with context):
 "Write an argumentative essay fiercely defending why the 1969 Moon landing was humanity's greatest achievement."
-Key facts: Apollo 11 mission, Neil Armstrong and Buzz Aldrin, July 20, 1969, 400,000+ NASA employees involved
+Key facts: Apollo 11 mission, Neil Armstrong and Buzz Aldrin, July 20, 1969, 400,000+ NASA employees involved"""
 
 ESSAY_CHECKER_PROMPT = """Task: Verify whether the essay meets the prompt's specific requirements.
 
