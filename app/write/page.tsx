@@ -18,6 +18,7 @@ import { startQuizSession, completeLesson, resetSession, getQuizSession, getUser
 import { getAppSettings } from '@/lib/adminFirestore'
 import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS } from '@/types'
 import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
+import { ContestButton } from '@/components/Contest'
 import styles from '@/components/Write/Write.module.css'
 
 // Writing techniques - same order as backend (33 total, indices 0-32)
@@ -85,6 +86,14 @@ function WriteContent() {
   const [hasUsedRedoChance, setHasUsedRedoChance] = useState(false)
   const [originalErrors, setOriginalErrors] = useState<string[]>([])
   const [isRedoMode, setIsRedoMode] = useState(false)
+
+  // Contest state for essay check
+  const [essayCheckResponse, setEssayCheckResponse] = useState<string | null>(null)
+  const [essayCheckContestConfirmed, setEssayCheckContestConfirmed] = useState(false)
+  
+  // Contest state for essay review
+  const [essayReviewResponse, setEssayReviewResponse] = useState<string | null>(null)
+  const [essayReviewContestConfirmed, setEssayReviewContestConfirmed] = useState(false)
 
   // Fetch user settings and app settings
   useEffect(() => {
@@ -219,12 +228,20 @@ function WriteContent() {
     triggerSave(text, count)
   }, [triggerSave])
 
-  // Handle submit
-  const handleSubmit = async () => {
+  // Handle submit with optional correction feedback from contest
+  const handleSubmit = async (checkCorrectionFeedback?: string, reviewCorrectionFeedback?: string) => {
     if (wordCount < 225 || isSubmitting || isChecking || !user) return
 
     setIsChecking(true)
     setFeedbackMessage(null)
+    
+    // Reset contest confirmed state when new submission happens
+    if (!checkCorrectionFeedback) {
+      setEssayCheckContestConfirmed(false)
+    }
+    if (!reviewCorrectionFeedback) {
+      setEssayReviewContestConfirmed(false)
+    }
     
     try {
       const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
@@ -237,7 +254,8 @@ function WriteContent() {
         },
         body: JSON.stringify({
           essay: essayText,
-          prompt: currentPrompt
+          prompt: currentPrompt,
+          correction_feedback: checkCorrectionFeedback  // Include correction if re-checking
         })
       })
 
@@ -250,6 +268,8 @@ function WriteContent() {
       if (!checkResult.correct) {
         // Essay doesn't follow prompt requirements - show feedback
         setFeedbackMessage(checkResult.feedback)
+        setEssayCheckResponse(checkResult.feedback)  // Store for contest
+        setEssayCheckContestConfirmed(false)  // Reset contest state for new feedback
         setIsChecking(false)
         return
       }
@@ -278,14 +298,15 @@ function WriteContent() {
           })
         })
       } else {
-        // First-time review
+        // First-time review (or re-review with correction feedback from contest)
         reviewResponse = await fetch(`${FLASK_API_URL}/api/review-essay`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            essay: essayText
+            essay: essayText,
+            correction_feedback: reviewCorrectionFeedback  // Include correction if re-reviewing
           })
         })
       }
@@ -322,6 +343,8 @@ function WriteContent() {
           forceQuiz: forceQuiz
         })
         setOriginalErrors(reviewResult.errors)
+        setEssayReviewResponse(reviewResult.raw_response)  // Store for contest
+        setEssayReviewContestConfirmed(false)  // Reset contest state for new feedback
         setIsReviewingEssay(false)
         setShowMarkedEssay(true)
       }
@@ -353,6 +376,127 @@ function WriteContent() {
     // Hide the marked essay view and return to writing
     setShowMarkedEssay(false)
     // Keep the markedEssayData so we can show error reference while editing
+  }
+
+  // Handle essay check contest success (AI was wrong, re-check)
+  const handleEssayCheckContestSuccess = async (correctionFeedback: string) => {
+    // Show loading state and re-run the essay check with correction feedback
+    setIsChecking(true)
+    setFeedbackMessage(null)
+    
+    try {
+      const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
+      
+      const checkResponse = await fetch(`${FLASK_API_URL}/api/check-essay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          essay: essayText,
+          prompt: currentPrompt,
+          correction_feedback: correctionFeedback
+        })
+      })
+
+      if (!checkResponse.ok) {
+        throw new Error('Failed to re-check essay')
+      }
+
+      const checkResult = await checkResponse.json()
+      
+      if (!checkResult.correct) {
+        // Still incorrect - show new feedback (user can contest again)
+        setFeedbackMessage(checkResult.feedback)
+        setEssayCheckResponse(checkResult.feedback)
+        setEssayCheckContestConfirmed(false)
+      } else {
+        // Now correct! Continue with submission
+        setFeedbackMessage(null)
+        setEssayCheckResponse(null)
+        // Continue with the rest of handleSubmit flow
+        handleSubmit()
+      }
+    } catch (err) {
+      console.error('Failed to re-check essay:', err)
+      setFeedbackMessage('An error occurred while re-checking your essay. Please try again.')
+    } finally {
+      setIsChecking(false)
+    }
+  }
+
+  // Handle essay check contest confirmed (AI was right)
+  const handleEssayCheckContestConfirmed = () => {
+    setEssayCheckContestConfirmed(true)
+  }
+
+  // Handle essay review contest success (AI was wrong, re-review)
+  const handleEssayReviewContestSuccess = async (correctionFeedback: string) => {
+    if (!user) return
+    
+    setIsReviewingEssay(true)
+    setShowMarkedEssay(false)
+    
+    try {
+      const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
+      
+      const reviewResponse = await fetch(`${FLASK_API_URL}/api/review-essay`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          essay: essayText,
+          correction_feedback: correctionFeedback
+        })
+      })
+
+      if (!reviewResponse.ok) {
+        throw new Error('Failed to re-review essay')
+      }
+
+      const reviewResult = await reviewResponse.json()
+      
+      if (!reviewResult.has_errors) {
+        // No errors now! Module complete
+        await completeLesson(user.uid, currentLesson, 100)
+        await resetSession(user.uid)
+        setIsReviewingEssay(false)
+        setShowModuleComplete(true)
+      } else {
+        // Still has errors (user can contest again)
+        await startQuizSession(
+          user.uid,
+          essayText,
+          reviewResult.errors,
+          reviewResult.raw_response
+        )
+        
+        const errorCount = reviewResult.problem_count || reviewResult.errors.length
+        const forceQuiz = reviewResult.force_quiz || false
+        
+        setMarkedEssayData({
+          markedEssay: reviewResult.marked_essay || essayText,
+          errors: reviewResult.errors,
+          problemCount: errorCount,
+          forceQuiz: forceQuiz
+        })
+        setOriginalErrors(reviewResult.errors)
+        setEssayReviewResponse(reviewResult.raw_response)
+        setEssayReviewContestConfirmed(false)
+        setIsReviewingEssay(false)
+        setShowMarkedEssay(true)
+      }
+    } catch (err) {
+      console.error('Failed to re-review essay:', err)
+      setIsReviewingEssay(false)
+      setShowMarkedEssay(true)
+    }
+  }
+
+  // Handle essay review contest confirmed (AI was right)
+  const handleEssayReviewContestConfirmed = () => {
+    setEssayReviewContestConfirmed(true)
   }
 
   // Handle regenerate prompt
@@ -418,6 +562,12 @@ function WriteContent() {
         maxErrorsForRedo={appSettings.maxErrorsForRedo}
         onContinue={handleContinueToQuiz}
         onRedo={handleRedo}
+        // Contest props
+        essayText={essayText}
+        essayReviewResponse={essayReviewResponse}
+        onContestSuccess={handleEssayReviewContestSuccess}
+        onContestConfirmed={handleEssayReviewContestConfirmed}
+        contestConfirmed={essayReviewContestConfirmed}
       />
     )
   }
@@ -593,6 +743,20 @@ function WriteContent() {
             <div className={styles.feedbackContent}>
               <p className={styles.feedbackTitle}>Almost there!</p>
               <p className={styles.feedbackText}>{feedbackMessage}</p>
+              {/* Contest button for essay check */}
+              {essayCheckResponse && (
+                <div style={{ marginTop: '1rem' }}>
+                  <ContestButton
+                    contextType="essay_check"
+                    originalResponse={essayCheckResponse}
+                    userContent={essayText}
+                    originalPrompt={currentPrompt}
+                    onContestSuccess={handleEssayCheckContestSuccess}
+                    onContestConfirmed={handleEssayCheckContestConfirmed}
+                    disabled={isChecking || essayCheckContestConfirmed}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}

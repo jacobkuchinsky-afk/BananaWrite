@@ -16,7 +16,8 @@ from services.ai_service import (
     create_quiz,
     grade_quiz,
     get_teacher_feedback,
-    set_dynamic_thresholds
+    set_dynamic_thresholds,
+    self_review
 )
 
 prompt_bp = Blueprint('prompt', __name__)
@@ -121,7 +122,8 @@ def check_essay_endpoint():
     Request body:
         {
             "essay": "The user's essay text...",
-            "prompt": "The original prompt..."
+            "prompt": "The original prompt...",
+            "correction_feedback": "Optional feedback from self-reviewer..."  // optional
         }
     
     Response:
@@ -137,6 +139,7 @@ def check_essay_endpoint():
     
     essay = data.get('essay')
     prompt = data.get('prompt')
+    correction_feedback = data.get('correction_feedback')  # Optional
     
     if not essay:
         return jsonify({"error": "No essay provided"}), 400
@@ -145,8 +148,10 @@ def check_essay_endpoint():
         return jsonify({"error": "No prompt provided"}), 400
     
     print(f"[CHECK_ESSAY_ENDPOINT] Checking essay (length: {len(essay)}) against prompt (length: {len(prompt)})")
+    if correction_feedback:
+        print(f"[CHECK_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
     
-    result = check_essay(essay, prompt)
+    result = check_essay(essay, prompt, correction_feedback)
     
     print(f"[CHECK_ESSAY_ENDPOINT] Result: correct={result.get('correct')}, feedback={result.get('feedback')[:100] if result.get('feedback') else None}")
     
@@ -160,7 +165,8 @@ def review_essay_endpoint():
     
     Request body:
         {
-            "essay": "The user's essay text..."
+            "essay": "The user's essay text...",
+            "correction_feedback": "Optional feedback from self-reviewer..."  // optional
         }
     
     Response:
@@ -176,11 +182,15 @@ def review_essay_endpoint():
         return jsonify({"error": "No data provided"}), 400
     
     essay = data.get('essay')
+    correction_feedback = data.get('correction_feedback')  # Optional
     
     if not essay:
         return jsonify({"error": "No essay provided"}), 400
     
-    result = review_essay(essay)
+    if correction_feedback:
+        print(f"[REVIEW_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
+    
+    result = review_essay(essay, correction_feedback)
     return jsonify(result)
 
 
@@ -267,7 +277,8 @@ def grade_quiz_endpoint():
             "answers": [
                 {"user_answer": "B", "question": "...", "correct_answer": "A"},
                 ...
-            ]
+            ],
+            "correction_feedback": "Optional feedback from self-reviewer..."  // optional
         }
     
     Response:
@@ -283,6 +294,7 @@ def grade_quiz_endpoint():
         return jsonify({"error": "No data provided"}), 400
     
     answers = data.get('answers')
+    correction_feedback = data.get('correction_feedback')  # Optional
     
     if not answers:
         return jsonify({"error": "No answers provided"}), 400
@@ -290,7 +302,10 @@ def grade_quiz_endpoint():
     if not isinstance(answers, list):
         return jsonify({"error": "Answers must be a list"}), 400
     
-    result = grade_quiz(answers)
+    if correction_feedback:
+        print(f"[GRADE_QUIZ_ENDPOINT] Re-grading with correction feedback")
+    
+    result = grade_quiz(answers, correction_feedback)
     return jsonify(result)
 
 
@@ -412,3 +427,58 @@ def update_app_settings_endpoint():
             "quizPassingScore": passing_score
         }
     })
+
+
+@prompt_bp.route('/api/self-review', methods=['POST'])
+def self_review_endpoint():
+    """
+    Review an AI response to check if it was correct.
+    Called when user clicks "I think this is wrong" button.
+    
+    Request body:
+        {
+            "context_type": "essay_check" | "essay_review" | "quiz_grade",
+            "original_response": "The AI response being contested",
+            "user_content": "Essay text or formatted quiz answers",
+            "original_prompt": "The essay prompt (required for essay_check)"  // optional
+        }
+    
+    Response:
+        {
+            "is_correct": true/false,  // true if AI was right, false if AI made mistake
+            "correction_feedback": "What to fix..." (only if is_correct is false)
+        }
+    """
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    context_type = data.get('context_type')
+    original_response = data.get('original_response')
+    user_content = data.get('user_content')
+    original_prompt = data.get('original_prompt')  # Optional, needed for essay_check
+    
+    if not context_type:
+        return jsonify({"error": "No context_type provided"}), 400
+    
+    if context_type not in ['essay_check', 'essay_review', 'quiz_grade']:
+        return jsonify({"error": "Invalid context_type. Must be 'essay_check', 'essay_review', or 'quiz_grade'"}), 400
+    
+    if not original_response:
+        return jsonify({"error": "No original_response provided"}), 400
+    
+    if not user_content:
+        return jsonify({"error": "No user_content provided"}), 400
+    
+    # For essay_check, original_prompt is required
+    if context_type == 'essay_check' and not original_prompt:
+        return jsonify({"error": "original_prompt is required for essay_check context"}), 400
+    
+    print(f"[SELF_REVIEW_ENDPOINT] Reviewing AI response for context: {context_type}")
+    
+    result = self_review(context_type, original_response, user_content, original_prompt)
+    
+    print(f"[SELF_REVIEW_ENDPOINT] Result: is_correct={result.get('is_correct')}")
+    
+    return jsonify(result)

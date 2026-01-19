@@ -1,6 +1,7 @@
 'use client'
 
 import styles from './Write.module.css'
+import { ContestButton } from '@/components/Contest'
 
 interface MarkedEssayProps {
   markedEssay: string
@@ -10,6 +11,12 @@ interface MarkedEssayProps {
   maxErrorsForRedo?: number
   onContinue: () => void
   onRedo?: () => void
+  // Contest props
+  essayText?: string
+  essayReviewResponse?: string | null
+  onContestSuccess?: (correctionFeedback: string) => void
+  onContestConfirmed?: () => void
+  contestConfirmed?: boolean
 }
 
 /**
@@ -24,7 +31,13 @@ export default function MarkedEssay({
   canRedo,
   maxErrorsForRedo = 2,
   onContinue,
-  onRedo 
+  onRedo,
+  // Contest props
+  essayText,
+  essayReviewResponse,
+  onContestSuccess,
+  onContestConfirmed,
+  contestConfirmed = false
 }: MarkedEssayProps) {
   // Parse the marked essay - split by ¦ to get alternating normal/error segments
   const parseMarkedEssay = (text: string) => {
@@ -130,6 +143,20 @@ export default function MarkedEssay({
                 Continue to Quiz
               </button>
             </>
+          )}
+          
+          {/* Contest button for essay review */}
+          {essayText && essayReviewResponse && onContestSuccess && onContestConfirmed && (
+            <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+              <ContestButton
+                contextType="essay_review"
+                originalResponse={essayReviewResponse}
+                userContent={essayText}
+                onContestSuccess={onContestSuccess}
+                onContestConfirmed={onContestConfirmed}
+                disabled={contestConfirmed}
+              />
+            </div>
           )}
         </div>
       </div>

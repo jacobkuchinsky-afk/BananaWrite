@@ -83,6 +83,9 @@ function QuizContent() {
   // Feedback navigation state
   const [feedbackIndex, setFeedbackIndex] = useState(0)
   
+  // Contest state for quiz grading
+  const [quizGradeContestConfirmed, setQuizGradeContestConfirmed] = useState(false)
+  
   // Guard ref to prevent duplicate API calls during generation
   const isGenerating = useRef(false)
   
@@ -296,11 +299,16 @@ function QuizContent() {
     }
   }
   
-  // Grade quiz
-  const gradeQuiz = useCallback(async () => {
+  // Grade quiz (with optional correction feedback from contest)
+  const gradeQuiz = useCallback(async (correctionFeedback?: string) => {
     if (!user || !quizSession) return
     
     setPhase('grading')
+    
+    // Reset contest confirmed state when new grading happens (unless this is a re-grade)
+    if (!correctionFeedback) {
+      setQuizGradeContestConfirmed(false)
+    }
     
     try {
       // Format answers for API
@@ -313,7 +321,10 @@ function QuizContent() {
       const response = await fetch(`${FLASK_API_URL}/api/grade-quiz`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers })
+        body: JSON.stringify({ 
+          answers,
+          correction_feedback: correctionFeedback  // Include correction if re-grading
+        })
       })
       
       const data = await response.json()
@@ -333,6 +344,9 @@ function QuizContent() {
         quizResults: results,
         lastQuizResults: data.feedback
       } : null)
+      
+      // Reset contest state for new results (user can contest again)
+      setQuizGradeContestConfirmed(false)
       
       setPhase('results')
     } catch (err) {
@@ -481,6 +495,26 @@ function QuizContent() {
     setPhase('generating_quiz')
   }
   
+  // Handle quiz grade contest success (AI was wrong, re-grade)
+  const handleQuizGradeContestSuccess = async (correctionFeedback: string) => {
+    // Re-grade with correction feedback
+    await gradeQuiz(correctionFeedback)
+  }
+
+  // Handle quiz grade contest confirmed (AI was right)
+  const handleQuizGradeContestConfirmed = () => {
+    setQuizGradeContestConfirmed(true)
+  }
+
+  // Format answers for the contest button
+  const getFormattedAnswersForContest = () => {
+    if (!quizSession?.userAnswers) return ''
+    
+    return quizSession.userAnswers.map((a, i) => 
+      `Q${i + 1}: ${a.question}\nUser answered: ${a.userAnswer}\nCorrect answer: ${a.correctAnswer}`
+    ).join('\n---\n')
+  }
+
   // Handle write another essay
   const handleWriteAnotherEssay = async () => {
     if (!user) return
@@ -702,6 +736,11 @@ function QuizContent() {
             feedback={quizResults.feedback}
             onContinue={handleResultsContinue}
             continueLabel={quizResults.passed ? 'Continue' : 'Review Mistakes'}
+            // Contest props
+            formattedAnswers={getFormattedAnswersForContest()}
+            onContestSuccess={handleQuizGradeContestSuccess}
+            onContestConfirmed={handleQuizGradeContestConfirmed}
+            contestConfirmed={quizGradeContestConfirmed}
           />
         </main>
       </div>

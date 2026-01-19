@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 API_KEY = os.getenv('CHUTES_API_KEY', '')
 BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
 MAIN_MODEL = "moonshotai/Kimi-K2-Instruct-0905"
+SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2-Thinking-TEE"
 
 # Log warning if API key is missing (but don't fail during import/build)
 if not API_KEY:
@@ -498,12 +499,197 @@ Semicolons are "soft periods"—they connect complete sentences that are closely
 Conjunctive adverbs (however, therefore, moreover) need commas after them when they start a clause."""
 
 
+self_reviewer_prompt = """Task: Review the current ai review and verify that it does not contain any errors or mistakes.
+                    - The user belives that the current ai response is incorrect.
+                    - Fully evaluate the response given to you in the prompt and make sure it contains no mistakes.
+                    - If the response is verfied and correct respond with <Correct> and nothing else.
+                    - If it is incorrect, respond with <Incorrect> and exactly what the fix to correct the error is."""
+
+# Context-aware self-review prompts for different AI evaluation types
+SELF_REVIEW_PROMPTS = {
+    'essay_check': """Task: Review whether the essay checker correctly evaluated if the essay follows the prompt requirements.
+
+Context: The user believes the AI incorrectly marked their essay as not following the prompt.
+
+Your Job:
+1. Read the original essay prompt requirements carefully
+2. Read the user's essay
+3. Read the AI's evaluation/feedback
+4. Determine if the AI's evaluation was correct or incorrect
+
+Evaluation Rules:
+- Check if the essay actually meets the prompt requirements
+- Count any specified elements (commas, semicolons, etc.) if required
+- Allow a margin of ±1 for close attempts on countable requirements
+- If the essay addresses the topic and meets requirements, the AI was wrong to reject it
+
+Output:
+- If the AI was CORRECT (essay truly doesn't follow prompt): respond with <Correct> and nothing else
+- If the AI was WRONG (essay DOES follow the prompt): respond with <Incorrect> followed by exactly what was misjudged and what the correct evaluation should be""",
+
+    'essay_review': """Task: Review whether the grammar/punctuation errors identified by the AI are actually errors.
+
+Context: The user believes the AI incorrectly flagged something as an error in their essay.
+
+Your Job:
+1. Read the user's essay
+2. Read each error the AI identified
+3. Evaluate whether each marked item is truly a grammar/punctuation/syntax error
+
+Evaluation Rules:
+- Only objective grammar/punctuation/syntax errors count
+- Style preferences, flow suggestions, or word choice are NOT errors
+- Check if the marked text is grammatically correct in context
+- Consider that some constructions have multiple valid forms
+
+Output:
+- If ALL marked errors are valid: respond with <Correct> and nothing else
+- If ANY marked "errors" are NOT actually errors: respond with <Incorrect> followed by which specific items were wrongly flagged as errors and why they are actually correct""",
+
+    'quiz_grade': """Task: Review whether the quiz was graded correctly.
+
+Context: The user believes their quiz answers were graded incorrectly.
+
+Your Job:
+1. Read each question
+2. Read the user's answer
+3. Read the expected answer
+4. Determine if the grading was fair
+
+Grading Rules:
+- Accept ANY grammatically valid answer, even if it differs from the expected answer
+- For punctuation questions: semicolons, periods, and "comma + conjunction" are often interchangeable
+- Multiple choice: The letter must match exactly
+- Fill-in/Written: Accept equivalent correct forms
+
+Output:
+- If grading was CORRECT: respond with <Correct> and nothing else
+- If ANY answers were wrongly marked: respond with <Incorrect> followed by which questions were graded incorrectly and what the correct assessment should be"""
+}
+
+
 def create_client():
     """Create and return an OpenAI client configured for Chutes API"""
     return OpenAI(
         base_url=BASE_URL,
         api_key=API_KEY
     )
+
+
+def self_review(context_type: str, original_response: str, user_content: str, original_prompt: str = None) -> dict:
+    """
+    Review an AI response for errors using the thinking model.
+    Called when user clicks "I think this is wrong" button.
+    
+    Args:
+        context_type: 'essay_check' | 'essay_review' | 'quiz_grade'
+        original_response: The AI's response being contested
+        user_content: The user's essay text or formatted quiz answers
+        original_prompt: The essay prompt (required for essay_check context)
+    
+    Returns:
+        dict: {
+            'is_correct': bool (True if AI was right, False if AI made a mistake),
+            'correction_feedback': str or None (what to fix if AI was wrong)
+        }
+    """
+    client = create_client()
+    
+    # Get the appropriate self-review prompt for this context
+    system_prompt = SELF_REVIEW_PROMPTS.get(context_type, self_reviewer_prompt)
+    
+    # Build the user message with all context
+    if context_type == 'essay_check':
+        user_message = f"""Original Essay Prompt:
+{original_prompt}
+
+User's Essay:
+{user_content}
+
+AI's Evaluation/Feedback:
+{original_response}
+
+Please review if the AI's evaluation was correct."""
+    
+    elif context_type == 'essay_review':
+        user_message = f"""User's Essay:
+{user_content}
+
+AI's Error Analysis:
+{original_response}
+
+Please review if the identified errors are actually errors."""
+    
+    elif context_type == 'quiz_grade':
+        user_message = f"""Quiz Answers and Grading:
+{user_content}
+
+AI's Grading Result:
+{original_response}
+
+Please review if the grading was correct."""
+    
+    else:
+        # Fallback for unknown context
+        user_message = f"""Content being evaluated:
+{user_content}
+
+AI's Response:
+{original_response}
+
+Please review if this response is correct."""
+    
+    try:
+        logger.info(f"[SELF_REVIEW] Starting self-review for context: {context_type}")
+        
+        response = client.chat.completions.create(
+            model=SELF_REVIEWER_MODEL,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ]
+        )
+        
+        result = response.choices[0].message.content.strip()
+        result_lower = result.lower()
+        
+        logger.info(f"[SELF_REVIEW] Self-reviewer response: {result[:200]}...")
+        
+        # Check if the AI's original response was correct
+        if "<correct>" in result_lower:
+            logger.info("[SELF_REVIEW] Self-reviewer confirmed AI was correct")
+            return {
+                "is_correct": True,
+                "correction_feedback": None,
+                "raw_response": result
+            }
+        elif "<incorrect>" in result_lower:
+            # Extract the correction feedback (everything after <Incorrect>)
+            import re
+            correction = re.sub(r'<incorrect>\s*', '', result, flags=re.IGNORECASE).strip()
+            logger.info(f"[SELF_REVIEW] Self-reviewer found AI was wrong: {correction[:100]}...")
+            return {
+                "is_correct": False,
+                "correction_feedback": correction,
+                "raw_response": result
+            }
+        else:
+            # If no clear tag, try to determine from content
+            # Default to assuming AI was correct if unclear
+            logger.warning(f"[SELF_REVIEW] No clear <Correct>/<Incorrect> tag found in response")
+            return {
+                "is_correct": True,
+                "correction_feedback": None,
+                "raw_response": result
+            }
+            
+    except Exception as e:
+        logger.error(f"[SELF_REVIEW] Error: {str(e)}")
+        return {
+            "is_correct": True,  # Default to AI being correct on error
+            "correction_feedback": None,
+            "raw_response": f"Error during self-review: {str(e)}"
+        }
 
 
 def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, focus: str = None, essay_type: str = None):
@@ -589,19 +775,21 @@ def get_total_lessons() -> int:
     return len(WRITING_TECHNIQUES)
 
 
-def check_essay(essay: str, prompt: str) -> dict:
+def check_essay(essay: str, prompt: str, correction_feedback: str = None) -> dict:
     """
     Check if the user's essay correctly follows the prompt requirements.
     
     Args:
         essay: The user's submitted essay text
         prompt: The original essay prompt
+        correction_feedback: Optional feedback from self-reviewer indicating what was wrong with previous evaluation
     
     Returns:
         dict: Contains 'correct' (bool) and 'feedback' (str if incorrect)
     """
     client = create_client()
     
+    # Build user message
     user_message = f"""Original Prompt:
 {prompt}
 
@@ -609,6 +797,17 @@ User's Essay:
 {essay}
 
 Check if this essay follows the prompt requirements. Remember: If correct, respond with ONLY <Correct> and nothing else."""
+    
+    # If correction feedback provided, add it to guide the re-evaluation
+    if correction_feedback:
+        user_message += f"""
+
+IMPORTANT CORRECTION FROM REVIEW:
+Your previous evaluation was contested and found to be incorrect. Please carefully reconsider with this feedback:
+{correction_feedback}
+
+Re-evaluate the essay with this correction in mind."""
+        logger.info(f"[CHECK_ESSAY] Re-evaluating with correction feedback")
     
     try:
         response = client.chat.completions.create(
@@ -772,12 +971,13 @@ def _parse_review_response(result: str, essay: str) -> dict:
     }
 
 
-def review_essay(essay: str) -> dict:
+def review_essay(essay: str, correction_feedback: str = None) -> dict:
     """
     Review an essay for learning errors (grammar, punctuation, style issues).
     
     Args:
         essay: The user's submitted essay text
+        correction_feedback: Optional feedback from self-reviewer indicating what was wrong with previous evaluation
     
     Returns:
         dict: Contains 'has_errors' (bool), 'errors' (list of error strings with severity),
@@ -788,6 +988,17 @@ def review_essay(essay: str) -> dict:
     
     # Use dynamic reviewer prompt with configurable threshold
     reviewer_prompt = get_reviewer_prompt()
+    
+    # If correction feedback provided, add it to the system prompt
+    if correction_feedback:
+        reviewer_prompt += f"""
+
+IMPORTANT CORRECTION FROM REVIEW:
+Your previous error analysis was contested and found to be incorrect. Please carefully reconsider with this feedback:
+{correction_feedback}
+
+Re-evaluate the essay with this correction in mind. Only mark items that are truly grammar/punctuation/syntax errors."""
+        logger.info(f"[REVIEW_ESSAY] Re-evaluating with correction feedback")
     
     try:
         response = client.chat.completions.create(
@@ -1196,12 +1407,13 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         }
 
 
-def grade_quiz(answers: list) -> dict:
+def grade_quiz(answers: list, correction_feedback: str = None) -> dict:
     """
     Grade quiz answers.
     
     Args:
         answers: List of dicts with 'user_answer', 'question', 'correct_answer'
+        correction_feedback: Optional feedback from self-reviewer indicating what was wrong with previous grading
     
     Returns:
         dict: Contains 'score' (int 0-100), 'feedback' (str), 'passed' (bool)
@@ -1217,11 +1429,23 @@ def grade_quiz(answers: list) -> dict:
     
     prompt = "\n".join(formatted_answers)
     
+    # If correction feedback provided, add it to guide re-grading
+    grader_prompt = GRADER_PROMPT
+    if correction_feedback:
+        grader_prompt += f"""
+
+IMPORTANT CORRECTION FROM REVIEW:
+Your previous grading was contested and found to be incorrect. Please carefully reconsider with this feedback:
+{correction_feedback}
+
+Re-grade the answers with this correction in mind. Remember to accept grammatically equivalent answers."""
+        logger.info(f"[GRADE_QUIZ] Re-grading with correction feedback")
+    
     try:
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
-                {"role": "system", "content": GRADER_PROMPT},
+                {"role": "system", "content": grader_prompt},
                 {"role": "user", "content": prompt}
             ]
         )

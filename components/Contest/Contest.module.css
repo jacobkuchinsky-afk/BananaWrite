@@ -1,0 +1,185 @@
+/* Contest Button Styles */
+
+/* Container for button and result box */
+.contestContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  position: relative;
+}
+
+/* Result box that appears above the button */
+.resultBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 50px;
+  background-color: var(--color-background);
+  border: 2px solid #1a1a1a;
+  border-radius: 12px;
+  box-shadow: 
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading spinner in result box */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(26, 26, 26, 0.2);
+  border-top: 3px solid #1a1a1a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Checkmark icon for correct (AI was right) */
+.checkmark {
+  width: 28px;
+  height: 28px;
+  color: #22c55e;
+  animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* X icon for incorrect (AI was wrong) */
+.xmark {
+  width: 28px;
+  height: 28px;
+  color: #ef4444;
+  animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Success state - green border */
+.resultBox.success {
+  border-color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.05);
+  box-shadow: 
+    0 3px 0 0 rgba(34, 197, 94, 0.9),
+    0 3px 10px rgba(34, 197, 94, 0.15);
+}
+
+/* Failure state - red border (AI was wrong) */
+.resultBox.failure {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.05);
+  box-shadow: 
+    0 3px 0 0 rgba(239, 68, 68, 0.9),
+    0 3px 10px rgba(239, 68, 68, 0.15);
+}
+
+/* The contest button itself */
+.contestBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  background-color: transparent;
+  border: 1px solid rgba(26, 26, 26, 0.2);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.contestBtn:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+  border-color: rgba(26, 26, 26, 0.4);
+  background-color: rgba(26, 26, 26, 0.03);
+}
+
+.contestBtn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.contestBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Confirmed state - when AI was verified correct */
+.contestBtn.confirmed {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+  background-color: rgba(34, 197, 94, 0.05);
+  cursor: default;
+}
+
+.contestBtn.confirmed:hover {
+  background-color: rgba(34, 197, 94, 0.05);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+/* Loading state */
+.contestBtn.loading {
+  color: var(--color-text-muted);
+  border-color: rgba(26, 26, 26, 0.3);
+}
+
+/* Icon inside the button */
+.contestBtnIcon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Fade out animation for result box */
+.resultBox.fadeOut {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .contestBtn {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+  }
+  
+  .resultBox {
+    width: 70px;
+    height: 45px;
+  }
+}

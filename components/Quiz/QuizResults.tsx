@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowRightIcon, CheckIcon } from '@/components/Icons/Icons'
+import { ContestButton } from '@/components/Contest'
 import styles from './Quiz.module.css'
 
 interface QuizResultsProps {
@@ -9,6 +10,11 @@ interface QuizResultsProps {
   feedback: string
   onContinue: () => void
   continueLabel?: string
+  // Contest props
+  formattedAnswers?: string
+  onContestSuccess?: (correctionFeedback: string) => void
+  onContestConfirmed?: () => void
+  contestConfirmed?: boolean
 }
 
 // Parse feedback into structured sections
@@ -43,7 +49,12 @@ export default function QuizResults({
   passed, 
   feedback,
   onContinue,
-  continueLabel = 'Continue'
+  continueLabel = 'Continue',
+  // Contest props
+  formattedAnswers,
+  onContestSuccess,
+  onContestConfirmed,
+  contestConfirmed = false
 }: QuizResultsProps) {
   const feedbackSections = parseFeedback(feedback)
   
@@ -109,6 +120,20 @@ export default function QuizResults({
       <button className={styles.continueBtn} onClick={onContinue}>
         {continueLabel} <ArrowRightIcon size={18} />
       </button>
+      
+      {/* Contest button for quiz grading */}
+      {formattedAnswers && onContestSuccess && onContestConfirmed && (
+        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+          <ContestButton
+            contextType="quiz_grade"
+            originalResponse={feedback}
+            userContent={formattedAnswers}
+            onContestSuccess={onContestSuccess}
+            onContestConfirmed={onContestConfirmed}
+            disabled={contestConfirmed}
+          />
+        </div>
+      )}
     </div>
   )
 }
