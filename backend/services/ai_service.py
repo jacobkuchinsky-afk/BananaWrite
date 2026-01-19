@@ -273,6 +273,9 @@ Evaluation Criteria:
 - Ignore grammar quality—evaluate only requirement compliance
 - Ignore word count—exceeding the minimum is always acceptable
 - If no countable requirements exist, verify the essay addresses the topic
+- Be careful when counting and NEVER make counting mistakes.
+- If an essay prompt requires a speicfic amount of something be careful to count every instance of it in the essay.
+- Never mark the user wrong for going over a specified requirement.
 
 Output Rules:
 - CORRECT ESSAY: Output exactly "<Correct>" with no additional text
