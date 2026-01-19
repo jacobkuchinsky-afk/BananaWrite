@@ -6,7 +6,7 @@ import { getBugReports, updateBugReportStatus, getBugReportMessages, addMessageT
 import { RefreshIcon, SendIcon } from '@/components/Icons/Icons'
 import styles from './Admin.module.css'
 
-type FilterType = 'all' | 'pending' | 'reviewed' | 'resolved'
+type FilterType = 'active' | 'all' | 'pending' | 'reviewed' | 'resolved'
 
 interface BugReportsPanelProps {
   adminEmail: string
@@ -14,7 +14,7 @@ interface BugReportsPanelProps {
 
 export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
   const [reports, setReports] = useState<BugReport[]>([])
-  const [filter, setFilter] = useState<FilterType>('all')
+  const [filter, setFilter] = useState<FilterType>('active')
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
@@ -30,8 +30,19 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
 
   const loadReports = useCallback(async () => {
     try {
-      const statusFilter = filter === 'all' ? undefined : filter as BugReportStatus
-      const data = await getBugReports(statusFilter)
+      // 'active' shows all except resolved, 'all' shows everything, others filter by status
+      let statusFilter: BugReportStatus | undefined
+      if (filter !== 'all' && filter !== 'active') {
+        statusFilter = filter as BugReportStatus
+      }
+      
+      let data = await getBugReports(statusFilter)
+      
+      // For 'active' filter, exclude resolved reports
+      if (filter === 'active') {
+        data = data.filter(report => report.status !== 'resolved')
+      }
+      
       setReports(data)
       setLastRefresh(new Date())
     } catch (error) {
@@ -178,10 +189,10 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
       <div className={styles.sessionControls}>
         <div className={styles.filterButtons}>
           <button
-            className={`${styles.filterButton} ${filter === 'all' ? styles.filterActive : ''}`}
-            onClick={() => setFilter('all')}
+            className={`${styles.filterButton} ${filter === 'active' ? styles.filterActive : ''}`}
+            onClick={() => setFilter('active')}
           >
-            All Reports
+            Active
           </button>
           <button
             className={`${styles.filterButton} ${filter === 'pending' ? styles.filterActive : ''}`}
@@ -200,6 +211,12 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
             onClick={() => setFilter('resolved')}
           >
             Resolved
+          </button>
+          <button
+            className={`${styles.filterButton} ${filter === 'all' ? styles.filterActive : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            All
           </button>
         </div>
 
@@ -425,7 +442,7 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
           <div className={styles.emptyState}>
             <span className={styles.emptyStateIcon}>No bug reports</span>
             <p className={styles.emptyStateText}>
-              No {filter === 'all' ? 'bug reports' : `${filter} reports`} found
+              No {filter === 'all' ? 'bug reports' : filter === 'active' ? 'active reports' : `${filter} reports`} found
             </p>
           </div>
         </div>
