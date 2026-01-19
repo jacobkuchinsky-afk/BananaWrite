@@ -239,11 +239,12 @@ Writing Technique Rules:
 - ONLY include a writing technique requirement if one is explicitly provided
 - When a technique IS provided, specify the exact quantity needed (e.g., "Include exactly 4 compound sentences")
 - Writing techniques are requirements FOR the essay, not topics ABOUT the technique
-- Never require additional techniques beyond what is specified
 
 Restrictions:
 - Never request intentionally incorrect grammar or punctuation
 - Never add requirements that were not explicitly requested
+- NEVER require additional techniques beyond what is specified
+- If no writing technique is specified, do not add one to the prompt.
 
 Context Information:
 - If the prompt requires specific knowledge (facts, data, historical context), provide that information on the second line

@@ -97,26 +97,23 @@ export default function ContestButton({
 
       const result = await response.json()
 
-      // Save bug report to Firestore (regardless of outcome)
+      // Save bug report to Firestore (fire-and-forget, don't block UI)
       if (userId && userEmail) {
-        try {
-          await saveBugReport({
-            userId,
-            userEmail,
-            displayName: displayName || null,
-            contextType,
-            originalResponse,
-            userContent,
-            originalPrompt,
-            selfReviewResult: {
-              isCorrect: result.is_correct,
-              correctionFeedback: result.correction_feedback || null
-            }
-          })
-        } catch (reportError) {
+        saveBugReport({
+          userId,
+          userEmail,
+          displayName: displayName || null,
+          contextType,
+          originalResponse,
+          userContent,
+          originalPrompt,
+          selfReviewResult: {
+            isCorrect: result.is_correct,
+            correctionFeedback: result.correction_feedback || null
+          }
+        }).catch(reportError => {
           console.error('Failed to save bug report:', reportError)
-          // Don't block the main flow if report fails
-        }
+        })
       }
 
       if (result.is_correct) {
