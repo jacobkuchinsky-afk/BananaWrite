@@ -124,7 +124,7 @@ export default function ChatDrawer({
         />
         {/* Header */}
         <div className={styles.chatHeader}>
-          <h3 className={styles.chatHeaderTitle}>Ask Your Teacher</h3>
+          <h3 className={styles.chatHeaderTitle}>Ask the AI Teacher</h3>
           <button 
             className={styles.chatCloseBtn}
             onClick={onClose}

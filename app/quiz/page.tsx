@@ -646,7 +646,7 @@ function QuizContent() {
     return (
       <InteractiveLoader
         title="Preparing your feedback..."
-        subtitle="Your teacher is reviewing your mistakes"
+        subtitle="The AI teacher is reviewing your mistakes"
       />
     )
   }
