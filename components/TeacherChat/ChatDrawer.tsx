@@ -13,7 +13,6 @@ interface ChatDrawerProps {
   isLoading: boolean
   error: string | null
   onSendMessage: (content: string) => Promise<void>
-  topic?: string
 }
 
 export default function ChatDrawer({
@@ -22,8 +21,7 @@ export default function ChatDrawer({
   messages,
   isLoading,
   error,
-  onSendMessage,
-  topic
+  onSendMessage
 }: ChatDrawerProps) {
   const [inputText, setInputText] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -78,17 +76,7 @@ export default function ChatDrawer({
       <div className={`${styles.chatDrawer} ${isOpen ? styles.chatDrawerOpen : ''}`}>
         {/* Header */}
         <div className={styles.chatHeader}>
-          <div className={styles.chatHeaderInfo}>
-            <div className={styles.chatHeaderIcon}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className={styles.chatHeaderTitle}>Ask Your Teacher</h3>
-              {topic && <span className={styles.chatHeaderTopic}>Topic: {topic}</span>}
-            </div>
-          </div>
+          <h3 className={styles.chatHeaderTitle}>Ask Your Teacher</h3>
           <button 
             className={styles.chatCloseBtn}
             onClick={onClose}

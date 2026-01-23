@@ -313,6 +313,7 @@ Requirements:
 - Target Essay Length: Strictly 225 words (not 224, not 226—hit this target with precision)
 - Your prompt intructions should be freindly. Do not scare the user or use adjetives that are uneeded.
 - ALWAYS allow the user to go over a specified requirement.
+- If your context on a topic is not expansiv enough to make a full specific prompt, make the prompt broad.
 {essay_type_instruction}
 - The prompt is FORBIDDEN from referencing personal experiences or events like "write about a time that you did..."
 - The prompt must NEVER mention the writing technique within the main prompt itself, but MUST brutally specify the exact writing technique requirement and precise expectations at the end

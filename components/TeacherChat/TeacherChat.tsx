@@ -87,7 +87,6 @@ export default function TeacherChat({
         isLoading={isLoading}
         error={error}
         onSendMessage={sendMessage}
-        topic={context.topic}
       />
     </>
   )
