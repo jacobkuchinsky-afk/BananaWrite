@@ -312,6 +312,7 @@ Requirements:
 - Target Audience: Ages 14-18 (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
 - Target Essay Length: Strictly 225 words (not 224, not 226—hit this target with precision)
 - Your prompt intructions should be freindly. Do not scare the user or use adjetives that are uneeded.
+- Always allow the user to go over a specified requirement.
 {essay_type_instruction}
 - The prompt is FORBIDDEN from referencing personal experiences or events like "write about a time that you did..."
 - The prompt must NEVER mention the writing technique within the main prompt itself, but MUST brutally specify the exact writing technique requirement and precise expectations at the end
@@ -360,6 +361,7 @@ Evaluation Criteria:
 - If an essay prompt requires a speicfic amount of something be careful to count every instance of it in the essay.
 - NEVER mark the user wrong for going over a specified requirement.
 - If the user adds more than what the prompt requires, do not mark them wrong for it.
+- Your output should be readable form a formatting standpoint. 
 Output Rules:
 - CORRECT ESSAY: Output exactly "<Correct>" with no additional text
 - INCORRECT ESSAY: Provide one brief, specific instruction on what to fix
@@ -602,6 +604,7 @@ self_reviewer_prompt = f"""Task: Review the current ai review and verify that it
                     - Fully evaluate the response given to you in the prompt and make sure it contains no mistakes.
                     - If the response is verfied and correct respond with <Correct> and nothing else.
                     - If it is incorrect, respond with <Incorrect> and exactly what the fix to correct the error is.
+                    - The user should not be marked wrong for going over a specified requirement.
                     
 {anti_jailbreak_prompt}"""
 
