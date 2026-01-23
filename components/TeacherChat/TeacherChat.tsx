@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { TeacherChatContext } from '@/types'
 import { useTeacherChat } from '@/hooks/useTeacherChat'
 import ChatDrawer from './ChatDrawer'
@@ -10,9 +10,18 @@ interface TeacherChatProps {
   context: TeacherChatContext
 }
 
-export default function TeacherChat({ context }: TeacherChatProps) {
+export interface TeacherChatRef {
+  open: () => void
+}
+
+const TeacherChat = forwardRef<TeacherChatRef, TeacherChatProps>(({ context }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const { messages, isLoading, error, sendMessage, setContext, clearChat } = useTeacherChat(context)
+
+  // Expose open method to parent via ref
+  useImperativeHandle(ref, () => ({
+    open: () => setIsOpen(true)
+  }))
 
   // Update context when it changes
   useEffect(() => {
@@ -71,4 +80,8 @@ export default function TeacherChat({ context }: TeacherChatProps) {
       />
     </>
   )
-}
+})
+
+TeacherChat.displayName = 'TeacherChat'
+
+export default TeacherChat

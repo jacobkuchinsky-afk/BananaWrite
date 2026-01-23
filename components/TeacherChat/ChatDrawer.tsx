@@ -156,21 +156,9 @@ export default function ChatDrawer({
             </div>
           ) : (
             <>
-              {messages.map((message, index) => {
-                // Find if this is the last assistant message
-                const isLastAssistant = message.role === 'assistant' && 
-                  !isLoading &&
-                  messages.slice(index + 1).every(m => m.role !== 'assistant')
-                
-                return (
-                  <ChatMessage 
-                    key={message.id} 
-                    message={message}
-                    isLastAssistantMessage={isLastAssistant}
-                    onStillConfused={() => inputRef.current?.focus()}
-                  />
-                )
-              })}
+              {messages.map((message) => (
+                <ChatMessage key={message.id} message={message} />
+              ))}
               {isLoading && (
                 <div className={`${styles.message} ${styles.messageAssistant}`}>
                   <div className={styles.messageBubble}>

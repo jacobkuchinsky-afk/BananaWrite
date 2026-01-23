@@ -39,7 +39,7 @@ import {
   TeacherChatContext
 } from '@/types'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/Icons/Icons'
-import { TeacherChat } from '@/components/TeacherChat'
+import { TeacherChat, TeacherChatRef } from '@/components/TeacherChat'
 import styles from '@/components/Quiz/Quiz.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
@@ -90,6 +90,9 @@ function QuizContent() {
   
   // Guard ref to prevent duplicate API calls during generation
   const isGenerating = useRef(false)
+  
+  // Ref to control teacher chat
+  const teacherChatRef = useRef<TeacherChatRef>(null)
   
   // Build teacher chat context from quiz session
   // Include the current feedback explanation when viewing feedback
@@ -816,11 +819,12 @@ function QuizContent() {
             onNext={handleNextFeedback}
             onPrevious={handlePreviousFeedback}
             onFinish={handleFinishFeedback}
+            onAskTeacher={() => teacherChatRef.current?.open()}
           />
         </main>
         
         {/* Teacher Chat - Available during feedback */}
-        <TeacherChat context={teacherChatContext} />
+        <TeacherChat ref={teacherChatRef} context={teacherChatContext} />
       </div>
     )
   }

@@ -10,6 +10,7 @@ interface FeedbackCardProps {
   onNext: () => void
   onPrevious: () => void
   onFinish: () => void
+  onAskTeacher?: () => void
 }
 
 // Parse explanation text into formatted sections
@@ -43,7 +44,8 @@ export default function FeedbackCard({
   currentIndex,
   onNext,
   onPrevious,
-  onFinish
+  onFinish,
+  onAskTeacher
 }: FeedbackCardProps) {
   const [canContinue, setCanContinue] = useState(false)
   const [countdown, setCountdown] = useState(3)
@@ -126,6 +128,18 @@ export default function FeedbackCard({
           </p>
         ))}
       </div>
+      
+      {onAskTeacher && (
+        <div className={styles.stillConfusedSection}>
+          <span className={styles.stillConfusedText}>Still confused?</span>
+          <button 
+            className={styles.stillConfusedBtn}
+            onClick={onAskTeacher}
+          >
+            Ask AI Teacher
+          </button>
+        </div>
+      )}
       
       <div className={styles.feedbackProgress}>
         {Array.from({ length: total }).map((_, idx) => (
