@@ -154,7 +154,7 @@ export default function MarkedEssay({
           )}
           
           {/* Contest button for essay review */}
-          {essayText && essayReviewResponse && onContestSuccess && onContestConfirmed && (
+          {essayText && essayReviewResponse && onContestSuccess && onContestConfirmed && userId && userEmail && (
             <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
               <ContestButton
                 contextType="essay_review"

@@ -130,7 +130,7 @@ export default function QuizResults({
       </button>
       
       {/* Contest button for quiz grading */}
-      {formattedAnswers && onContestSuccess && onContestConfirmed && (
+      {formattedAnswers && onContestSuccess && onContestConfirmed && userId && userEmail && (
         <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
           <ContestButton
             contextType="quiz_grade"

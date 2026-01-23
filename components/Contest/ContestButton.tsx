@@ -115,6 +115,8 @@ export default function ContestButton({
         }).catch(reportError => {
           console.error('Failed to save bug report:', reportError)
         })
+      } else {
+        console.warn('Bug report not saved: missing userId or userEmail', { userId: !!userId, userEmail: !!userEmail, contextType })
       }
 
       if (result.is_correct) {
