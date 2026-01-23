@@ -335,7 +335,8 @@ export const FOCUS_OPTIONS = [
   'Space Exploration'
 ] as const
 
-export type FocusTopic = typeof FOCUS_OPTIONS[number]
+// FocusTopic allows any string (for custom topics) but FOCUS_OPTIONS provides suggestions
+export type FocusTopic = string
 
 // Essay type options - Fiction vs Non-Fiction
 export const ESSAY_TYPE_OPTIONS = [
@@ -348,7 +349,7 @@ export type EssayType = typeof ESSAY_TYPE_OPTIONS[number]
 // User settings interface
 export interface UserSettings {
   craziness: CrazinessLevel
-  focus: FocusTopic
+  focus: string  // Can be from FOCUS_OPTIONS or a custom validated topic
   essayType: EssayType
   setupComplete: boolean
 }

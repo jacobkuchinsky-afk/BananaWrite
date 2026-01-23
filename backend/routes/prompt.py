@@ -17,7 +17,8 @@ from services.ai_service import (
     grade_quiz,
     get_teacher_feedback,
     set_dynamic_thresholds,
-    self_review
+    self_review,
+    validate_topic
 )
 
 prompt_bp = Blueprint('prompt', __name__)
@@ -490,3 +491,47 @@ def self_review_endpoint():
             "is_correct": True,  # Default to AI being correct on error
             "correction_feedback": None
         }), 500
+
+
+@prompt_bp.route('/api/validate-topic', methods=['POST'])
+def validate_topic_endpoint():
+    """
+    Validate a custom topic entered by the user.
+    
+    Request body:
+        {
+            "topic": "User's custom topic"
+        }
+    
+    Response:
+        {
+            "valid": true/false,
+            "feedback": "Why the topic is invalid..." (only if invalid)
+        }
+    """
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    topic = data.get('topic')
+    
+    if not topic:
+        return jsonify({"error": "No topic provided"}), 400
+    
+    if not isinstance(topic, str):
+        return jsonify({"error": "Topic must be a string"}), 400
+    
+    # Trim whitespace
+    topic = topic.strip()
+    
+    if len(topic) == 0:
+        return jsonify({"error": "Topic cannot be empty"}), 400
+    
+    print(f"[VALIDATE_TOPIC_ENDPOINT] Validating topic: '{topic}'")
+    
+    result = validate_topic(topic)
+    
+    print(f"[VALIDATE_TOPIC_ENDPOINT] Result: valid={result.get('valid')}")
+    
+    return jsonify(result)

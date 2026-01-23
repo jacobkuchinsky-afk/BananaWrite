@@ -260,6 +260,219 @@
   font-size: 0.9375rem;
 }
 
+/* Custom Topic Section */
+.customTopicSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.customTopicDivider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.customTopicDivider::before,
+.customTopicDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: rgba(26, 26, 26, 0.15);
+}
+
+.customTopicInputWrapper {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+}
+
+.customTopicInput {
+  flex: 1;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  border: 3px solid #1a1a1a;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.customTopicInput::placeholder {
+  color: var(--color-text-muted);
+}
+
+.customTopicInput:focus {
+  box-shadow: 
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+.customTopicInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.customTopicInputError {
+  border-color: #dc2626;
+  box-shadow: 
+    0 4px 0 0 rgba(220, 38, 38, 0.9),
+    0 4px 15px rgba(220, 38, 38, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.customTopicInputError:focus {
+  box-shadow: 
+    0 4px 0 0 rgba(220, 38, 38, 0.9),
+    0 4px 15px rgba(220, 38, 38, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.customTopicInputSuccess {
+  border-color: #16a34a;
+  box-shadow: 
+    0 4px 0 0 rgba(22, 163, 74, 0.9),
+    0 4px 15px rgba(22, 163, 74, 0.15),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.addTopicButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  min-width: 120px;
+  box-shadow: 
+    0 4px 0 0 rgba(120, 120, 120, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.12),
+    0 6px 22px rgba(0, 0, 0, 0.06);
+}
+
+.addTopicButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 0 0 rgba(120, 120, 120, 0.9),
+    0 6px 18px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.addTopicButton:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 
+    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.addTopicButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addTopicButtonSuccess {
+  background-color: #16a34a;
+  box-shadow: 
+    0 4px 0 0 rgba(22, 101, 52, 0.9),
+    0 4px 15px rgba(22, 163, 74, 0.2),
+    0 6px 22px rgba(22, 163, 74, 0.1);
+}
+
+.buttonSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.validationErrorBox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: rgba(220, 38, 38, 0.05);
+  border: 2px solid #dc2626;
+  border-radius: 16px;
+  color: #dc2626;
+  animation: shakeAndFadeIn 0.4s ease;
+}
+
+.validationErrorBox svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.validationErrorBox p {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@keyframes shakeAndFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  20% {
+    transform: translateX(8px);
+  }
+  40% {
+    transform: translateX(-6px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  80% {
+    transform: translateX(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.selectedCustomTopic {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(22, 163, 74, 0.08);
+  border: 2px solid #16a34a;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  color: #16a34a;
+}
+
+.selectedCustomTopic span {
+  color: var(--color-text-muted);
+}
+
+.selectedCustomTopic strong {
+  font-weight: 600;
+}
+
 /* Navigation Buttons */
 .setupActions {
   display: flex;
@@ -473,6 +686,15 @@
   .focusGrid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .customTopicInputWrapper {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .addTopicButton {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -524,6 +746,30 @@
 
   .essayTypeDescription {
     font-size: 0.8125rem;
+  }
+
+  .customTopicInput {
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .addTopicButton {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    min-width: 100px;
+  }
+
+  .validationErrorBox {
+    padding: var(--spacing-sm);
+  }
+
+  .validationErrorBox p {
+    font-size: 0.8125rem;
+  }
+
+  .selectedCustomTopic {
+    font-size: 0.8125rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }
 
