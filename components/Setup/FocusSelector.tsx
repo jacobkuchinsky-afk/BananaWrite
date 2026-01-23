@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react'
 import { FOCUS_OPTIONS, FocusTopic } from '@/types'
 import styles from './Setup.module.css'
 
+const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
+
 interface FocusSelectorProps {
   value: FocusTopic | null
   onChange: (value: FocusTopic) => void
@@ -38,13 +40,17 @@ export default function FocusSelector({ value, onChange }: FocusSelectorProps) {
     setValidationError(null)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/validate-topic`, {
+      const response = await fetch(`${FLASK_API_URL}/api/validate-topic`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ topic: trimmedTopic }),
       })
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
 
       const data = await response.json()
 
