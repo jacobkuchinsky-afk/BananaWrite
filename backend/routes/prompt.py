@@ -18,7 +18,8 @@ from services.ai_service import (
     get_teacher_feedback,
     set_dynamic_thresholds,
     self_review,
-    validate_topic
+    validate_topic,
+    teacher_chat
 )
 
 prompt_bp = Blueprint('prompt', __name__)
@@ -533,5 +534,60 @@ def validate_topic_endpoint():
     result = validate_topic(topic)
     
     print(f"[VALIDATE_TOPIC_ENDPOINT] Result: valid={result.get('valid')}")
+    
+    return jsonify(result)
+
+
+@prompt_bp.route('/api/teacher-chat', methods=['POST'])
+def teacher_chat_endpoint():
+    """
+    Chat with the AI teacher for help understanding grammar concepts.
+    
+    Request body:
+        {
+            "messages": [
+                {"role": "user", "content": "..."},
+                {"role": "assistant", "content": "..."},
+                ...
+            ],
+            "context": {
+                "topic": "Grammar topic",
+                "wrongAnswers": [
+                    {"question": "...", "userAnswer": "...", "correctAnswer": "..."}
+                ],
+                "feedbackExplanations": ["..."],
+                "memoryHooks": ["..."]
+            }
+        }
+    
+    Response:
+        {
+            "response": "AI response with markdown",
+            "raw_response": "Full response"
+        }
+    """
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    messages = data.get('messages', [])
+    context = data.get('context', {})
+    
+    if not messages or len(messages) == 0:
+        return jsonify({"error": "No messages provided"}), 400
+    
+    # Validate messages format
+    for msg in messages:
+        if not isinstance(msg, dict):
+            return jsonify({"error": "Invalid message format"}), 400
+        if 'role' not in msg or 'content' not in msg:
+            return jsonify({"error": "Messages must have 'role' and 'content' fields"}), 400
+        if msg['role'] not in ['user', 'assistant']:
+            return jsonify({"error": "Message role must be 'user' or 'assistant'"}), 400
+    
+    print(f"[TEACHER_CHAT_ENDPOINT] Processing {len(messages)} messages, topic: {context.get('topic', 'N/A')}")
+    
+    result = teacher_chat(messages, context)
     
     return jsonify(result)

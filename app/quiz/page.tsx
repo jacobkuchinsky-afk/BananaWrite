@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
@@ -35,9 +35,11 @@ import {
   QuizQuestion as QuizQuestionType,
   QuizAnswer,
   QuizGradingResult,
-  TeacherFeedback
+  TeacherFeedback,
+  TeacherChatContext
 } from '@/types'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/Icons/Icons'
+import { TeacherChat } from '@/components/TeacherChat'
 import styles from '@/components/Quiz/Quiz.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
@@ -88,6 +90,38 @@ function QuizContent() {
   
   // Guard ref to prevent duplicate API calls during generation
   const isGenerating = useRef(false)
+  
+  // Build teacher chat context from quiz session
+  const teacherChatContext: TeacherChatContext = useMemo(() => {
+    if (!quizSession) {
+      return {
+        topic: '',
+        wrongAnswers: [],
+        feedbackExplanations: [],
+        memoryHooks: []
+      }
+    }
+    
+    // Get wrong answers from user answers (comparing with correct answers)
+    const wrongAnswers = quizSession.userAnswers
+      ?.filter(answer => {
+        // Simple check - if they don't match exactly, it's wrong
+        // The grading results will have the actual check
+        return answer.userAnswer.toLowerCase().trim() !== answer.correctAnswer.toLowerCase().trim()
+      })
+      .map(answer => ({
+        question: answer.question,
+        userAnswer: answer.userAnswer,
+        correctAnswer: answer.correctAnswer
+      })) || []
+    
+    return {
+      topic: quizSession.currentQuizRequirements?.topic || '',
+      wrongAnswers,
+      feedbackExplanations: quizSession.teacherFeedback?.explanations || [],
+      memoryHooks: quizSession.teacherFeedback?.memoryHooks || []
+    }
+  }, [quizSession])
   
   // Load quiz session on mount
   useEffect(() => {
@@ -747,6 +781,13 @@ function QuizContent() {
             displayName={user?.displayName}
           />
         </main>
+        
+        {/* Teacher Chat - Available during results */}
+        <TeacherChat 
+          context={teacherChatContext}
+          showInlineButton={!quizResults.passed}
+          inlineButtonText="Need help understanding?"
+        />
       </div>
     )
   }
@@ -775,6 +816,13 @@ function QuizContent() {
             onFinish={handleFinishFeedback}
           />
         </main>
+        
+        {/* Teacher Chat - Available during feedback */}
+        <TeacherChat 
+          context={teacherChatContext}
+          showInlineButton={true}
+          inlineButtonText="Still confused?"
+        />
       </div>
     )
   }
@@ -800,6 +848,13 @@ function QuizContent() {
             onContinue={handleRetryQuiz}
           />
         </main>
+        
+        {/* Teacher Chat - Available during memory hooks */}
+        <TeacherChat 
+          context={teacherChatContext}
+          showInlineButton={true}
+          inlineButtonText="Have questions?"
+        />
       </div>
     )
   }

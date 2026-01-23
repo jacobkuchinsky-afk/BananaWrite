@@ -312,7 +312,7 @@ Requirements:
 - Target Audience: Ages 14-18 (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
 - Target Essay Length: Strictly 225 words (not 224, not 226—hit this target with precision)
 - Your prompt intructions should be freindly. Do not scare the user or use adjetives that are uneeded.
-- Always allow the user to go over a specified requirement.
+- ALWAYS allow the user to go over a specified requirement.
 {essay_type_instruction}
 - The prompt is FORBIDDEN from referencing personal experiences or events like "write about a time that you did..."
 - The prompt must NEVER mention the writing technique within the main prompt itself, but MUST brutally specify the exact writing technique requirement and precise expectations at the end
@@ -607,6 +607,25 @@ self_reviewer_prompt = f"""Task: Review the current ai review and verify that it
                     - The user should not be marked wrong for going over a specified requirement.
                     
 {anti_jailbreak_prompt}"""
+
+
+
+teacher_chat_prompt = f"""Task: You are a freindly teacher and your job is to teach grammar and writing concepts in an easy to understand and intutive way.
+                        - You are an amazing teacher
+                        - You should chat back an forth with the user
+                        - Use markdown formatting to make words and sentences bold, italic, ect
+                        Output Format if this is the first message:
+                            First sentence: Add a super easy one sentence way to explain how to solve the problem. This first sentence should be bold with markdown.
+                            2 newlines
+                            Paragraph: Add a paragraph explaining in depth how to solve the problem.
+                            1 newlines
+                            Finally add a memory hook to help the user remember the concept.
+                        Output format if this is not the first message:
+                            Add 2 sentences exmapling in an easy what exactly what the user asked + what they are stil confused about.
+                         """
+
+
+
 
 # Context-aware self-review prompts for different AI evaluation types
 SELF_REVIEW_PROMPTS = {
@@ -1666,5 +1685,104 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
         return {
             "explanations": [f"Error getting feedback: {str(e)}"],
             "memory_hooks": ["Keep practicing and you'll improve!"],
+            "raw_response": str(e)
+        }
+
+
+def teacher_chat(messages: list, context: dict) -> dict:
+    """
+    Handle teacher chat interactions for helping students understand grammar concepts.
+    
+    Args:
+        messages: List of chat messages [{"role": "user"|"assistant", "content": "..."}]
+        context: Quiz context with topic, wrong answers, and feedback
+            {
+                "topic": "Grammar topic being quizzed",
+                "wrongAnswers": [{"question": "...", "userAnswer": "...", "correctAnswer": "..."}],
+                "feedbackExplanations": ["..."],
+                "memoryHooks": ["..."]
+            }
+    
+    Returns:
+        {
+            "response": "AI response with markdown formatting",
+            "raw_response": "Full response"
+        }
+    """
+    if not API_KEY:
+        return {
+            "response": "I'm sorry, but I can't connect right now. Please try again later.",
+            "raw_response": "API key not configured"
+        }
+    
+    client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+    
+    # Build context string for the system prompt
+    context_parts = []
+    
+    if context.get("topic"):
+        context_parts.append(f"The student is learning about: {context['topic']}")
+    
+    if context.get("wrongAnswers") and len(context["wrongAnswers"]) > 0:
+        wrong_answers_text = []
+        for i, wa in enumerate(context["wrongAnswers"], 1):
+            wrong_answers_text.append(
+                f"Question {i}: {wa.get('question', 'N/A')}\n"
+                f"  Student answered: {wa.get('userAnswer', 'N/A')}\n"
+                f"  Correct answer: {wa.get('correctAnswer', 'N/A')}"
+            )
+        context_parts.append("Questions the student got wrong:\n" + "\n".join(wrong_answers_text))
+    
+    if context.get("feedbackExplanations") and len(context["feedbackExplanations"]) > 0:
+        context_parts.append("Previous feedback given:\n" + "\n".join(context["feedbackExplanations"]))
+    
+    if context.get("memoryHooks") and len(context["memoryHooks"]) > 0:
+        context_parts.append("Memory tips provided:\n" + "\n".join(context["memoryHooks"]))
+    
+    context_string = "\n\n".join(context_parts) if context_parts else "No specific context provided."
+    
+    # Build system prompt with context
+    system_prompt = f"""{teacher_chat_prompt}
+
+STUDENT CONTEXT:
+{context_string}
+
+Remember:
+- Be encouraging and supportive
+- Use markdown formatting (bold, italic, lists) to make explanations clear
+- Focus on the specific topic and mistakes the student made
+- Give concrete examples when explaining grammar rules
+- Keep responses concise but helpful"""
+
+    # Determine if this is the first message
+    is_first_message = len(messages) == 1
+    
+    # Build the messages array for the API
+    api_messages = [{"role": "system", "content": system_prompt}]
+    
+    # Add conversation history
+    for msg in messages:
+        api_messages.append({
+            "role": msg.get("role", "user"),
+            "content": msg.get("content", "")
+        })
+    
+    try:
+        response = client.chat.completions.create(
+            model=MAIN_MODEL,
+            messages=api_messages
+        )
+        
+        result = response.choices[0].message.content.strip()
+        
+        return {
+            "response": result,
+            "raw_response": result
+        }
+        
+    except Exception as e:
+        logger.error(f"Teacher chat error: {str(e)}")
+        return {
+            "response": "I'm having trouble right now. Could you try asking again?",
             "raw_response": str(e)
         }

@@ -458,3 +458,42 @@ export interface BugReport {
   adminNotes?: string
   // Messages are stored in a subcollection, not directly on the document
 }
+
+// ============================================
+// Teacher Chat Types
+// ============================================
+
+// Individual chat message
+export interface TeacherChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
+}
+
+// Wrong answer context for teacher chat
+export interface TeacherChatWrongAnswer {
+  question: string
+  userAnswer: string
+  correctAnswer: string
+}
+
+// Context passed to teacher chat
+export interface TeacherChatContext {
+  topic: string
+  wrongAnswers: TeacherChatWrongAnswer[]
+  feedbackExplanations: string[]
+  memoryHooks: string[]
+}
+
+// API request for teacher chat
+export interface TeacherChatRequest {
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>
+  context: TeacherChatContext
+}
+
+// API response from teacher chat
+export interface TeacherChatResponse {
+  response: string
+  raw_response: string
+}
