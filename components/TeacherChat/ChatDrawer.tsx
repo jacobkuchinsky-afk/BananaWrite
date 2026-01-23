@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent, useCallback } from 'react'
 import { TeacherChatMessage } from '@/types'
 import { SendIcon } from '@/components/Icons/Icons'
 import ChatMessage from './ChatMessage'
@@ -25,8 +25,11 @@ export default function ChatDrawer({
 }: ChatDrawerProps) {
   const [inputText, setInputText] = useState('')
   const [isSending, setIsSending] = useState(false)
+  const [drawerWidth, setDrawerWidth] = useState(400)
+  const [isResizing, setIsResizing] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const drawerRef = useRef<HTMLDivElement>(null)
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -41,6 +44,42 @@ export default function ChatDrawer({
       }, 300) // Wait for animation
     }
   }, [isOpen])
+
+  // Handle resize
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }, [])
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+      
+      const newWidth = e.clientX
+      const minWidth = 320
+      const maxWidth = window.innerWidth * 0.9
+      
+      setDrawerWidth(Math.min(Math.max(newWidth, minWidth), maxWidth))
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'ew-resize'
+      document.body.style.userSelect = 'none'
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [isResizing])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -73,7 +112,16 @@ export default function ChatDrawer({
       />
       
       {/* Drawer */}
-      <div className={`${styles.chatDrawer} ${isOpen ? styles.chatDrawerOpen : ''}`}>
+      <div 
+        ref={drawerRef}
+        className={`${styles.chatDrawer} ${isOpen ? styles.chatDrawerOpen : ''} ${isResizing ? styles.resizing : ''}`}
+        style={{ width: `${drawerWidth}px` }}
+      >
+        {/* Resize Handle */}
+        <div 
+          className={styles.resizeHandle}
+          onMouseDown={handleMouseDown}
+        />
         {/* Header */}
         <div className={styles.chatHeader}>
           <h3 className={styles.chatHeaderTitle}>Ask Your Teacher</h3>

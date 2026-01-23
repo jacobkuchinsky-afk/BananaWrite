@@ -25,6 +25,7 @@
   top: 0;
   height: 100vh;
   width: 400px;
+  min-width: 320px;
   max-width: 90vw;
   background-color: #ffffff;
   border-right: 3px solid #1a1a1a;
@@ -40,6 +41,39 @@
 
 .chatDrawerOpen {
   transform: translateX(0);
+}
+
+/* Resize Handle */
+.resizeHandle {
+  position: absolute;
+  right: -6px;
+  top: 0;
+  width: 12px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resizeHandle::after {
+  content: '';
+  width: 4px;
+  height: 48px;
+  background-color: rgba(26, 26, 26, 0.2);
+  border-radius: 2px;
+  transition: background-color 0.15s ease, height 0.15s ease;
+}
+
+.resizeHandle:hover::after {
+  background-color: rgba(26, 26, 26, 0.5);
+  height: 64px;
+}
+
+.chatDrawer.resizing {
+  transition: none;
+  user-select: none;
 }
 
 /* Chat Header */
@@ -234,7 +268,7 @@
 .chatInputContainer {
   padding: var(--spacing-md) var(--spacing-lg);
   border-top: 3px solid #1a1a1a;
-  background-color: #fafafa;
+  background-color: #1a1a1a;
 }
 
 .chatInputForm {
@@ -247,26 +281,21 @@
   padding: 12px 18px;
   font-size: 0.9375rem;
   font-family: var(--font-body);
-  color: var(--color-text-primary);
-  background-color: #ffffff;
-  border: 3px solid #1a1a1a;
+  color: #ffffff;
+  background-color: #2a2a2a;
+  border: 2px solid #3a3a3a;
   border-radius: 50px;
   outline: none;
   transition: all 0.15s ease;
-  box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
-    0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
 .chatInput:focus {
-  box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
-    0 3px 10px rgba(0, 0, 0, 0.08),
-    0 0 0 3px rgba(26, 26, 26, 0.1);
+  border-color: #5a5a5a;
+  background-color: #333333;
 }
 
 .chatInput::placeholder {
-  color: var(--color-text-muted);
+  color: #888888;
 }
 
 .chatInput:disabled {
