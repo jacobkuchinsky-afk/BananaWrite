@@ -5,7 +5,7 @@
   right: 0;
   z-index: 100;
   background-color: var(--color-background);
-  padding: var(--spacing-sm) 0;
+  padding: clamp(0.5rem, 1.5vh, 1rem) 0;
 }
 
 .container {
@@ -19,7 +19,7 @@
 
 .logo {
   width: auto;
-  height: 90px;
+  height: clamp(60px, 10vh, 90px);
   object-fit: contain;
 }
 
@@ -162,6 +162,17 @@
   }
 
   .logo {
-    height: 60px;
+    height: 50px;
+  }
+}
+
+/* Handle very short viewports */
+@media (max-height: 700px) {
+  .header {
+    padding: 0.5rem 0;
+  }
+
+  .logo {
+    height: clamp(45px, 8vh, 70px);
   }
 }

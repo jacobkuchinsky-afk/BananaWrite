@@ -2,15 +2,19 @@
   padding: var(--spacing-3xl) 0;
   background-color: var(--color-background);
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for better support */
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  box-sizing: border-box;
 }
 
 .infoSection.moveUp {
+  /* Use calc with dvh for better cross-browser support, with vh fallback */
   transform: translateY(calc(-100vh + 120px));
+  transform: translateY(calc(-100dvh + clamp(100px, 12vh, 140px)));
 }
 
 .container {
@@ -43,9 +47,40 @@
 @media (max-width: 480px) {
   .infoSection {
     padding: var(--spacing-2xl) 0;
+    min-height: auto;
+  }
+
+  .infoSection.moveUp {
+    transform: translateY(calc(-100vh + 80px));
+    transform: translateY(calc(-100dvh + 80px));
   }
 
   .description {
     font-size: 1rem;
+  }
+}
+
+/* Handle very short viewports */
+@media (max-height: 700px) {
+  .infoSection {
+    min-height: auto;
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .infoSection.moveUp {
+    transform: translateY(calc(-100vh + 100px));
+    transform: translateY(calc(-100dvh + 100px));
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 968px) {
+  .infoSection {
+    min-height: auto;
+  }
+
+  .infoSection.moveUp {
+    transform: translateY(calc(-100vh + 100px));
+    transform: translateY(calc(-100dvh + 100px));
   }
 }

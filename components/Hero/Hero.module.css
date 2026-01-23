@@ -1,11 +1,14 @@
 .hero {
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for better mobile support */
   display: flex;
   flex-direction: column;
   background-color: var(--color-background);
-  overflow: hidden;
-  padding-top: 110px; /* Account for fixed header with larger logo */
+  overflow: visible; /* Allow content to be visible */
+  padding-top: clamp(90px, 12vh, 130px); /* Responsive header offset */
+  padding-bottom: var(--spacing-xl);
   position: relative;
+  box-sizing: border-box;
 }
 
 .container {
@@ -143,6 +146,8 @@
   align-items: center;
   position: relative;
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
+  max-height: 70vh;
+  max-height: 70dvh;
 }
 
 .phoneContainer::after {
@@ -169,13 +174,21 @@
 
 .phoneImage {
   width: 100%;
-  max-width: 580px;
+  max-width: min(580px, 45vw);
   height: auto;
+  max-height: 65vh;
+  max-height: 65dvh;
   object-fit: contain;
 }
 
 /* Responsive */
 @media (max-width: 968px) {
+  .hero {
+    min-height: auto;
+    padding-top: clamp(80px, 10vh, 110px);
+    padding-bottom: var(--spacing-lg);
+  }
+
   .content {
     flex-direction: column;
     text-align: center;
@@ -208,6 +221,7 @@
   .phoneContainer {
     order: 2;
     margin-top: var(--spacing-xl);
+    max-height: none;
   }
 
   .phoneContainer.slideRight {
@@ -215,11 +229,17 @@
   }
 
   .phoneImage {
-    max-width: 400px;
+    max-width: min(400px, 80vw);
+    max-height: 50vh;
+    max-height: 50dvh;
   }
 }
 
 @media (max-width: 480px) {
+  .hero {
+    padding-top: 75px;
+  }
+
   .buttons {
     flex-direction: column;
     width: 100%;
@@ -228,5 +248,33 @@
   .btnPrimary,
   .btnOutline {
     width: 100%;
+  }
+}
+
+/* Handle very short viewports */
+@media (max-height: 700px) {
+  .hero {
+    min-height: auto;
+    padding-top: 80px;
+  }
+
+  .phoneImage {
+    max-height: 45vh;
+    max-height: 45dvh;
+  }
+
+  .content {
+    gap: var(--spacing-md);
+  }
+}
+
+/* Handle ultra-wide monitors */
+@media (min-width: 1800px) {
+  .hero {
+    padding-top: 130px;
+  }
+
+  .phoneImage {
+    max-width: 650px;
   }
 }

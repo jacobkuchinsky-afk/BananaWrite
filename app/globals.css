@@ -40,6 +40,8 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  /* Fix for mobile viewport issues */
+  height: -webkit-fill-available;
 }
 
 body {
@@ -49,6 +51,9 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 img {
