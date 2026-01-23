@@ -35,6 +35,7 @@ export function useTeacherChat(initialContext?: TeacherChatContext): UseTeacherC
     topic: '',
     wrongAnswers: [],
     feedbackExplanations: [],
+    currentFeedback: '',
     memoryHooks: []
   })
 

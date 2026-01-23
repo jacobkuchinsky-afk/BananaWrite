@@ -483,6 +483,7 @@ export interface TeacherChatContext {
   topic: string
   wrongAnswers: TeacherChatWrongAnswer[]
   feedbackExplanations: string[]
+  currentFeedback: string  // The specific feedback the user is currently viewing
   memoryHooks: string[]
 }
 

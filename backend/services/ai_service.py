@@ -1724,6 +1724,10 @@ def teacher_chat(messages: list, context: dict) -> dict:
     if context.get("topic"):
         context_parts.append(f"The student is learning about: {context['topic']}")
     
+    # Prioritize current feedback if the student is viewing a specific explanation
+    if context.get("currentFeedback"):
+        context_parts.append(f"The student is currently reviewing this feedback:\n\"{context['currentFeedback']}\"\n\nThey may have questions about this specific explanation.")
+    
     if context.get("wrongAnswers") and len(context["wrongAnswers"]) > 0:
         wrong_answers_text = []
         for i, wa in enumerate(context["wrongAnswers"], 1):
@@ -1733,9 +1737,6 @@ def teacher_chat(messages: list, context: dict) -> dict:
                 f"  Correct answer: {wa.get('correctAnswer', 'N/A')}"
             )
         context_parts.append("Questions the student got wrong:\n" + "\n".join(wrong_answers_text))
-    
-    if context.get("feedbackExplanations") and len(context["feedbackExplanations"]) > 0:
-        context_parts.append("Previous feedback given:\n" + "\n".join(context["feedbackExplanations"]))
     
     if context.get("memoryHooks") and len(context["memoryHooks"]) > 0:
         context_parts.append("Memory tips provided:\n" + "\n".join(context["memoryHooks"]))

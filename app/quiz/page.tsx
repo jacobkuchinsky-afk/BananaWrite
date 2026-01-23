@@ -92,12 +92,14 @@ function QuizContent() {
   const isGenerating = useRef(false)
   
   // Build teacher chat context from quiz session
+  // Include the current feedback explanation when viewing feedback
   const teacherChatContext: TeacherChatContext = useMemo(() => {
     if (!quizSession) {
       return {
         topic: '',
         wrongAnswers: [],
         feedbackExplanations: [],
+        currentFeedback: '',
         memoryHooks: []
       }
     }
@@ -115,13 +117,17 @@ function QuizContent() {
         correctAnswer: answer.correctAnswer
       })) || []
     
+    // Get the current feedback explanation being viewed
+    const currentFeedback = quizSession.teacherFeedback?.explanations?.[feedbackIndex] || ''
+    
     return {
       topic: quizSession.currentQuizRequirements?.topic || '',
       wrongAnswers,
       feedbackExplanations: quizSession.teacherFeedback?.explanations || [],
+      currentFeedback,
       memoryHooks: quizSession.teacherFeedback?.memoryHooks || []
     }
-  }, [quizSession])
+  }, [quizSession, feedbackIndex])
   
   // Load quiz session on mount
   useEffect(() => {
@@ -783,11 +789,7 @@ function QuizContent() {
         </main>
         
         {/* Teacher Chat - Available during results */}
-        <TeacherChat 
-          context={teacherChatContext}
-          showInlineButton={!quizResults.passed}
-          inlineButtonText="Need help understanding?"
-        />
+        <TeacherChat context={teacherChatContext} />
       </div>
     )
   }
@@ -818,11 +820,7 @@ function QuizContent() {
         </main>
         
         {/* Teacher Chat - Available during feedback */}
-        <TeacherChat 
-          context={teacherChatContext}
-          showInlineButton={true}
-          inlineButtonText="Still confused?"
-        />
+        <TeacherChat context={teacherChatContext} />
       </div>
     )
   }
@@ -850,11 +848,7 @@ function QuizContent() {
         </main>
         
         {/* Teacher Chat - Available during memory hooks */}
-        <TeacherChat 
-          context={teacherChatContext}
-          showInlineButton={true}
-          inlineButtonText="Have questions?"
-        />
+        <TeacherChat context={teacherChatContext} />
       </div>
     )
   }
