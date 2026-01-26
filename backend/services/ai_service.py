@@ -302,7 +302,7 @@ def get_essay_prompt_creator(craziness: str = None, focus: str = None, essay_typ
         essay_type_instruction = "- Essay Type: Non-Fiction ONLY (Expository or Argumentative essays)"
     else:
         # Default: allow any type
-        essay_type_instruction = "- Essay Types: Expository, Argumentative, or Narrative"
+        essay_type_instruction = "- Essay Types: Expository, or Narrative"
     
     return f"""Task: Generate a 1-2 sentence essay prompt for a student.
 
@@ -310,10 +310,10 @@ Requirements:
 - Topic: {focus_topic} (ruthlessly narrow down to ONE hyper-specific, laser-focused detail within this topic—no wandering allowed)
 - Tone/Creativity Level: {craziness_level} (dictates the intensity of humor, wild originality, and raw engagement—push boundaries accordingly)
 - Target Audience: Ages 14-18 (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
-- Target Essay Length: Strictly 225 words (not 224, not 226—hit this target with precision)
+- Target Essay Length: Strictly 225 words 
 - Your prompt intructions should be freindly. Do not scare the user or use adjetives that are uneeded.
 - ALWAYS allow the user to go over a specified requirement.
-- If your context on a topic is not expansiv enough to make a full specific prompt, make the prompt broad.
+- If your context on a topic is not expansive enough to make a full specific prompt, make the prompt broad.
 {essay_type_instruction}
 - The prompt is FORBIDDEN from referencing personal experiences or events like "write about a time that you did..."
 - The prompt must NEVER mention the writing technique within the main prompt itself, but MUST brutally specify the exact writing technique requirement and precise expectations at the end
@@ -333,7 +333,6 @@ Restrictions:
 Context Information:
 - If the prompt demands specific knowledge (concrete facts, hard data, precise historical context), you MUST provide that critical information on the second line—no vague generalities
 - This information should be leveraged when you want the user to write about something extremely specific like particular historical events or exact factual details
-- Add a clear, no-nonsense explanation of the specific writing technique to the prompt if one is required
 
 Output Format:
 Line 1: The essay prompt (1-2 sharp, focused sentences)
