@@ -5,7 +5,6 @@ import { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import { ArrowRightIcon } from '@/components/Icons/Icons'
 import styles from './Quiz.module.css'
-import trophyImage from '@/Assets/trophy.png'
 
 interface WinScreenProps {
   variant: 'perfect_essay' | 'quizzes_complete'
@@ -146,7 +145,7 @@ export default function WinScreen({
         {/* Trophy Icon */}
         <span className={styles.winScreenIcon}>
           <Image
-            src={trophyImage}
+            src="/images/trophy.png"
             alt="Trophy"
             width={80}
             height={80}
