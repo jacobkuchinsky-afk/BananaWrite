@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import { ArrowRightIcon } from '@/components/Icons/Icons'
 import styles from './Quiz.module.css'
-import trophyImage from '@/assets/trophy.png'
+import trophyImage from '@/Assets/trophy.png'
 
 interface WinScreenProps {
   variant: 'perfect_essay' | 'quizzes_complete'
