@@ -2,8 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useMemo } from 'react'
+import Image from 'next/image'
 import { ArrowRightIcon } from '@/components/Icons/Icons'
 import styles from './Quiz.module.css'
+import trophyImage from '@/assets/trophy.png'
 
 interface WinScreenProps {
   variant: 'perfect_essay' | 'quizzes_complete'
@@ -141,27 +143,16 @@ export default function WinScreen({
       </div>
       
       <div className={styles.winScreenContent}>
-        {/* Trophy/Checkmark Icon */}
+        {/* Trophy Icon */}
         <span className={styles.winScreenIcon}>
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-            {variant === 'perfect_essay' ? (
-              // Star trophy icon for perfect essay
-              <>
-                <path d="M12 2L14.39 8.26L21 9.27L16.5 13.97L17.78 21L12 17.77L6.22 21L7.5 13.97L3 9.27L9.61 8.26L12 2Z" fill="#16a34a"/>
-                <circle cx="12" cy="11" r="3" fill="#dcfce7"/>
-              </>
-            ) : (
-              // Trophy cup for quizzes complete
-              <>
-                <path d="M12 2L15 8H19L15.5 12L17 18H12L7 18L8.5 12L5 8H9L12 2Z" fill="#16a34a"/>
-                <path d="M7 20H17V22H7V20Z" fill="#15803d"/>
-                <path d="M6 8H4C4 11 5 13 7 14V12C6 11.5 5.5 10 6 8Z" fill="#22c55e"/>
-                <path d="M18 8H20C20 11 19 13 17 14V12C18 11.5 18.5 10 18 8Z" fill="#22c55e"/>
-                <path d="M9 18H15V20H9V18Z" fill="#16a34a"/>
-                <circle cx="12" cy="10" r="2" fill="#dcfce7"/>
-              </>
-            )}
-          </svg>
+          <Image
+            src={trophyImage}
+            alt="Trophy"
+            width={80}
+            height={80}
+            style={{ objectFit: 'contain' }}
+            priority
+          />
         </span>
         
         <h1 className={styles.winScreenTitle}>

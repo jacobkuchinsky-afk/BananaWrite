@@ -11,30 +11,36 @@ interface EssayTypeSelectorProps {
 // Icons for each essay type
 function FictionIcon({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 6.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5v0A5.5 5.5 0 0 1 6.5 12v0A5.5 5.5 0 0 1 12 6.5Z" />
-      <path d="m9 9 1.5 1.5" />
-      <path d="M14.5 9 13 10.5" />
-      <path d="M9 15.5s1 1.5 3 1.5 3-1.5 3-1.5" />
-      <path d="M12 2v4" />
-      <path d="M12 18v4" />
-      <path d="m4.93 4.93 2.83 2.83" />
-      <path d="m16.24 16.24 2.83 2.83" />
-      <path d="M2 12h4" />
-      <path d="M18 12h4" />
-      <path d="m4.93 19.07 2.83-2.83" />
-      <path d="m16.24 7.76 2.83-2.83" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {/* Quill feather - creative writing symbol */}
+      <path d="M20 2c-2 0-4 1-5.5 2.5S12 8 12 10c0 1.5.5 3 1.5 4" />
+      <path d="M20 2c0 2-1 4-2.5 5.5S14 10 12 10" />
+      <path d="M13.5 14L4 22" />
+      <path d="M14.5 13.5c-1-1-2.5-1.5-4-1.5" />
+      {/* Sparkle accents for creativity */}
+      <circle cx="7" cy="5" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="4" cy="9" r="0.5" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="3" r="0.5" fill="currentColor" stroke="none" />
     </svg>
   )
 }
 
 function NonFictionIcon({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-      <path d="M8 7h6" />
-      <path d="M8 11h8" />
-      <path d="M8 15h6" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {/* Open book shape */}
+      <path d="M2 4c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V4z" />
+      <path d="M12 4c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2h-6c-1.1 0-2-.9-2-2V4z" />
+      {/* Center spine */}
+      <path d="M12 2v20" />
+      {/* Text lines - left page */}
+      <path d="M5 7h4" />
+      <path d="M5 10h4" />
+      <path d="M5 13h3" />
+      {/* Text lines - right page */}
+      <path d="M15 7h4" />
+      <path d="M15 10h4" />
+      <path d="M15 13h3" />
     </svg>
   )
 }

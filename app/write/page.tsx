@@ -465,6 +465,11 @@ function WriteContent() {
         setShowModuleComplete(true)
       } else {
         // Still has errors (user can contest again)
+        // Since the AI was found to be wrong, give the user a fresh chance to fix errors
+        // Reset redo state so they can try fixing the corrected list of errors
+        setHasUsedRedoChance(false)
+        setIsRedoMode(false)
+        
         await startQuizSession(
           user.uid,
           essayText,
