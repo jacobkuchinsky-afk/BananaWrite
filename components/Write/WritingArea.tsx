@@ -80,11 +80,17 @@ export default function WritingArea({
   // Focus the editor on mount
   useEffect(() => {
     const editor = editorRef.current
+    let timeoutId: NodeJS.Timeout | null = null
+    
     if (editor && !disabled) {
       // Small delay to ensure the element is ready
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         editor.focus()
       }, 100)
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
     }
   }, [disabled])
 
@@ -101,6 +107,9 @@ export default function WritingArea({
         data-placeholder={placeholder}
         spellCheck={true}
         suppressContentEditableWarning={true}
+        role="textbox"
+        aria-label="Essay writing area"
+        aria-multiline="true"
       />
     </div>
   )

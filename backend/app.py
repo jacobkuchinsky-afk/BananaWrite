@@ -4,17 +4,27 @@ Main application entry point
 """
 
 import os
+import logging
 from flask import Flask, jsonify
 from flask_cors import CORS
 from routes.prompt import prompt_bp
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Create Flask app
 app = Flask(__name__)
 
-# Configure CORS - allow all origins
-# supports_credentials allows cookies/auth if needed
+# Limit request size to 1MB to prevent DoS
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1MB
+
+# Get allowed origins from environment (comma-separated)
+cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+
+# Configure CORS with specific origins
 CORS(app, 
-     origins="*",
+     origins=cors_origins,
      methods=["GET", "POST", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization"],
      supports_credentials=True)
@@ -24,9 +34,12 @@ CORS(app,
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Handle all exceptions with proper CORS headers"""
+    logger.error(f"Unhandled exception: {type(e).__name__}: {str(e)}")
+    
+    # Don't expose internal error details to clients
     response = jsonify({
-        "error": str(e),
-        "type": type(e).__name__
+        "error": "An internal error occurred",
+        "type": "ServerError"
     })
     response.status_code = 500
     return response
@@ -47,8 +60,7 @@ def health_check():
         "status": "healthy",
         "service": "bananawrite-backend",
         "version": "1.0.0",
-        "api_key_configured": has_api_key,
-        "api_key_preview": f"{api_key[:8]}..." if has_api_key else "NOT SET"
+        "api_key_configured": has_api_key
     })
 
 
@@ -68,11 +80,12 @@ def root():
 
 
 if __name__ == '__main__':
-    # Development server
+    # Development server - debug mode controlled by environment
+    debug_mode = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
     app.run(
         host='0.0.0.0',
-        port=5000,
-        debug=True
+        port=int(os.getenv('PORT', 5000)),
+        debug=debug_mode
     )
 
 

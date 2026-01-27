@@ -3,7 +3,11 @@ Prompt Routes - Handles essay prompt generation endpoints
 """
 
 import json
+import logging
 from flask import Blueprint, request, Response, stream_with_context, jsonify
+
+# Configure logging
+logger = logging.getLogger(__name__)
 from services.ai_service import (
     generate_essay_prompt_stream, 
     get_writing_technique, 
@@ -61,7 +65,7 @@ def generate_prompt():
     focus = data.get('focus')
     essay_type = data.get('essayType')
     
-    print(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}, Essay Type: {essay_type}")
+    logger.info(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}, Essay Type: {essay_type}")
     
     def generate():
         """Generator function for SSE streaming"""
@@ -149,13 +153,13 @@ def check_essay_endpoint():
     if not prompt:
         return jsonify({"error": "No prompt provided"}), 400
     
-    print(f"[CHECK_ESSAY_ENDPOINT] Checking essay (length: {len(essay)}) against prompt (length: {len(prompt)})")
+    logger.info(f"[CHECK_ESSAY_ENDPOINT] Checking essay (length: {len(essay)}) against prompt (length: {len(prompt)})")
     if correction_feedback:
-        print(f"[CHECK_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
+        logger.info(f"[CHECK_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
     
     result = check_essay(essay, prompt, correction_feedback)
     
-    print(f"[CHECK_ESSAY_ENDPOINT] Result: correct={result.get('correct')}, feedback={result.get('feedback')[:100] if result.get('feedback') else None}")
+    logger.info(f"[CHECK_ESSAY_ENDPOINT] Result: correct={result.get('correct')}, feedback={result.get('feedback')[:100] if result.get('feedback') else None}")
     
     return jsonify(result)
 
@@ -190,7 +194,7 @@ def review_essay_endpoint():
         return jsonify({"error": "No essay provided"}), 400
     
     if correction_feedback:
-        print(f"[REVIEW_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
+        logger.info(f"[REVIEW_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
     
     result = review_essay(essay, correction_feedback)
     return jsonify(result)
@@ -305,7 +309,7 @@ def grade_quiz_endpoint():
         return jsonify({"error": "Answers must be a list"}), 400
     
     if correction_feedback:
-        print(f"[GRADE_QUIZ_ENDPOINT] Re-grading with correction feedback")
+        logger.info(f"[GRADE_QUIZ_ENDPOINT] Re-grading with correction feedback")
     
     result = grade_quiz(answers, correction_feedback)
     return jsonify(result)
@@ -378,7 +382,7 @@ def review_essay_redo_endpoint():
     if not original_errors:
         return jsonify({"error": "No original errors provided"}), 400
     
-    print(f"[REVIEW_ESSAY_REDO] Re-reviewing essay with {len(original_errors)} original errors")
+    logger.info(f"[REVIEW_ESSAY_REDO] Re-reviewing essay with {len(original_errors)} original errors")
     
     result = review_essay_with_context(essay, original_errors)
     return jsonify(result)
@@ -419,7 +423,7 @@ def update_app_settings_endpoint():
         passing_score=passing_score
     )
     
-    print(f"[APP_SETTINGS] Updated thresholds: same_error={same_error_threshold}, total={total_error_threshold}, passing={passing_score}")
+    logger.info(f"[APP_SETTINGS] Updated thresholds: same_error={same_error_threshold}, total={total_error_threshold}, passing={passing_score}")
     
     return jsonify({
         "success": True,
@@ -477,16 +481,16 @@ def self_review_endpoint():
     if context_type == 'essay_check' and not original_prompt:
         return jsonify({"error": "original_prompt is required for essay_check context"}), 400
     
-    print(f"[SELF_REVIEW_ENDPOINT] Reviewing AI response for context: {context_type}")
+    logger.info(f"[SELF_REVIEW_ENDPOINT] Reviewing AI response for context: {context_type}")
     
     try:
         result = self_review(context_type, original_response, user_content, original_prompt)
         
-        print(f"[SELF_REVIEW_ENDPOINT] Result: is_correct={result.get('is_correct')}")
+        logger.info(f"[SELF_REVIEW_ENDPOINT] Result: is_correct={result.get('is_correct')}")
         
         return jsonify(result)
     except Exception as e:
-        print(f"[SELF_REVIEW_ENDPOINT] Error: {str(e)}")
+        logger.error(f"[SELF_REVIEW_ENDPOINT] Error: {str(e)}")
         return jsonify({
             "error": f"Self-review failed: {str(e)}",
             "is_correct": True,  # Default to AI being correct on error
@@ -529,11 +533,11 @@ def validate_topic_endpoint():
     if len(topic) == 0:
         return jsonify({"error": "Topic cannot be empty"}), 400
     
-    print(f"[VALIDATE_TOPIC_ENDPOINT] Validating topic: '{topic}'")
+    logger.info(f"[VALIDATE_TOPIC_ENDPOINT] Validating topic: '{topic}'")
     
     result = validate_topic(topic)
     
-    print(f"[VALIDATE_TOPIC_ENDPOINT] Result: valid={result.get('valid')}")
+    logger.info(f"[VALIDATE_TOPIC_ENDPOINT] Result: valid={result.get('valid')}")
     
     return jsonify(result)
 
@@ -586,7 +590,7 @@ def teacher_chat_endpoint():
         if msg['role'] not in ['user', 'assistant']:
             return jsonify({"error": "Message role must be 'user' or 'assistant'"}), 400
     
-    print(f"[TEACHER_CHAT_ENDPOINT] Processing {len(messages)} messages, topic: {context.get('topic', 'N/A')}")
+    logger.info(f"[TEACHER_CHAT_ENDPOINT] Processing {len(messages)} messages, topic: {context.get('topic', 'N/A')}")
     
     result = teacher_chat(messages, context)
     

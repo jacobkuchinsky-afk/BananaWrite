@@ -41,8 +41,9 @@ export default function ProtectedRoute({ children, requireSetup = true }: Protec
         setSetupComplete(true)
       } catch (error) {
         console.error('Error checking setup status:', error)
-        // On error, allow access (don't block user)
-        setSetupComplete(true)
+        // On error, redirect to setup page to be safe
+        router.push('/setup')
+        return
       } finally {
         setCheckingSetup(false)
       }
