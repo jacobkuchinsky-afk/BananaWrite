@@ -200,6 +200,11 @@
     0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.messageUser .messageBubble p {
+  color: #ffffff;
+  margin: 0;
+}
+
 .messageAssistant .messageBubble {
   background-color: #f5f5f5;
   color: var(--color-text-primary);

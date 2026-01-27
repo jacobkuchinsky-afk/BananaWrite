@@ -39,10 +39,10 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right side - Phone mockup */}
+          {/* Right side - Paper image */}
           <div className={`${styles.phoneContainer} ${isScrolled ? styles.slideRight : ''}`}>
             <Image
-              src="/images/Phone.png"
+              src="/images/paper.jpg"
               alt="BananaWrite App Preview"
               width={550}
               height={650}
