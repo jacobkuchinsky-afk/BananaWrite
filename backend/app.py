@@ -19,8 +19,14 @@ app = Flask(__name__)
 # Limit request size to 1MB to prevent DoS
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1MB
 
-# Get allowed origins from environment (comma-separated)
-cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+# Get allowed origins from environment (comma-separated) or use defaults
+# Include both production and localhost for development
+default_origins = 'https://banana-write.vercel.app,https://bananawrite.vercel.app,http://localhost:3000'
+cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', default_origins).split(',')
+# Strip whitespace from origins
+cors_origins = [origin.strip() for origin in cors_origins]
+
+logger.info(f"CORS allowed origins: {cors_origins}")
 
 # Configure CORS with specific origins
 CORS(app, 
