@@ -494,6 +494,8 @@ Requirements:
 - The quiz is a writing grammar quiz.
 - Each quiz questions should be different in at least 1 large way (Type of question (Multi choice, fill in the blank, written response), question phrasing) from each other.
 
+
+
 Question Type Tags (REQUIRED):
 - Multiple Choice: Wrap each option with <MULTI> tags
 - Fill in Blank: Wrap entire question with <FILL> tags  
@@ -535,7 +537,11 @@ Example - Written Response:
 ~
 <TYPE>Rewrite with correct punctuation: "The dog ran fast the cat jumped high"</TYPE>
 ~
-The dog ran fast. The cat jumped high."""
+The dog ran fast. The cat jumped high.
+
+
+DO NOT DO THE FOLLOWING:
+- The quiz should NOT have the same questions but with a different scenario."""
 
 # Grader prompt - grades quiz answers
 GRADER_PROMPT = f"""Task: Grade each quiz answer for grammatical correctness.
