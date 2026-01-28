@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { ArrowRightIcon } from '@/components/Icons/Icons'
 import styles from './Quiz.module.css'
 
@@ -9,7 +9,6 @@ interface ModuleCompleteProps {
   lessonName: string
   xpEarned?: number
   nextLessonName?: string
-  autoRedirectDelay?: number // in seconds
 }
 
 // Confetti piece component
@@ -57,27 +56,9 @@ function ConfettiPiece({ index }: { index: number }) {
 export default function ModuleComplete({ 
   lessonName, 
   xpEarned = 100,
-  nextLessonName,
-  autoRedirectDelay = 5
+  nextLessonName
 }: ModuleCompleteProps) {
   const router = useRouter()
-  const [countdown, setCountdown] = useState(autoRedirectDelay)
-  
-  // Auto-redirect countdown
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          router.push('/dashboard')
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    
-    return () => clearInterval(timer)
-  }, [router])
 
   const handleContinue = () => {
     router.push('/dashboard')
@@ -126,10 +107,6 @@ export default function ModuleComplete({
         <button onClick={handleContinue} className={styles.continueBtn}>
           Return to Dashboard <ArrowRightIcon size={18} />
         </button>
-        
-        <p className={styles.redirectCountdown}>
-          Returning to dashboard in {countdown}s...
-        </p>
       </div>
     </div>
   )
