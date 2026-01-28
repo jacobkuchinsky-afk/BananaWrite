@@ -371,31 +371,28 @@ Key facts: Apollo 11 mission, Neil Armstrong and Buzz Aldrin, July 20, 1969, 400
 
 ESSAY_CHECKER_PROMPT = f"""Task: Verify whether the essay meets the prompt's specific requirements.
 
-Evaluation Criteria:
-- Check ONLY for explicit requirements stated in the prompt (e.g., "use 5 commas", "include 2 semicolons")
-- Count specified elements carefully; allow a margin of ±1 for close attempts
-- Ignore grammar quality—evaluate only requirement compliance
-- Ignore word count—exceeding the minimum is always acceptable
-- If no countable requirements exist, verify the essay addresses the topic
-- Be careful when counting and NEVER make counting mistakes.
-- If an essay prompt requires a speicfic amount of something be careful to count every instance of it in the essay.
-- NEVER mark the user wrong for going over a specified requirement.
-- If the user adds more than what the prompt requires, do not mark them wrong for it.
-- Your output should be readable form a formatting standpoint. 
-- If you belive that an essay does not meet requirements, before marking the user incorrect make sure to count very very carefully to ensure that you dont miss any part of the essay.
-- Unless very obviously wrong, do not mark the user incorrect for not meeting a requirement like the amount of certain writing technique needed in the essay. (Commas, semicolons, conjunctions, ect)
-Output Rules:
-- CORRECT ESSAY: Output exactly "<Correct>" with no additional text
-- INCORRECT ESSAY: Provide one brief, specific instruction on what to fix
+Goal: 
+- Verify that the essay meets the prompt's specific requirements.
+- For each sentence of the essay, check if the sentence help to meet the goal of one of the requirements in the prompt Example: The amount of a certain punctuation rule needed in the essay.
+- If the sentence meets the requirments, output <Correct> in your message.
+- Make sure to use the <Think> around your counting process.
 
-Example - Correct:
-<Correct>
 
-Example - Incorrect:
-Add 2 more commas to reach the required 5 commas.
 
-Example - Incorrect:
-Include at least one semicolon as specified in the prompt.
+Output structure:
+<Think>
+One sentence checking if the essay follow the theme of the prompt. If the essay does not follow the theme do not do any more of the output.
+Sentence 1: Check if it adds to the count needed in the prompt. If it does, write that down.
+Sentence 2: Check if it adds to the count needed in the prompt. If it does, write that down.
+Sentence 3: Check if it adds to the count needed in the prompt. If it does, write that down.
+...
+Sentence n: Check if it adds to the count needed in the prompt. If it does, write that down.
+Once you have checked all sentences, please output if the essay meets the requirments or not. 
+<Think>
+If the essay meets reuqirments output <Correct> if not please output in a readable format why the essayd does not meet requirments.
+
+DO NOTE DO THE FOLLOWING:
+1. NEVER OUTPUT <Correct> if the essay does not meet the requirements of the prompt.
 
 {anti_jailbreak_prompt}"""
 
