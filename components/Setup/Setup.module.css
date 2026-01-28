@@ -78,6 +78,12 @@
 
 .crazinessOptionWrapper {
   position: relative;
+  display: flex;
+}
+
+.crazinessOptionWrapper .crazinessOption {
+  flex: 1;
+  width: 100%;
 }
 
 .recommendedBadge {
@@ -91,6 +97,7 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   white-space: nowrap;
+  z-index: 1;
 }
 
 .crazinessOption.recommended {
