@@ -39,18 +39,23 @@ export default function CrazinessSelector({ value, onChange }: CrazinessSelector
     <div className={styles.crazinessGrid}>
       {CRAZINESS_OPTIONS.map((option) => {
         const IconComponent = CRAZINESS_ICONS[option]
+        const isRecommended = option === 'Ordinary'
         return (
-          <button
-            key={option}
-            type="button"
-            className={`${styles.crazinessOption} ${value === option ? styles.selected : ''}`}
-            onClick={() => onChange(option)}
-          >
-            <span className={styles.crazinessIcon}>
-              <IconComponent size={28} />
-            </span>
-            <span className={styles.crazinessLabel}>{option}</span>
-          </button>
+          <div key={option} className={styles.crazinessOptionWrapper}>
+            {isRecommended && (
+              <span className={styles.recommendedBadge}>Recommended</span>
+            )}
+            <button
+              type="button"
+              className={`${styles.crazinessOption} ${value === option ? styles.selected : ''} ${isRecommended ? styles.recommended : ''}`}
+              onClick={() => onChange(option)}
+            >
+              <span className={styles.crazinessIcon}>
+                <IconComponent size={28} />
+              </span>
+              <span className={styles.crazinessLabel}>{option}</span>
+            </button>
+          </div>
         )
       })}
     </div>

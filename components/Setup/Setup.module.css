@@ -76,6 +76,44 @@
   width: 100%;
 }
 
+.crazinessOptionWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.recommendedBadge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #16a34a;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.crazinessOption.recommended {
+  border-color: #16a34a;
+  box-shadow: 
+    0 5px 0 0 rgba(22, 163, 74, 0.9),
+    0 5px 15px rgba(22, 163, 74, 0.15),
+    0 8px 25px rgba(22, 163, 74, 0.08);
+}
+
+.crazinessOption.recommended:hover {
+  box-shadow: 
+    0 7px 0 0 rgba(22, 163, 74, 0.9),
+    0 7px 20px rgba(22, 163, 74, 0.18),
+    0 10px 30px rgba(22, 163, 74, 0.1);
+}
+
+.crazinessOption.recommended.selected {
+  border-color: #1a1a1a;
+  box-shadow: 
+    0 2px 0 0 rgba(0, 0, 0, 0.9),
+    0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
 .crazinessOption {
   display: flex;
   flex-direction: column;
