@@ -9,6 +9,16 @@ const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost
 
 type ContestState = 'idle' | 'loading' | 'success' | 'failure'
 
+// Game controller icon for loading game button
+const GameIcon = () => (
+  <svg className={styles.contestBtnIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="6" width="20" height="12" rx="2" />
+    <circle cx="8" cy="12" r="2" />
+    <line x1="16" y1="10" x2="16" y2="14" />
+    <line x1="14" y1="12" x2="18" y2="12" />
+  </svg>
+)
+
 interface ContestButtonProps {
   contextType: BugReportContextType
   originalResponse: string
@@ -21,6 +31,9 @@ interface ContestButtonProps {
   userId?: string
   userEmail?: string
   displayName?: string | null
+  // Loading game props
+  onShowLoadingGame?: () => void  // Called when user clicks "Go play loading game"
+  onLoadingComplete?: () => void  // Called when self-review finishes
 }
 
 // Checkmark SVG icon
@@ -64,7 +77,9 @@ export default function ContestButton({
   disabled = false,
   userId,
   userEmail,
-  displayName
+  displayName,
+  onShowLoadingGame,
+  onLoadingComplete
 }: ContestButtonProps) {
   const [state, setState] = useState<ContestState>('idle')
   const [showResultBox, setShowResultBox] = useState(false)
@@ -122,6 +137,7 @@ export default function ContestButton({
       if (result.is_correct) {
         // AI was correct - show checkmark and disable button
         setState('success')
+        onLoadingComplete?.()  // Notify that loading is complete
         
         // Wait 2 seconds, then fade out and mark as confirmed
         setTimeout(() => {
@@ -132,6 +148,7 @@ export default function ContestButton({
       } else {
         // AI was wrong - show X and trigger re-evaluation
         setState('failure')
+        onLoadingComplete?.()  // Notify that loading is complete
         
         // Wait 1 second, then trigger the callback
         setTimeout(() => {
@@ -144,6 +161,7 @@ export default function ContestButton({
       console.error('Contest error:', error)
       setState('idle')
       setShowResultBox(false)
+      onLoadingComplete?.()  // Notify that loading is complete even on error
     }
   }
 
@@ -201,6 +219,17 @@ export default function ContestButton({
           </div>
         )}
       </div>
+
+      {/* Go play loading game button - appears when review is in progress */}
+      {state === 'loading' && onShowLoadingGame && (
+        <button
+          className={styles.loadingGameBtn}
+          onClick={onShowLoadingGame}
+        >
+          <GameIcon />
+          Go play loading game
+        </button>
+      )}
     </div>
   )
 }

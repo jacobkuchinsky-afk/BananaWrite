@@ -5,6 +5,7 @@ Refactored from essay.py for use with Flask backend
 
 import logging
 import os
+import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -938,6 +939,28 @@ def get_total_lessons() -> int:
     return len(WRITING_TECHNIQUES)
 
 
+def sanitize_think_tags(text: str) -> str:
+    """
+    Remove <Think>...</Think> blocks from AI output before sending to frontend.
+    Handles case-insensitive matching and both closing tag variations (<Think> and </Think>).
+    
+    Args:
+        text: The raw AI response text
+        
+    Returns:
+        str: The sanitized text with thinking blocks removed
+    """
+    # Remove content between <Think> tags (case insensitive)
+    # Match <Think>...</Think> or <Think>...<Think> (AI sometimes uses opening tag to close)
+    sanitized = re.sub(r'<[Tt]hink>.*?</[Tt]hink>', '', text, flags=re.DOTALL)
+    sanitized = re.sub(r'<[Tt]hink>.*?<[Tt]hink>', '', sanitized, flags=re.DOTALL)
+    # Also remove any remaining unclosed <Think> tags and content after them up to newline
+    sanitized = re.sub(r'<[Tt]hink>[^\n]*\n?', '', sanitized)
+    # Clean up extra whitespace
+    sanitized = re.sub(r'\n{3,}', '\n\n', sanitized)
+    return sanitized.strip()
+
+
 def check_essay(essay: str, prompt: str, correction_feedback: str = None) -> dict:
     """
     Check if the user's essay correctly follows the prompt requirements.
@@ -1027,9 +1050,11 @@ Re-evaluate the essay with this correction in mind."""
                 "feedback": None
             }
         else:
+            # Sanitize the output to remove <Think> blocks before sending to frontend
+            sanitized_feedback = sanitize_think_tags(result)
             return {
                 "correct": False,
-                "feedback": result
+                "feedback": sanitized_feedback
             }
             
     except Exception as e:

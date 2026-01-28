@@ -21,6 +21,9 @@ interface MarkedEssayProps {
   userId?: string
   userEmail?: string
   displayName?: string | null
+  // Loading game props
+  onShowLoadingGame?: () => void
+  onLoadingComplete?: () => void
 }
 
 /**
@@ -45,7 +48,10 @@ export default function MarkedEssay({
   // User info for bug reports
   userId,
   userEmail,
-  displayName
+  displayName,
+  // Loading game props
+  onShowLoadingGame,
+  onLoadingComplete
 }: MarkedEssayProps) {
   // Parse the marked essay - split by ¦ to get alternating normal/error segments
   const parseMarkedEssay = (text: string) => {
@@ -166,6 +172,8 @@ export default function MarkedEssay({
                 userId={userId}
                 userEmail={userEmail}
                 displayName={displayName}
+                onShowLoadingGame={onShowLoadingGame}
+                onLoadingComplete={onLoadingComplete}
               />
             </div>
           )}

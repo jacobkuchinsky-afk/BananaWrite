@@ -90,10 +90,12 @@ function WriteContent() {
   // Contest state for essay check
   const [essayCheckResponse, setEssayCheckResponse] = useState<string | null>(null)
   const [essayCheckContestConfirmed, setEssayCheckContestConfirmed] = useState(false)
+  const [showEssayCheckLoadingGame, setShowEssayCheckLoadingGame] = useState(false)
   
   // Contest state for essay review
   const [essayReviewResponse, setEssayReviewResponse] = useState<string | null>(null)
   const [essayReviewContestConfirmed, setEssayReviewContestConfirmed] = useState(false)
+  const [showEssayReviewLoadingGame, setShowEssayReviewLoadingGame] = useState(false)
 
   // Fetch user settings and app settings
   useEffect(() => {
@@ -447,6 +449,16 @@ function WriteContent() {
     }
   }
 
+  // Show loading screen while checking essay follows prompt
+  if (isChecking) {
+    return (
+      <InteractiveLoader
+        title="Checking your essay..."
+        subtitle="Making sure it follows the prompt"
+      />
+    )
+  }
+
   // Show loading screen while generating prompt
   if (isGeneratingPrompt || (isStreaming && !currentPrompt)) {
     return (
@@ -465,6 +477,26 @@ function WriteContent() {
       <InteractiveLoader
         title="Reviewing your essay..."
         subtitle="Checking for areas to improve"
+      />
+    )
+  }
+
+  // Show loading game for essay check self-review
+  if (showEssayCheckLoadingGame) {
+    return (
+      <InteractiveLoader
+        title="Verifying your feedback..."
+        subtitle="A second AI is reviewing the check"
+      />
+    )
+  }
+
+  // Show loading game for essay review self-review
+  if (showEssayReviewLoadingGame) {
+    return (
+      <InteractiveLoader
+        title="Verifying the errors..."
+        subtitle="A second AI is reviewing the feedback"
       />
     )
   }
@@ -493,6 +525,9 @@ function WriteContent() {
         userId={user?.uid}
         userEmail={user?.email || undefined}
         displayName={user?.displayName}
+        // Loading game props
+        onShowLoadingGame={() => setShowEssayReviewLoadingGame(true)}
+        onLoadingComplete={() => setShowEssayReviewLoadingGame(false)}
       />
     )
   }
@@ -682,6 +717,8 @@ function WriteContent() {
                     userId={user?.uid}
                     userEmail={user?.email || undefined}
                     displayName={user?.displayName}
+                    onShowLoadingGame={() => setShowEssayCheckLoadingGame(true)}
+                    onLoadingComplete={() => setShowEssayCheckLoadingGame(false)}
                   />
                 </div>
               )}

@@ -88,6 +88,7 @@ function QuizContent() {
   
   // Contest state for quiz grading
   const [quizGradeContestConfirmed, setQuizGradeContestConfirmed] = useState(false)
+  const [showQuizGradeLoadingGame, setShowQuizGradeLoadingGame] = useState(false)
   
   // Guard ref to prevent duplicate API calls during generation
   const isGenerating = useRef(false)
@@ -796,6 +797,16 @@ function QuizContent() {
     )
   }
   
+  // Show loading game for quiz grade self-review
+  if (showQuizGradeLoadingGame) {
+    return (
+      <InteractiveLoader
+        title="Verifying the grading..."
+        subtitle="A second AI is reviewing your answers"
+      />
+    )
+  }
+
   // Results phase
   if (phase === 'results' && quizSession?.quizResults) {
     const { quizResults } = quizSession
@@ -827,6 +838,9 @@ function QuizContent() {
             userId={user?.uid}
             userEmail={user?.email || undefined}
             displayName={user?.displayName}
+            // Loading game props
+            onShowLoadingGame={() => setShowQuizGradeLoadingGame(true)}
+            onLoadingComplete={() => setShowQuizGradeLoadingGame(false)}
           />
         </main>
         

@@ -19,6 +19,9 @@ interface QuizResultsProps {
   userId?: string
   userEmail?: string
   displayName?: string | null
+  // Loading game props
+  onShowLoadingGame?: () => void
+  onLoadingComplete?: () => void
 }
 
 // Parse feedback into structured sections
@@ -62,7 +65,10 @@ export default function QuizResults({
   // User info for bug reports
   userId,
   userEmail,
-  displayName
+  displayName,
+  // Loading game props
+  onShowLoadingGame,
+  onLoadingComplete
 }: QuizResultsProps) {
   const feedbackSections = parseFeedback(feedback)
   
@@ -142,6 +148,8 @@ export default function QuizResults({
             userId={userId}
             userEmail={userEmail}
             displayName={displayName}
+            onShowLoadingGame={onShowLoadingGame}
+            onLoadingComplete={onLoadingComplete}
           />
         </div>
       )}
