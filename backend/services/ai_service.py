@@ -305,7 +305,8 @@ def get_essay_prompt_creator(craziness: str = None, focus: str = None, essay_typ
     return f"""Task: Generate a 1-2 sentence essay prompt for a student.
 
 Requirements:
-- Topic: {focus_topic} (ruthlessly narrow down to ONE hyper-specific, laser-focused detail within this topic—no wandering allowed)
+- Topic: {focus_topic} (This should be the topic of the prompt itself, For example if the topic is "Video Games" the prompt could be "Write about your current favorite video game" or "Write about the first time you ever played a video game" or "Write a story about a boy who gets stuck in a video game and must beat a warlock to escape"
+")
 - Tone/Creativity Level: {craziness_level} (dictates the intensity of humor, wild originality, and raw engagement—push boundaries accordingly)
 - Target Audience: Ages 14-18 (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
 - Target Essay Length: Strictly 225 words 
