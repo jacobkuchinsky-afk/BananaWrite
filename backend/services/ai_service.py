@@ -494,6 +494,7 @@ Requirements:
 - The quiz is a writing grammar quiz.
 - Each quiz questions should be different in at least 1 large way (Type of question (Multi choice, fill in the blank, written response), question phrasing) from each other.
 
+- The quiz can do the inverse of the specifcations to help the user learn. For exmaple: If the quiz is about commas, you might want to throw in a question or two on some other punctuation rules to throughly test the user and make sure they understand the actual topic.
 
 
 Question Type Tags (REQUIRED):
