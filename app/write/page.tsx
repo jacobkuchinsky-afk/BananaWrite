@@ -378,51 +378,16 @@ function WriteContent() {
     // Keep the markedEssayData so we can show error reference while editing
   }
 
-  // Handle essay check contest success (AI was wrong, re-check)
-  const handleEssayCheckContestSuccess = async (correctionFeedback: string) => {
-    // Show loading state and re-run the essay check with correction feedback
-    setIsChecking(true)
+  // Handle essay check contest success (AI was wrong - self-reviewer confirmed essay is correct)
+  const handleEssayCheckContestSuccess = async (_correctionFeedback: string) => {
+    // The self-reviewer (thinking model) has confirmed the essay meets requirements.
+    // Trust that verdict and proceed directly - don't re-ask the main model that already failed.
     setFeedbackMessage(null)
+    setEssayCheckResponse(null)
+    setIsChecking(false)
     
-    try {
-      const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
-      
-      const checkResponse = await fetch(`${FLASK_API_URL}/api/check-essay`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          essay: essayText,
-          prompt: currentPrompt,
-          correction_feedback: correctionFeedback
-        })
-      })
-
-      if (!checkResponse.ok) {
-        throw new Error('Failed to re-check essay')
-      }
-
-      const checkResult = await checkResponse.json()
-      
-      if (!checkResult.correct) {
-        // Still incorrect - show new feedback (user can contest again)
-        setFeedbackMessage(checkResult.feedback)
-        setEssayCheckResponse(checkResult.feedback)
-        setEssayCheckContestConfirmed(false)
-      } else {
-        // Now correct! Continue with submission
-        setFeedbackMessage(null)
-        setEssayCheckResponse(null)
-        // Continue with the rest of handleSubmit flow
-        handleSubmit()
-      }
-    } catch (err) {
-      console.error('Failed to re-check essay:', err)
-      setFeedbackMessage('An error occurred while re-checking your essay. Please try again.')
-    } finally {
-      setIsChecking(false)
-    }
+    // Continue with the normal submit flow (essay review phase)
+    handleSubmit()
   }
 
   // Handle essay check contest confirmed (AI was right)
@@ -430,70 +395,23 @@ function WriteContent() {
     setEssayCheckContestConfirmed(true)
   }
 
-  // Handle essay review contest success (AI was wrong, re-review)
-  const handleEssayReviewContestSuccess = async (correctionFeedback: string) => {
+  // Handle essay review contest success (AI was wrong - self-reviewer confirmed errors were not valid)
+  const handleEssayReviewContestSuccess = async (_correctionFeedback: string) => {
     if (!user) return
     
+    // The self-reviewer (thinking model) has confirmed the flagged errors were not actually errors.
+    // Trust that verdict and complete the module - don't re-ask the main model that already failed.
     setIsReviewingEssay(true)
     setShowMarkedEssay(false)
     
     try {
-      const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
-      
-      const reviewResponse = await fetch(`${FLASK_API_URL}/api/review-essay`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          essay: essayText,
-          correction_feedback: correctionFeedback
-        })
-      })
-
-      if (!reviewResponse.ok) {
-        throw new Error('Failed to re-review essay')
-      }
-
-      const reviewResult = await reviewResponse.json()
-      
-      if (!reviewResult.has_errors) {
-        // No errors now! Module complete
-        await completeLesson(user.uid, currentLesson, 100)
-        await resetSession(user.uid)
-        setIsReviewingEssay(false)
-        setShowModuleComplete(true)
-      } else {
-        // Still has errors (user can contest again)
-        // Since the AI was found to be wrong, give the user a fresh chance to fix errors
-        // Reset redo state so they can try fixing the corrected list of errors
-        setHasUsedRedoChance(false)
-        setIsRedoMode(false)
-        
-        await startQuizSession(
-          user.uid,
-          essayText,
-          reviewResult.errors,
-          reviewResult.raw_response
-        )
-        
-        const errorCount = reviewResult.problem_count || reviewResult.errors.length
-        const forceQuiz = reviewResult.force_quiz || false
-        
-        setMarkedEssayData({
-          markedEssay: reviewResult.marked_essay || essayText,
-          errors: reviewResult.errors,
-          problemCount: errorCount,
-          forceQuiz: forceQuiz
-        })
-        setOriginalErrors(reviewResult.errors)
-        setEssayReviewResponse(reviewResult.raw_response)
-        setEssayReviewContestConfirmed(false)
-        setIsReviewingEssay(false)
-        setShowMarkedEssay(true)
-      }
+      // No errors confirmed by self-reviewer - module complete
+      await completeLesson(user.uid, currentLesson, 100)
+      await resetSession(user.uid)
+      setIsReviewingEssay(false)
+      setShowModuleComplete(true)
     } catch (err) {
-      console.error('Failed to re-review essay:', err)
+      console.error('Failed to complete lesson after contest:', err)
       setIsReviewingEssay(false)
       setShowMarkedEssay(true)
     }

@@ -362,6 +362,8 @@ Evaluation Criteria:
 - NEVER mark the user wrong for going over a specified requirement.
 - If the user adds more than what the prompt requires, do not mark them wrong for it.
 - Your output should be readable form a formatting standpoint. 
+- If you belive that an essay does not meet requirements, before marking the user incorrect make sure to count very very carefully to ensure that you dont miss any part of the essay.
+- Unless very obviously wrong, do not mark the user incorrect for not meeting a requirement like the amount of certain writing technique needed in the essay. (Commas, semicolons, conjunctions, ect)
 Output Rules:
 - CORRECT ESSAY: Output exactly "<Correct>" with no additional text
 - INCORRECT ESSAY: Provide one brief, specific instruction on what to fix
@@ -642,8 +644,10 @@ Your Job:
 Evaluation Rules:
 - Check if the essay actually meets the prompt requirements
 - Count any specified elements (commas, semicolons, etc.) if required
-- Allow a margin of ±1 for close attempts on countable requirements
+- Allow a margin of ±1 for close attempts on countable requirements.
 - If the essay addresses the topic and meets requirements, the AI was wrong to reject it
+- Be incredibly careful when counting and never miss any part of the essay.
+- If the user did not include enough of something in thier essay, make sure to count carefully as it is possible they actually did include it.
 
 Output:
 - If the AI was CORRECT (essay truly doesn't follow prompt): respond with <Correct> and nothing else

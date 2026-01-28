@@ -538,10 +538,29 @@ function QuizContent() {
     setPhase('generating_quiz')
   }
   
-  // Handle quiz grade contest success (AI was wrong, re-grade)
-  const handleQuizGradeContestSuccess = async (correctionFeedback: string) => {
-    // Re-grade with correction feedback
-    await gradeQuiz(correctionFeedback)
+  // Handle quiz grade contest success (AI was wrong - self-reviewer confirmed grading was incorrect)
+  const handleQuizGradeContestSuccess = async (_correctionFeedback: string) => {
+    if (!user || !quizSession) return
+    
+    // The self-reviewer (thinking model) has confirmed the grading was incorrect.
+    // Trust that verdict and mark the quiz as passed - don't re-grade with the main model that already failed.
+    const correctedResults: QuizGradingResult = {
+      score: 100,  // Self-reviewer confirmed answers were correct
+      feedback: 'Quiz passed after review confirmed correct answers.',
+      passed: true
+    }
+    
+    // Save corrected results
+    await saveQuizResults(user.uid, correctedResults)
+    
+    // Update local state with corrected results
+    setQuizSessionState(prev => prev ? {
+      ...prev,
+      quizResults: correctedResults,
+      lastQuizResults: correctedResults.feedback
+    } : null)
+    
+    setPhase('results')
   }
 
   // Handle quiz grade contest confirmed (AI was right)
