@@ -235,7 +235,7 @@ Output Format:
 {anti_jailbreak_prompt}"""
 
 topic_saftey_prompt = f"""Task: Verify if a topic makes sense for a essay focus.
-                        - The topic should be at maximum 3 words long.
+                        - If you do not know the topic mark it as bad and output that you do not know it.
                         - The topic should be a single concept or idea.
                         - If the topic is good please output <Good> and nothing else.
                         - If the topic does not fit these requirements please output please output why and how to fix it. This output on how to fix it should be around 3 sentences.
