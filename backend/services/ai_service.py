@@ -492,7 +492,7 @@ Requirements:
 - Every quiz should use atleast 2 types of questions.
 - Follow the formatting exactly otherwise the quiz will not be created correctly.
 - The quiz is a writing grammar quiz.
-- Each quiz questions should be different in at least 1 large way from each other.
+- Each quiz questions should be different in at least 1 large way (Type of question (Multi choice, fill in the blank, written response), question phrasing) from each other.
 
 Question Type Tags (REQUIRED):
 - Multiple Choice: Wrap each option with <MULTI> tags
