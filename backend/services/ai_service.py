@@ -328,7 +328,7 @@ Restrictions:
 - NEVER add sneaky requirements that were not explicitly requested—stick to what's given
 - NEVER require additional techniques beyond what is specifically provided—no creative additions
 - If no writing technique is specified, do NOT fabricate one under any circumstances
-
+- NEVER WRITE ABOUT ANYTHING TO DO WITH NSFW SUBJECTS, UNCONFORTABLE SUBJECTS, OR PUBERTY.
 Context Information:
 - If the prompt demands specific knowledge (concrete facts, hard data, precise historical context), you MUST provide that critical information on the second line—no vague generalities
 - This information should be leveraged when you want the user to write about something extremely specific like particular historical events or exact factual details
