@@ -21,9 +21,9 @@ import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
 import { ContestButton } from '@/components/Contest'
 import styles from '@/components/Write/Write.module.css'
 
-// Writing techniques - same order as backend (33 total, indices 0-32)
+// Writing techniques - same order as backend (32 total, indices 0-31)
 const WRITING_TECHNIQUES = [
-  "None", "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
+  "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
   "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
   "Parentheses", "Brackets", "Ellipses", "Subject-verb agreement",
   "Verb conjugation", "Pronoun-antecedent agreement", "Active vs. passive voice",
@@ -129,9 +129,7 @@ function WriteContent() {
 
     const lessonIndex = progress?.currentLesson ?? 0
     setCurrentLesson(lessonIndex)
-    const rawTechnique = WRITING_TECHNIQUES[lessonIndex] || 'None'
-    // Display "Anything" instead of "None" for user-facing text
-    const technique = rawTechnique === 'None' ? 'Anything' : rawTechnique
+    const technique = WRITING_TECHNIQUES[lessonIndex] || 'Commas'
     setCurrentTechnique(technique)
 
     // Check if we have an existing session with a prompt

@@ -362,8 +362,16 @@ export async function saveBugReport(report: {
 }): Promise<string> {
   const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
   
+  // Firebase doesn't allow undefined values, so convert to null
   const docRef = await addDoc(bugReportsRef, {
-    ...report,
+    userId: report.userId,
+    userEmail: report.userEmail,
+    displayName: report.displayName,
+    contextType: report.contextType,
+    originalResponse: report.originalResponse,
+    userContent: report.userContent,
+    originalPrompt: report.originalPrompt ?? null,  // Convert undefined to null
+    selfReviewResult: report.selfReviewResult,
     status: 'pending' as BugReportStatus,
     createdAt: serverTimestamp()
   })

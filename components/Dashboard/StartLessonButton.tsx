@@ -43,12 +43,11 @@ export default function StartLessonButton({
         subtext: 'Your prompt is ready'
       }
     } else {
-      // New lesson (display "Anything" instead of "None")
-      const displaySkill = currentSkill === 'None' ? 'Anything' : currentSkill
+      // New lesson
       return {
         icon: '',
         text: 'Start Lesson',
-        subtext: `Learning: ${displaySkill}`
+        subtext: `Learning: ${currentSkill}`
       }
     }
   }

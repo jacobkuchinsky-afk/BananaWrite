@@ -71,7 +71,7 @@ export default function ActiveSessionsPanel() {
 
   const getSessionDetails = (session: ActiveSession) => {
     if (session.sessionType === 'essay') {
-      const technique = session.writingTechnique === 'None' ? 'Anything' : (session.writingTechnique || 'Anything')
+      const technique = session.writingTechnique || 'Commas'
       return `${technique} - ${session.wordCount || 0} words`
     }
     const topic = session.quizTopic || 'Loading...'

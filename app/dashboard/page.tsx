@@ -12,9 +12,9 @@ import { SettingsIcon, BellIcon } from '@/components/Icons/Icons'
 import { ADMIN_EMAIL } from '@/types'
 import styles from '@/components/Dashboard/Dashboard.module.css'
 
-// Writing techniques - same order as backend (33 total, indices 0-32)
+// Writing techniques - same order as backend (32 total, indices 0-31)
 const WRITING_TECHNIQUES = [
-  "None", "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
+  "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
   "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
   "Parentheses", "Brackets", "Ellipses", "Subject-verb agreement",
   "Verb conjugation", "Pronoun-antecedent agreement", "Active vs. passive voice",
@@ -44,10 +44,9 @@ function DashboardContent() {
     }
   }
 
-  // Get current skill name (display "Anything" instead of "None")
+  // Get current skill name
   const currentLesson = progress?.currentLesson ?? 0
-  const rawSkill = WRITING_TECHNIQUES[currentLesson] || 'None'
-  const currentSkill = rawSkill === 'None' ? 'Anything' : rawSkill
+  const currentSkill = WRITING_TECHNIQUES[currentLesson] || 'Commas'
   const totalSkills = WRITING_TECHNIQUES.length
   const progressPercent = (currentLesson / totalSkills) * 100
 

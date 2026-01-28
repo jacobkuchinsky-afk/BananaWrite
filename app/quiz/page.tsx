@@ -44,9 +44,9 @@ import styles from '@/components/Quiz/Quiz.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
 
-// Writing techniques - same order as backend (33 total, indices 0-32)
+// Writing techniques - same order as backend (32 total, indices 0-31)
 const WRITING_TECHNIQUES = [
-  "None", "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
+  "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
   "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
   "Parentheses", "Brackets", "Ellipses", "Subject-verb agreement",
   "Verb conjugation", "Pronoun-antecedent agreement", "Active vs. passive voice",
@@ -570,7 +570,9 @@ function QuizContent() {
 
   // Format answers for the contest button
   const getFormattedAnswersForContest = () => {
-    if (!quizSession?.userAnswers) return ''
+    if (!quizSession?.userAnswers || quizSession.userAnswers.length === 0) {
+      return 'No answer data available'  // Fallback so bug report can still be saved
+    }
     
     return quizSession.userAnswers.map((a, i) => 
       `Q${i + 1}: ${a.question}\nUser answered: ${a.userAnswer}\nCorrect answer: ${a.correctAnswer}`

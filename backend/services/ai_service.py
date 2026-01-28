@@ -27,7 +27,6 @@ if not API_KEY:
 
 # Writing techniques list - progression of skills to learn
 WRITING_TECHNIQUES = [
-    "None",
     "Commas",
     "Periods",
     "Semicolons",
@@ -65,7 +64,6 @@ WRITING_TECHNIQUES = [
 # Specific prompt instructions for each writing technique
 # These get appended to the AI prompt creator to guide essay requirements
 WRITING_TECHNIQUE_PROMPTS = {
-    "None": "Do not request any writing techniques.",
     "Commas": "Request the user to include exactly 1 list with commas, 2 sentences using commas with coordinating conjunctions, and 2 introductory commas after introductory phrases or clauses.",
     "Periods": "Request the user to write at least 8 complete declarative sentences that end with periods, ensuring each sentence expresses a complete thought.",
     "Semicolons": "Request the user to connect exactly 3 pairs of related independent clauses using semicolons instead of periods or conjunctions.",
@@ -493,6 +491,7 @@ Requirements:
 - If previous quiz results are provided, focus on areas the user got wrong
 - Every quiz should use atleast 2 types of questions.
 - Follow the formatting exactly otherwise the quiz will not be created correctly.
+- The quiz is a writing grammar quiz.
 
 Question Type Tags (REQUIRED):
 - Multiple Choice: Wrap each option with <MULTI> tags
@@ -648,6 +647,9 @@ Evaluation Rules:
 - If the essay addresses the topic and meets requirements, the AI was wrong to reject it
 - Be incredibly careful when counting and never miss any part of the essay.
 - If the user did not include enough of something in thier essay, make sure to count carefully as it is possible they actually did include it.
+- THE USER IS NOT ALWAYS CORRECT, BE IMPARTIAL.
+- Make sure to answer if the it correct or incorrect perfectly.
+- Think hard about this.
 
 Output:
 - If the AI was CORRECT (essay truly doesn't follow prompt): respond with <Correct> and nothing else
