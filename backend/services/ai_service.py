@@ -21,6 +21,24 @@ BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
 MAIN_MODEL = "moonshotai/Kimi-K2-Instruct-0905"
 SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2-Thinking-TEE"
 
+# =============================================================================
+# AI TEMPERATURE SETTINGS
+# Adjust these values to control the creativity/randomness of each AI
+# Lower values (0.0-0.3): More focused, deterministic responses
+# Medium values (0.4-0.7): Balanced creativity and consistency
+# Higher values (0.8-1.0+): More creative, varied responses
+# =============================================================================
+TEMPERATURE_TOPIC_VALIDATOR = 0.2       # Validates custom topics - should be consistent
+TEMPERATURE_ESSAY_PROMPT = 0.8          # Generates essay prompts - benefits from creativity
+TEMPERATURE_ESSAY_CHECKER = 0.1         # Checks if essay follows prompt - should be strict/consistent
+TEMPERATURE_ESSAY_REVIEWER = 0.1        # Reviews grammar errors - should be consistent
+TEMPERATURE_SELF_REVIEWER = 0.1         # Reviews AI decisions - should be very consistent
+TEMPERATURE_QUIZ_DECIDER = 0.3          # Decides quiz requirements - moderate consistency
+TEMPERATURE_QUIZ_CREATOR = 0.8        # Creates quiz questions - benefits from variety
+TEMPERATURE_QUIZ_GRADER = 0.1           # Grades quiz answers - should be very consistent
+TEMPERATURE_TEACHER_FEEDBACK = 0.5      # Provides feedback for wrong answers - balanced
+TEMPERATURE_TEACHER_CHAT = 0.6          # Chat interactions with student - conversational
+
 # Log warning if API key is missing (but don't fail during import/build)
 if not API_KEY:
     logger.warning("CHUTES_API_KEY environment variable not set! API calls will fail.")
@@ -248,7 +266,8 @@ def validate_topic(topic: str) -> dict:
             messages=[
                 {"role": "system", "content": topic_saftey_prompt},
                 {"role": "user", "content": topic}
-            ]
+            ],
+            temperature=TEMPERATURE_TOPIC_VALIDATOR
         )
         
         result = response.choices[0].message.content.strip()
@@ -316,6 +335,8 @@ Requirements:
 {essay_type_instruction}
 - The prompt is FORBIDDEN from referencing personal experiences or events like "write about a time that you did..."
 - The prompt must NEVER mention the writing technique within the main prompt itself, but MUST brutally specify the exact writing technique requirement and precise expectations at the end
+- The prompt should be 1-2 sentences long. 
+-
 
 Writing Technique Rules:
 - ONLY include a writing technique requirement if one is explicitly, undeniably provided—no assumptions.
@@ -790,7 +811,8 @@ Please review if this response is correct."""
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
-            ]
+            ],
+            temperature=TEMPERATURE_SELF_REVIEWER
         )
         
         result = response.choices[0].message.content.strip()
@@ -870,7 +892,8 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            stream=True
+            stream=True,
+            temperature=TEMPERATURE_ESSAY_PROMPT
         )
         
         full_response = ""
@@ -958,7 +981,8 @@ Re-evaluate the essay with this correction in mind."""
             messages=[
                 {"role": "system", "content": ESSAY_CHECKER_PROMPT},
                 {"role": "user", "content": user_message}
-            ]
+            ],
+            temperature=TEMPERATURE_ESSAY_CHECKER
         )
         
         result = response.choices[0].message.content.strip()
@@ -1149,7 +1173,8 @@ Re-evaluate the essay with this correction in mind. Only mark items that are tru
             messages=[
                 {"role": "system", "content": reviewer_prompt},
                 {"role": "user", "content": essay}
-            ]
+            ],
+            temperature=TEMPERATURE_ESSAY_REVIEWER
         )
         
         result = response.choices[0].message.content.strip()
@@ -1276,7 +1301,8 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
             messages=[
                 {"role": "system", "content": QUIZ_DECIDER_PROMPT},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=TEMPERATURE_QUIZ_DECIDER
         )
         
         result = response.choices[0].message.content.strip()
@@ -1503,7 +1529,8 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
             messages=[
                 {"role": "system", "content": QUIZ_CREATOR_PROMPT},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=TEMPERATURE_QUIZ_CREATOR
         )
         
         result = response.choices[0].message.content.strip()
@@ -1590,7 +1617,8 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
             messages=[
                 {"role": "system", "content": grader_prompt},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=TEMPERATURE_QUIZ_GRADER
         )
         
         result = response.choices[0].message.content.strip()
@@ -1661,7 +1689,8 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
             messages=[
                 {"role": "system", "content": TEACHER_PROMPT},
                 {"role": "user", "content": user_content}
-            ]
+            ],
+            temperature=TEMPERATURE_TEACHER_FEEDBACK
         )
         
         result = response.choices[0].message.content.strip()
@@ -1786,7 +1815,8 @@ Remember:
     try:
         response = client.chat.completions.create(
             model=MAIN_MODEL,
-            messages=api_messages
+            messages=api_messages,
+            temperature=TEMPERATURE_TEACHER_CHAT
         )
         
         result = response.choices[0].message.content.strip()
