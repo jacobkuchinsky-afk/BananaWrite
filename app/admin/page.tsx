@@ -14,6 +14,8 @@ import BugReportsPanel from '@/components/Admin/BugReportsPanel'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Admin/Admin.module.css'
 
+const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
+
 type TabType = 'settings' | 'analytics' | 'sessions' | 'reports'
 
 function AdminContent() {
@@ -59,6 +61,23 @@ function AdminContent() {
         setSettings(settingsData)
         setStats(statsData)
         setPendingReports(pendingCount)
+        
+        // Sync settings to backend on admin page load
+        // This ensures the backend has the correct thresholds even after a restart
+        try {
+          await fetch(`${FLASK_API_URL}/api/app-settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sameErrorQuizThreshold: settingsData.sameErrorQuizThreshold,
+              totalErrorQuizThreshold: settingsData.totalErrorQuizThreshold,
+              quizPassingScore: settingsData.quizPassingScore
+            })
+          })
+          console.log('[Admin] Settings synced to backend')
+        } catch (syncError) {
+          console.warn('[Admin] Could not sync settings to backend:', syncError)
+        }
       } catch (error) {
         console.error('Error loading admin data:', error)
       } finally {

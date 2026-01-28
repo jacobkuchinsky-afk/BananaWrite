@@ -30,6 +30,7 @@ import {
   completeLesson,
   resetSession
 } from '@/lib/firestore'
+import { getAppSettings } from '@/lib/adminFirestore'
 import { 
   QuizSession, 
   QuizQuestion as QuizQuestionType,
@@ -138,6 +139,23 @@ function QuizContent() {
       if (!user) return
       
       try {
+        // Sync app settings to backend before any quiz operations
+        // This ensures passing score threshold is correct even if backend restarted
+        try {
+          const appSettings = await getAppSettings()
+          await fetch(`${FLASK_API_URL}/api/app-settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sameErrorQuizThreshold: appSettings.sameErrorQuizThreshold,
+              totalErrorQuizThreshold: appSettings.totalErrorQuizThreshold,
+              quizPassingScore: appSettings.quizPassingScore
+            })
+          })
+        } catch (syncError) {
+          console.warn('[Quiz] Could not sync settings to backend:', syncError)
+        }
+        
         const session = await getQuizSession(user.uid)
         
         if (!session || !session.essayErrors || session.essayErrors.length === 0) {

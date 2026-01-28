@@ -1,9 +1,11 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { AppSettings } from '@/types'
 import { updateAppSettings } from '@/lib/adminFirestore'
 import styles from './Admin.module.css'
+
+const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
 
 interface SettingsPanelProps {
   settings: AppSettings
@@ -20,6 +22,7 @@ export default function SettingsPanel({ settings, onUpdate, userEmail }: Setting
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [syncError, setSyncError] = useState<string | null>(null)
 
   const hasChanges = 
     localSettings.maxErrorsForRedo !== settings.maxErrorsForRedo ||
@@ -30,9 +33,33 @@ export default function SettingsPanel({ settings, onUpdate, userEmail }: Setting
   const handleSave = async () => {
     setSaving(true)
     setSaved(false)
+    setSyncError(null)
 
     try {
+      // Save to Firestore
       await updateAppSettings(localSettings, userEmail)
+      
+      // Sync to backend API so the AI service uses the updated thresholds
+      try {
+        const response = await fetch(`${FLASK_API_URL}/api/app-settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sameErrorQuizThreshold: localSettings.sameErrorQuizThreshold,
+            totalErrorQuizThreshold: localSettings.totalErrorQuizThreshold,
+            quizPassingScore: localSettings.quizPassingScore
+          })
+        })
+        
+        if (!response.ok) {
+          console.warn('Backend sync failed, settings saved to Firestore only')
+          setSyncError('Settings saved but backend sync failed. Settings will take effect on next server restart.')
+        }
+      } catch (backendError) {
+        console.warn('Could not sync to backend:', backendError)
+        setSyncError('Settings saved but backend sync failed. Settings will take effect on next server restart.')
+      }
+      
       onUpdate({
         ...settings,
         ...localSettings,
@@ -40,7 +67,10 @@ export default function SettingsPanel({ settings, onUpdate, userEmail }: Setting
         updatedBy: userEmail
       })
       setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      setTimeout(() => {
+        setSaved(false)
+        setSyncError(null)
+      }, 5000)
     } catch (error) {
       console.error('Error saving settings:', error)
     } finally {
@@ -186,26 +216,33 @@ export default function SettingsPanel({ settings, onUpdate, userEmail }: Setting
           {settings.updatedBy && ` by ${settings.updatedBy}`}
         </span>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {saved && (
-            <span className={styles.successMessage}>
-              Settings saved successfully
-            </span>
-          )}
-          <button
-            onClick={handleSave}
-            disabled={!hasChanges || saving}
-            className={styles.saveButton}
-          >
-            {saving ? (
-              <>
-                <span className={styles.spinner} style={{ width: 16, height: 16 }}></span>
-                Saving...
-              </>
-            ) : (
-              'Save Changes'
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {saved && !syncError && (
+              <span className={styles.successMessage}>
+                Settings saved and synced to backend
+              </span>
             )}
-          </button>
+            {saved && syncError && (
+              <span className={styles.warningMessage} style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
+                {syncError}
+              </span>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={!hasChanges || saving}
+              className={styles.saveButton}
+            >
+              {saving ? (
+                <>
+                  <span className={styles.spinner} style={{ width: 16, height: 16 }}></span>
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

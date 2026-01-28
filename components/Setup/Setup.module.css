@@ -77,19 +77,20 @@
 }
 
 .crazinessOptionWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   position: relative;
 }
 
 .recommendedBadge {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.6875rem;
   font-weight: 600;
   color: #16a34a;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .crazinessOption.recommended {
