@@ -5,7 +5,7 @@ Main application entry point
 
 import os
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from routes.prompt import prompt_bp
 
@@ -30,10 +30,23 @@ logger.info(f"CORS allowed origins: {cors_origins}")
 
 # Configure CORS with specific origins
 CORS(app, 
-     origins=cors_origins,
+     resources={r"/api/*": {"origins": cors_origins}},
      methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"],
+     allow_headers=["Content-Type", "Authorization", "Accept"],
+     expose_headers=["Content-Type"],
      supports_credentials=True)
+
+
+# Add CORS headers to all responses (backup for streaming/error responses)
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    if origin in cors_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
+    return response
 
 
 # Error handler to ensure CORS headers on errors
