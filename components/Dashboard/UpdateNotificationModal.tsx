@@ -41,7 +41,6 @@ export default function UpdateNotificationModal({
       <div className={styles.updateModalContent}>
         {/* Decorative Header */}
         <div className={styles.updateModalHeader}>
-          <span className={styles.updateModalIcon}>🎉</span>
           <span className={styles.updateModalBadge}>What&apos;s New</span>
         </div>
 
