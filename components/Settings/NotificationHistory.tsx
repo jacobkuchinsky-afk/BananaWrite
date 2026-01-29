@@ -53,7 +53,6 @@ export default function NotificationHistory() {
   if (notifications.length === 0) {
     return (
       <div className={styles.historyEmpty}>
-        <span className={styles.historyEmptyIcon}>📭</span>
         <p>No update announcements yet</p>
       </div>
     )
