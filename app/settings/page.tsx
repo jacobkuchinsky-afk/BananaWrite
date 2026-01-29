@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
+import NotificationHistory from '@/components/Settings/NotificationHistory'
 import { CrazinessSelector, FocusSelector, EssayTypeSelector } from '@/components/Setup'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import { getUserSettings, updateUserSettings } from '@/lib/firestore'
@@ -319,6 +320,15 @@ function SettingsContent() {
               )}
             </div>
           </div>
+        </section>
+
+        {/* Update History Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Update History</h2>
+          <p className={styles.sectionDescription}>
+            View past announcements and app updates
+          </p>
+          <NotificationHistory />
         </section>
 
         {/* Sign Out Section */}

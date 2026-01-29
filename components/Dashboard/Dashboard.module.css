@@ -435,6 +435,194 @@
     0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
+/* ============================================ */
+/* Update Notification Modal */
+/* ============================================ */
+
+.updateModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  background-color: rgba(26, 26, 26, 0.85);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.updateModalContent {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--spacing-2xl);
+  background-color: #ffffff;
+  border: 4px solid #1a1a1a;
+  border-radius: 32px;
+  text-align: center;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 
+    0 12px 0 0 rgba(26, 26, 26, 0.95),
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 25px 80px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.updateModalHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.updateModalIcon {
+  font-size: 4rem;
+  line-height: 1;
+  animation: bounce 0.6s ease 0.3s;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.updateModalBadge {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 50px;
+  box-shadow: 
+    0 3px 0 0 rgba(22, 163, 74, 0.9),
+    0 3px 12px rgba(22, 163, 74, 0.3);
+}
+
+.updateModalTitle {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.updateModalDate {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.updateModalList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--spacing-xl) 0;
+  text-align: left;
+}
+
+.updateModalListItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  background-color: #f8faf8;
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 16px;
+  font-size: 1.0625rem;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.updateModalListItem:last-child {
+  margin-bottom: 0;
+}
+
+.updateModalCheckmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #22c55e;
+  border-radius: 50%;
+  box-shadow: 
+    0 2px 0 0 rgba(22, 163, 74, 0.9),
+    0 2px 6px rgba(22, 163, 74, 0.3);
+}
+
+.updateModalButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 3rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 
+    0 6px 0 0 rgba(120, 120, 120, 0.9),
+    0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.updateModalButton:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 9px 0 0 rgba(120, 120, 120, 0.9),
+    0 9px 25px rgba(0, 0, 0, 0.25);
+}
+
+.updateModalButton:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 
+    0 2px 0 0 rgba(120, 120, 120, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.updateModalButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .dashboardContent {
@@ -448,6 +636,30 @@
 
   .welcomeTitle {
     font-size: 1.75rem;
+  }
+
+  .updateModalContent {
+    padding: var(--spacing-xl);
+    border-radius: 24px;
+  }
+
+  .updateModalIcon {
+    font-size: 3rem;
+  }
+
+  .updateModalTitle {
+    font-size: 1.5rem;
+  }
+
+  .updateModalListItem {
+    font-size: 1rem;
+    padding: var(--spacing-sm);
+  }
+
+  .updateModalCheckmark {
+    width: 24px;
+    height: 24px;
+    font-size: 0.875rem;
   }
 }
 

@@ -11,12 +11,13 @@ import SettingsPanel from '@/components/Admin/SettingsPanel'
 import AnalyticsPanel from '@/components/Admin/AnalyticsPanel'
 import ActiveSessionsPanel from '@/components/Admin/ActiveSessionsPanel'
 import BugReportsPanel from '@/components/Admin/BugReportsPanel'
+import UpdatesPanel from '@/components/Admin/UpdatesPanel'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Admin/Admin.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
 
-type TabType = 'settings' | 'analytics' | 'sessions' | 'reports'
+type TabType = 'settings' | 'analytics' | 'sessions' | 'reports' | 'updates'
 
 function AdminContent() {
   const router = useRouter()
@@ -162,6 +163,12 @@ function AdminContent() {
             </span>
           )}
         </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'updates' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('updates')}
+        >
+          Updates
+        </button>
       </nav>
 
       {/* Content */}
@@ -208,6 +215,9 @@ function AdminContent() {
           )}
           {activeTab === 'reports' && user.email && (
             <BugReportsPanel adminEmail={user.email} />
+          )}
+          {activeTab === 'updates' && user.email && (
+            <UpdatesPanel adminEmail={user.email} />
           )}
         </div>
       </main>

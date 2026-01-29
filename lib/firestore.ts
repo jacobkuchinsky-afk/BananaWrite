@@ -552,3 +552,30 @@ export async function getFullUserDataWithSettings(userId: string): Promise<{
     settings: settingsSnap.exists() ? settingsSnap.data() as UserSettings : null
   }
 }
+
+// ============================================
+// Update Notification Dismissal Functions
+// ============================================
+
+/**
+ * Dismiss an update notification for a user
+ * Stores the notification ID so it won't show again
+ */
+export async function dismissUpdateNotification(
+  userId: string,
+  notificationId: string
+): Promise<void> {
+  const settingsRef = getSettingsDocRef(userId)
+  
+  await updateDoc(settingsRef, {
+    dismissedNotificationId: notificationId
+  })
+}
+
+/**
+ * Get the ID of the notification the user has dismissed
+ */
+export async function getUserDismissedNotificationId(userId: string): Promise<string | null> {
+  const settings = await getUserSettings(userId)
+  return settings?.dismissedNotificationId ?? null
+}

@@ -32,7 +32,8 @@ import {
   BugReport,
   BugReportStatus,
   BugReportContextType,
-  BugReportMessage
+  BugReportMessage,
+  UpdateNotification
 } from '@/types'
 import { addDoc } from 'firebase/firestore'
 
@@ -41,6 +42,7 @@ const APP_SETTINGS_COLLECTION = 'appSettings'
 const ANALYTICS_COLLECTION = 'analytics'
 const USERS_COLLECTION = 'users'
 const BUG_REPORTS_COLLECTION = 'bugReports'
+const UPDATE_NOTIFICATIONS_COLLECTION = 'updateNotifications'
 
 // Document references
 const getAppSettingsDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'global')
@@ -546,4 +548,70 @@ export async function getBugReportById(reportId: string): Promise<BugReport | nu
   }
   
   return null
+}
+
+// ============================================
+// Update Notification Functions
+// ============================================
+
+/**
+ * Create a new update notification (admin only)
+ */
+export async function createUpdateNotification(
+  title: string,
+  bulletPoints: string[],
+  adminEmail: string
+): Promise<string> {
+  const notificationsRef = collection(db, UPDATE_NOTIFICATIONS_COLLECTION)
+  
+  const docRef = await addDoc(notificationsRef, {
+    title,
+    bulletPoints,
+    createdAt: serverTimestamp(),
+    createdBy: adminEmail
+  })
+  
+  return docRef.id
+}
+
+/**
+ * Get the latest update notification
+ */
+export async function getLatestUpdateNotification(): Promise<UpdateNotification | null> {
+  const notificationsRef = collection(db, UPDATE_NOTIFICATIONS_COLLECTION)
+  const q = query(
+    notificationsRef,
+    orderBy('createdAt', 'desc'),
+    limit(1)
+  )
+  
+  const snapshot = await getDocs(q)
+  
+  if (snapshot.empty) {
+    return null
+  }
+  
+  const doc = snapshot.docs[0]
+  return {
+    id: doc.id,
+    ...doc.data()
+  } as UpdateNotification
+}
+
+/**
+ * Get all update notifications (newest first)
+ */
+export async function getAllUpdateNotifications(): Promise<UpdateNotification[]> {
+  const notificationsRef = collection(db, UPDATE_NOTIFICATIONS_COLLECTION)
+  const q = query(
+    notificationsRef,
+    orderBy('createdAt', 'desc')
+  )
+  
+  const snapshot = await getDocs(q)
+  
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as UpdateNotification))
 }

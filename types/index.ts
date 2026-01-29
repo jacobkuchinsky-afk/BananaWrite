@@ -214,7 +214,7 @@ export interface GetTeacherFeedbackResponse {
 // User Settings Types (Craziness & Focus)
 // ============================================
 
-// Craziness options - 10 levels from mundane to unhinged
+// Craziness options - 9 levels from mundane to absurd
 export const CRAZINESS_OPTIONS = [
   'Mundane',
   'Ordinary', 
@@ -224,8 +224,7 @@ export const CRAZINESS_OPTIONS = [
   'Unusual',
   'Wild',
   'Bizarre',
-  'Absurd',
-  'Completely Unhinged'
+  'Absurd'
 ] as const
 
 export type CrazinessLevel = typeof CRAZINESS_OPTIONS[number]
@@ -352,6 +351,7 @@ export interface UserSettings {
   focus: string  // Can be from FOCUS_OPTIONS or a custom validated topic
   essayType: EssayType
   setupComplete: boolean
+  dismissedNotificationId: string | null  // ID of the latest dismissed update notification
 }
 
 // Default user settings
@@ -359,7 +359,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   craziness: 'Engaging',
   focus: 'Technology',
   essayType: 'Non-Fiction',
-  setupComplete: false
+  setupComplete: false,
+  dismissedNotificationId: null
 }
 
 
@@ -413,6 +414,19 @@ export interface ActiveSession {
   wordCount?: number
   quizTopic?: string
   quizProgress?: string
+}
+
+// ============================================
+// Update Notification Types
+// ============================================
+
+// Update notification created by admin
+export interface UpdateNotification {
+  id: string
+  title: string
+  bulletPoints: string[]
+  createdAt: Timestamp
+  createdBy: string  // admin email
 }
 
 // ============================================

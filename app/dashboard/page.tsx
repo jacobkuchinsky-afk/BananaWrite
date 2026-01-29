@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useUserSession } from '@/hooks/useUserSession'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import StartLessonButton from '@/components/Dashboard/StartLessonButton'
+import UpdateNotificationModal from '@/components/Dashboard/UpdateNotificationModal'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
 import { SettingsIcon, BellIcon } from '@/components/Icons/Icons'
-import { ADMIN_EMAIL } from '@/types'
+import { ADMIN_EMAIL, UpdateNotification } from '@/types'
+import { getLatestUpdateNotification } from '@/lib/adminFirestore'
+import { getUserDismissedNotificationId, dismissUpdateNotification } from '@/lib/firestore'
 import styles from '@/components/Dashboard/Dashboard.module.css'
 
 // Writing techniques - same order as backend (32 total, indices 0-31)
@@ -30,6 +33,47 @@ function DashboardContent() {
   const { progress, session, loading, error, refreshSession } = useUserSession()
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
+  
+  // Update notification state
+  const [pendingNotification, setPendingNotification] = useState<UpdateNotification | null>(null)
+  const [showNotificationModal, setShowNotificationModal] = useState(false)
+
+  // Check for pending update notifications
+  useEffect(() => {
+    async function checkForNotification() {
+      if (!user) return
+
+      try {
+        const [latestNotification, dismissedId] = await Promise.all([
+          getLatestUpdateNotification(),
+          getUserDismissedNotificationId(user.uid)
+        ])
+
+        // Show notification if there's a new one the user hasn't dismissed
+        if (latestNotification && latestNotification.id !== dismissedId) {
+          setPendingNotification(latestNotification)
+          setShowNotificationModal(true)
+        }
+      } catch (err) {
+        console.error('Error checking for notifications:', err)
+      }
+    }
+
+    checkForNotification()
+  }, [user])
+
+  // Handle dismissing the notification
+  const handleDismissNotification = async () => {
+    if (!user || !pendingNotification) return
+
+    try {
+      await dismissUpdateNotification(user.uid, pendingNotification.id)
+      setShowNotificationModal(false)
+      setPendingNotification(null)
+    } catch (err) {
+      console.error('Error dismissing notification:', err)
+    }
+  }
 
   const handleResendVerification = async () => {
     setResendLoading(true)
@@ -58,6 +102,14 @@ function DashboardContent() {
 
   return (
     <div className={styles.dashboardPage}>
+      {/* Update Notification Modal */}
+      {showNotificationModal && pendingNotification && (
+        <UpdateNotificationModal
+          notification={pendingNotification}
+          onDismiss={handleDismissNotification}
+        />
+      )}
+
       {/* Verification Banner */}
       {user && !user.emailVerified && (
         <div className={styles.verificationBanner}>
