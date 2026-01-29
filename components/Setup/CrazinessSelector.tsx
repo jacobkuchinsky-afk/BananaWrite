@@ -10,8 +10,7 @@ import {
   UnusualIcon,
   WildIcon,
   BizarreIcon,
-  AbsurdIcon,
-  UnhingedIcon
+  AbsurdIcon
 } from '@/components/Icons/Icons'
 import styles from './Setup.module.css'
 
@@ -25,8 +24,7 @@ const CRAZINESS_ICONS: Record<CrazinessLevel, React.ComponentType<{ size?: numbe
   'Unusual': UnusualIcon,
   'Wild': WildIcon,
   'Bizarre': BizarreIcon,
-  'Absurd': AbsurdIcon,
-  'Completely Unhinged': UnhingedIcon
+  'Absurd': AbsurdIcon
 }
 
 interface CrazinessSelectorProps {
