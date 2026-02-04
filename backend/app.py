@@ -53,32 +53,22 @@ def after_request(response):
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Handle all exceptions with proper CORS headers"""
-    # #region agent log
-    import json as _json
     import traceback as _traceback
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    with open(_log_path, "a") as f:
-        f.write(_json.dumps({
-            "location": "app.py:handle_exception",
-            "message": "GLOBAL EXCEPTION HANDLER TRIGGERED - 500 ERROR",
-            "data": {
-                "error_type": type(e).__name__,
-                "error_msg": str(e),
-                "traceback": _traceback.format_exc(),
-                "error_args": str(e.args) if hasattr(e, 'args') else None
-            },
-            "hypothesisId": "GLOBAL",
-            "timestamp": __import__("time").time()
-        }) + "\n")
-    # #endregion
+    full_traceback = _traceback.format_exc()
     
     logger.error(f"Unhandled exception: {type(e).__name__}: {str(e)}")
+    logger.error(f"Full traceback: {full_traceback}")
     
-    # Don't expose internal error details to clients
+    # #region agent log - TEMPORARILY expose full error details for debugging Chutes API issue
     response = jsonify({
         "error": "An internal error occurred",
-        "type": "ServerError"
+        "type": "ServerError",
+        "_debug_error_type": type(e).__name__,
+        "_debug_error_msg": str(e),
+        "_debug_traceback": full_traceback,
+        "_debug_error_args": str(e.args) if hasattr(e, 'args') else None
     })
+    # #endregion
     response.status_code = 500
     return response
 
