@@ -51,7 +51,7 @@ def generate_prompt():
     # #region agent log
     import json as _json
     import time as _time
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/.cursor/debug.log"
+    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
     def _dbg(loc, msg, data, hyp):
         with open(_log_path, "a") as f:
             f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": _time.time()}) + "\n")

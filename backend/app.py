@@ -53,6 +53,25 @@ def after_request(response):
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Handle all exceptions with proper CORS headers"""
+    # #region agent log
+    import json as _json
+    import traceback as _traceback
+    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
+    with open(_log_path, "a") as f:
+        f.write(_json.dumps({
+            "location": "app.py:handle_exception",
+            "message": "GLOBAL EXCEPTION HANDLER TRIGGERED - 500 ERROR",
+            "data": {
+                "error_type": type(e).__name__,
+                "error_msg": str(e),
+                "traceback": _traceback.format_exc(),
+                "error_args": str(e.args) if hasattr(e, 'args') else None
+            },
+            "hypothesisId": "GLOBAL",
+            "timestamp": __import__("time").time()
+        }) + "\n")
+    # #endregion
+    
     logger.error(f"Unhandled exception: {type(e).__name__}: {str(e)}")
     
     # Don't expose internal error details to clients
