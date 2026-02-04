@@ -92,6 +92,47 @@ def health_check():
     })
 
 
+@app.route('/api/test-model', methods=['GET'])
+def test_model():
+    """Test endpoint to check Chutes API model response - for debugging"""
+    from services.ai_service import create_client, MAIN_MODEL, BASE_URL, API_KEY
+    
+    try:
+        client = create_client()
+        
+        # Simple test request
+        response = client.chat.completions.create(
+            model=MAIN_MODEL,
+            messages=[
+                {"role": "user", "content": "Say exactly: Hello, the model is working correctly."}
+            ],
+            max_tokens=50,
+            temperature=0.0
+        )
+        
+        result = response.choices[0].message.content if response.choices else "No choices returned"
+        
+        return jsonify({
+            "status": "ok",
+            "model_used": MAIN_MODEL,
+            "base_url": BASE_URL,
+            "api_key_configured": bool(API_KEY),
+            "model_response": result,
+            "raw_response_type": str(type(response)),
+            "choices_count": len(response.choices) if response.choices else 0
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({
+            "status": "error",
+            "model_used": MAIN_MODEL,
+            "base_url": BASE_URL,
+            "error_type": type(e).__name__,
+            "error_message": str(e),
+            "traceback": traceback.format_exc()
+        }), 500
+
+
 @app.route('/', methods=['GET'])
 def root():
     """Root endpoint - basic info"""
