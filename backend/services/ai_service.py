@@ -257,22 +257,10 @@ def validate_topic(topic: str) -> dict:
     Returns:
         dict: Contains 'valid' (bool) and 'feedback' (str if invalid)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_vt(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     try:
         logger.info(f"[VALIDATE_TOPIC] Validating topic: '{topic}'")
-        
-        # #region agent log
-        _dbg_vt("ai_service.py:validate_topic:before_api", "About to call Chutes API", {"model": MAIN_MODEL, "topic": topic[:50]}, "B")
-        # #endregion
         
         response = client.chat.completions.create(
             model=MAIN_MODEL,
@@ -282,10 +270,6 @@ def validate_topic(topic: str) -> dict:
             ],
             temperature=TEMPERATURE_TOPIC_VALIDATOR
         )
-        
-        # #region agent log
-        _dbg_vt("ai_service.py:validate_topic:raw_response", "Full API response received", {"response_type": str(type(response)), "response_repr": repr(response)[:500], "has_choices": hasattr(response, 'choices'), "choices_len": len(response.choices) if hasattr(response, 'choices') and response.choices else 0}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         result_lower = result.lower()
@@ -307,10 +291,6 @@ def validate_topic(topic: str) -> dict:
             }
             
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_vt("ai_service.py:validate_topic:exception", "Exception caught during API call", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         logger.error(f"[VALIDATE_TOPIC] Error: {str(e)}")
         return {
             "valid": False,
@@ -752,12 +732,6 @@ Output:
 
 def create_client():
     """Create and return an OpenAI client configured for Chutes API"""
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    with open(_log_path, "a") as f:
-        f.write(_json.dumps({"location": "ai_service.py:create_client", "message": "Creating OpenAI client", "data": {"base_url": BASE_URL, "api_key_present": bool(API_KEY), "api_key_len": len(API_KEY) if API_KEY else 0}, "hypothesisId": "C", "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
     return OpenAI(
         base_url=BASE_URL,
         api_key=API_KEY
@@ -781,18 +755,6 @@ def self_review(context_type: str, original_response: str, user_content: str, or
             'correction_feedback': str or None (what to fix if AI was wrong)
         }
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_sr(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
-    # #region agent log
-    _dbg_sr("ai_service.py:self_review:entry", "Function entry", {"context_type": context_type, "original_response_len": len(original_response), "user_content_len": len(user_content)}, "A")
-    # #endregion
-    
     client = create_client()
     
     # Get the appropriate self-review prompt for this context
@@ -842,10 +804,6 @@ Please review if this response is correct."""
     try:
         logger.info(f"[SELF_REVIEW] Starting self-review for context: {context_type}")
         
-        # #region agent log
-        _dbg_sr("ai_service.py:self_review:before_api", "About to call Chutes API with SELF_REVIEWER_MODEL", {"model": SELF_REVIEWER_MODEL}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=SELF_REVIEWER_MODEL,
             messages=[
@@ -854,10 +812,6 @@ Please review if this response is correct."""
             ],
             temperature=TEMPERATURE_SELF_REVIEWER
         )
-        
-        # #region agent log
-        _dbg_sr("ai_service.py:self_review:raw_response", "Full API response from self-review", {"response_type": str(type(response)), "response_repr": repr(response)[:1000], "has_choices": hasattr(response, 'choices'), "choices_len": len(response.choices) if hasattr(response, 'choices') and response.choices else 0}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         result_lower = result.lower()
@@ -893,10 +847,6 @@ Please review if this response is correct."""
             }
             
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_sr("ai_service.py:self_review:exception", "Exception caught during self-review", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         logger.error(f"[SELF_REVIEW] Error: {str(e)}")
         return {
             "is_correct": True,  # Default to AI being correct on error
@@ -920,7 +870,7 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
     """
     # #region agent log
     import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
+    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/.cursor/debug.log"
     def _dbg(loc, msg, data, hyp):
         with open(_log_path, "a") as f:
             f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
@@ -1066,14 +1016,6 @@ def check_essay(essay: str, prompt: str, correction_feedback: str = None) -> dic
     Returns:
         dict: Contains 'correct' (bool) and 'feedback' (str if incorrect)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_ce(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     # Build user message
@@ -1097,10 +1039,6 @@ Re-evaluate the essay with this correction in mind."""
         logger.info(f"[CHECK_ESSAY] Re-evaluating with correction feedback")
     
     try:
-        # #region agent log
-        _dbg_ce("ai_service.py:check_essay:before_api", "About to call Chutes API for check_essay", {"model": MAIN_MODEL, "essay_len": len(essay), "prompt_len": len(prompt)}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -1109,10 +1047,6 @@ Re-evaluate the essay with this correction in mind."""
             ],
             temperature=TEMPERATURE_ESSAY_CHECKER
         )
-        
-        # #region agent log
-        _dbg_ce("ai_service.py:check_essay:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:1000], "has_choices": hasattr(response, 'choices'), "choices_len": len(response.choices) if hasattr(response, 'choices') and response.choices else 0}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         result_lower = result.lower()
@@ -1167,10 +1101,6 @@ Re-evaluate the essay with this correction in mind."""
             }
             
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_ce("ai_service.py:check_essay:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         return {
             "correct": False,
             "feedback": f"Error checking essay: {str(e)}"
@@ -1286,14 +1216,6 @@ def review_essay(essay: str, correction_feedback: str = None) -> dict:
               'marked_essay' (str with errors surrounded by ¦), 'problem_count' (int),
               and 'raw_response' (str)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_re(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     # Use dynamic reviewer prompt with configurable threshold
@@ -1311,10 +1233,6 @@ Re-evaluate the essay with this correction in mind. Only mark items that are tru
         logger.info(f"[REVIEW_ESSAY] Re-evaluating with correction feedback")
     
     try:
-        # #region agent log
-        _dbg_re("ai_service.py:review_essay:before_api", "About to call Chutes API for review_essay", {"model": MAIN_MODEL, "essay_len": len(essay)}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -1324,18 +1242,10 @@ Re-evaluate the essay with this correction in mind. Only mark items that are tru
             temperature=TEMPERATURE_ESSAY_REVIEWER
         )
         
-        # #region agent log
-        _dbg_re("ai_service.py:review_essay:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:1000], "has_choices": hasattr(response, 'choices'), "choices_len": len(response.choices) if hasattr(response, 'choices') and response.choices else 0}, "A")
-        # #endregion
-        
         result = response.choices[0].message.content.strip()
         return _parse_review_response(result, essay)
         
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_re("ai_service.py:review_essay:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         return {
             "has_errors": False,
             "errors": [],
@@ -1438,14 +1348,6 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
         dict: Contains 'completed' (bool if all topics learned),
               'topic' (str), 'question_type' (str), 'question_count' (int)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_qr(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     # Ensure learned_topics is a list
@@ -1459,10 +1361,6 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
     logger.debug(f"[GET_QUIZ_REQUIREMENTS] Learned topics: {learned_topics}")
     
     try:
-        # #region agent log
-        _dbg_qr("ai_service.py:get_quiz_requirements:before_api", "About to call Chutes API", {"model": MAIN_MODEL, "errors_len": len(essay_errors)}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -1471,10 +1369,6 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
             ],
             temperature=TEMPERATURE_QUIZ_DECIDER
         )
-        
-        # #region agent log
-        _dbg_qr("ai_service.py:get_quiz_requirements:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:500]}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         
@@ -1530,10 +1424,6 @@ def get_quiz_requirements(essay_errors: str, learned_topics: list = None) -> dic
         }
         
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_qr("ai_service.py:get_quiz_requirements:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         logger.error(f"[GET_QUIZ_REQUIREMENTS] Error: {str(e)}")
         return {
             "completed": False,
@@ -1692,14 +1582,6 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
     Returns:
         dict: Contains 'name' (str), 'questions' (list of question dicts)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_cq(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     prompt = f"Quiz topic (Follow this): {topic}\nQuestion type: {question_type}\nAmount of questions: {question_count}"
@@ -1707,10 +1589,6 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         prompt += f"\nThe results from the last quiz: {last_quiz_results}"
     
     try:
-        # #region agent log
-        _dbg_cq("ai_service.py:create_quiz:before_api", "About to call Chutes API", {"model": MAIN_MODEL, "topic": topic[:50], "question_count": question_count}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -1719,10 +1597,6 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
             ],
             temperature=TEMPERATURE_QUIZ_CREATOR
         )
-        
-        # #region agent log
-        _dbg_cq("ai_service.py:create_quiz:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:500]}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         
@@ -1760,10 +1634,6 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         }
         
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_cq("ai_service.py:create_quiz:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         logger.error(f"[CREATE_QUIZ] Error: {str(e)}")
         return {
             "name": "Error Quiz",
@@ -1783,14 +1653,6 @@ def grade_quiz(answers: list, correction_feedback: str = None) -> dict:
     Returns:
         dict: Contains 'score' (int 0-100), 'feedback' (str), 'passed' (bool)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_gq(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     # Format answers for the grader
@@ -1815,10 +1677,6 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
         logger.info(f"[GRADE_QUIZ] Re-grading with correction feedback")
     
     try:
-        # #region agent log
-        _dbg_gq("ai_service.py:grade_quiz:before_api", "About to call Chutes API", {"model": MAIN_MODEL, "answers_count": len(answers)}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -1827,10 +1685,6 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
             ],
             temperature=TEMPERATURE_QUIZ_GRADER
         )
-        
-        # #region agent log
-        _dbg_gq("ai_service.py:grade_quiz:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:500]}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         
@@ -1859,10 +1713,6 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
         }
         
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_gq("ai_service.py:grade_quiz:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         return {
             "score": 0,
             "feedback": f"Error grading quiz: {str(e)}",
@@ -1882,14 +1732,6 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
     Returns:
         dict: Contains 'explanations' (list of str), 'memory_hooks' (list of str)
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_tf(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     client = create_client()
     
     # Build rich context if answers are provided
@@ -1907,10 +1749,6 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
         user_content = "GRADING RESULTS:\n" + grades_feedback + "\n\nFULL QUESTION CONTEXT:\n" + "\n---\n".join(question_context)
     
     try:
-        # #region agent log
-        _dbg_tf("ai_service.py:get_teacher_feedback:before_api", "About to call Chutes API", {"model": MAIN_MODEL}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -1919,10 +1757,6 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
             ],
             temperature=TEMPERATURE_TEACHER_FEEDBACK
         )
-        
-        # #region agent log
-        _dbg_tf("ai_service.py:get_teacher_feedback:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:500]}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         
@@ -1957,10 +1791,6 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
         }
         
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_tf("ai_service.py:get_teacher_feedback:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         return {
             "explanations": [f"Error getting feedback: {str(e)}"],
             "memory_hooks": ["Keep practicing and you'll improve!"],
@@ -1988,14 +1818,6 @@ def teacher_chat(messages: list, context: dict) -> dict:
             "raw_response": "Full response"
         }
     """
-    # #region agent log
-    import json as _json
-    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/BananaWrite/.cursor/debug.log"
-    def _dbg_tc(loc, msg, data, hyp):
-        with open(_log_path, "a") as f:
-            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
-    # #endregion
-    
     if not API_KEY:
         return {
             "response": "I'm sorry, but I can't connect right now. Please try again later.",
@@ -2056,19 +1878,11 @@ Remember:
         })
     
     try:
-        # #region agent log
-        _dbg_tc("ai_service.py:teacher_chat:before_api", "About to call Chutes API", {"model": MAIN_MODEL, "messages_count": len(api_messages)}, "B")
-        # #endregion
-        
         response = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=api_messages,
             temperature=TEMPERATURE_TEACHER_CHAT
         )
-        
-        # #region agent log
-        _dbg_tc("ai_service.py:teacher_chat:raw_response", "Full API response", {"response_type": str(type(response)), "response_repr": repr(response)[:500]}, "A")
-        # #endregion
         
         result = response.choices[0].message.content.strip()
         
@@ -2078,10 +1892,6 @@ Remember:
         }
         
     except Exception as e:
-        # #region agent log
-        import traceback
-        _dbg_tc("ai_service.py:teacher_chat:exception", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e), "traceback": traceback.format_exc()}, "A")
-        # #endregion
         logger.error(f"Teacher chat error: {str(e)}")
         return {
             "response": "I'm having trouble right now. Could you try asking again?",
