@@ -868,6 +868,18 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
     Yields:
         dict: Contains 'type' ('chunk' or 'done') and 'content' (the text chunk or full prompt)
     """
+    # #region agent log
+    import json as _json
+    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/.cursor/debug.log"
+    def _dbg(loc, msg, data, hyp):
+        with open(_log_path, "a") as f:
+            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": __import__("time").time()}) + "\n")
+    # #endregion
+    
+    # #region agent log
+    _dbg("ai_service.py:generate_essay_prompt_stream:entry", "Function entry", {"writing_technique": writing_technique, "craziness": craziness, "focus": focus, "essay_type": essay_type}, "A")
+    # #endregion
+    
     client = create_client()
     
     # Get the system prompt with dynamic craziness, focus, and essay type
@@ -884,6 +896,10 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
         user_message = "Create an essay prompt with no specific writing techinque needed."
     
     try:
+        # #region agent log
+        _dbg("ai_service.py:generate_essay_prompt_stream:before_api_call", "About to call Chutes API with stream=True", {"model": MAIN_MODEL}, "B")
+        # #endregion
+        
         stream = client.chat.completions.create(
             model=MAIN_MODEL,
             messages=[
@@ -894,17 +910,36 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
             temperature=TEMPERATURE_ESSAY_PROMPT
         )
         
+        # #region agent log
+        _dbg("ai_service.py:generate_essay_prompt_stream:stream_created", "Stream object created, about to iterate", {"stream_type": str(type(stream))}, "A")
+        # #endregion
+        
         full_response = ""
+        chunk_count = 0
         
         for chunk in stream:
+            chunk_count += 1
+            # #region agent log
+            if chunk_count <= 3 or chunk_count % 10 == 0:
+                _dbg("ai_service.py:generate_essay_prompt_stream:chunk_received", f"Received chunk #{chunk_count}", {"has_choices": bool(chunk.choices), "choices_len": len(chunk.choices) if chunk.choices else 0, "chunk_repr": repr(chunk)[:200]}, "B")
+            # #endregion
+            
             if chunk.choices and len(chunk.choices) > 0:
                 delta_content = chunk.choices[0].delta.content
                 if delta_content:
                     full_response += delta_content
+                    # #region agent log
+                    if chunk_count <= 3:
+                        _dbg("ai_service.py:generate_essay_prompt_stream:yielding_chunk", f"Yielding chunk #{chunk_count}", {"content_preview": delta_content[:50] if len(delta_content) > 50 else delta_content}, "C")
+                    # #endregion
                     yield {
                         "type": "chunk",
                         "content": delta_content
                     }
+        
+        # #region agent log
+        _dbg("ai_service.py:generate_essay_prompt_stream:stream_complete", "Stream iteration complete", {"total_chunks": chunk_count, "full_response_len": len(full_response), "full_response_preview": full_response[:100] if full_response else "EMPTY"}, "A")
+        # #endregion
         
         # Send the complete response at the end
         yield {
@@ -912,7 +947,15 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
             "content": full_response
         }
         
+    except GeneratorExit as ge:
+        # #region agent log
+        _dbg("ai_service.py:generate_essay_prompt_stream:generator_exit", "GeneratorExit caught in ai_service", {"chunk_count_so_far": chunk_count if 'chunk_count' in dir() else 0, "full_response_so_far": full_response[:100] if 'full_response' in dir() and full_response else "NONE"}, "A")
+        # #endregion
+        raise
     except Exception as e:
+        # #region agent log
+        _dbg("ai_service.py:generate_essay_prompt_stream:error", "Exception caught", {"error_type": type(e).__name__, "error_msg": str(e)}, "D")
+        # #endregion
         yield {
             "type": "error",
             "content": str(e)

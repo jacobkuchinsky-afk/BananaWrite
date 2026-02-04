@@ -35,10 +35,14 @@ function ConfettiPiece({ index }: { index: number }) {
     
     const color = colors[Math.floor(seededRandom(index) * colors.length)]
     const left = seededRandom(index + 1) * 100
-    const delay = seededRandom(index + 2) * 3
-    const duration = 3 + seededRandom(index + 3) * 2
-    const size = 8 + seededRandom(index + 4) * 8
+    // Stagger delays within the first 0.3s for a burst effect
+    const delay = seededRandom(index + 2) * 0.3
+    // All pieces complete their fall within 2 seconds
+    const duration = 1.5 + seededRandom(index + 3) * 0.5
+    const size = 8 + seededRandom(index + 4) * 10
     const rotation = seededRandom(index + 5) * 360
+    // Add horizontal sway
+    const swayAmount = (seededRandom(index + 6) - 0.5) * 100
     
     return {
       '--confetti-color': color,
@@ -47,6 +51,7 @@ function ConfettiPiece({ index }: { index: number }) {
       '--confetti-duration': `${duration}s`,
       '--confetti-size': `${size}px`,
       '--confetti-rotation': `${rotation}deg`,
+      '--confetti-sway': `${swayAmount}px`,
     } as React.CSSProperties
   }, [index])
   
@@ -64,9 +69,9 @@ export default function ModuleComplete({
     router.push('/dashboard')
   }
 
-  // Generate confetti pieces
+  // Generate more confetti pieces for a denser burst effect
   const confettiPieces = useMemo(() => 
-    Array.from({ length: 50 }, (_, i) => (
+    Array.from({ length: 100 }, (_, i) => (
       <ConfettiPiece key={i} index={i} />
     )), [])
 

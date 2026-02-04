@@ -43,6 +43,18 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
     
+    // Update Notifications - admin can create, all authenticated users can read
+    match /updateNotifications/{notificationId} {
+      // All authenticated users can read notifications
+      allow read: if request.auth != null;
+      
+      // Only admin can create notifications
+      allow create: if isAdmin();
+      
+      // No updates or deletes allowed (notifications are permanent)
+      allow update, delete: if false;
+    }
+    
     // Bug Reports - users can create and read their own, admin can read/update all
     match /bugReports/{reportId} {
       // Any authenticated user can create a bug report
@@ -182,4 +194,11 @@ analytics/
     - quizzesPassed: number
     - averageQuizScore: number
     - errorTypesBreakdown: object
+
+updateNotifications/
+  {notificationId}/            # Update announcement
+    - title: string
+    - bulletPoints: array      # Array of strings
+    - createdAt: timestamp
+    - createdBy: string        # Admin email
 ```

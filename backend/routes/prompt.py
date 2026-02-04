@@ -48,6 +48,15 @@ def generate_prompt():
         ...
         data: {"type": "done", "content": "Full prompt text..."}
     """
+    # #region agent log
+    import json as _json
+    import time as _time
+    _log_path = "/Users/jacobkuchinsky/Desktop/Coding/BananaWrite/.cursor/debug.log"
+    def _dbg(loc, msg, data, hyp):
+        with open(_log_path, "a") as f:
+            f.write(_json.dumps({"location": loc, "message": msg, "data": data, "hypothesisId": hyp, "timestamp": _time.time()}) + "\n")
+    # #endregion
+    
     data = request.get_json()
     
     if not data:
@@ -67,12 +76,43 @@ def generate_prompt():
     
     logger.info(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}, Essay Type: {essay_type}")
     
+    # #region agent log
+    _dbg("prompt.py:generate_prompt:entry", "Endpoint called", {"writing_technique": writing_technique, "craziness": craziness, "focus": focus, "essay_type": essay_type}, "C")
+    # #endregion
+    
     def generate():
         """Generator function for SSE streaming"""
-        for chunk_data in generate_essay_prompt_stream(writing_technique, craziness, focus, essay_type):
-            # Format as Server-Sent Event
-            json_data = json.dumps(chunk_data)
-            yield f"data: {json_data}\n\n"
+        # #region agent log
+        _dbg("prompt.py:generate:inner_start", "Inner generator started", {}, "C")
+        # #endregion
+        
+        yield_count = 0
+        try:
+            for chunk_data in generate_essay_prompt_stream(writing_technique, craziness, focus, essay_type):
+                yield_count += 1
+                # Format as Server-Sent Event
+                json_data = json.dumps(chunk_data)
+                
+                # #region agent log
+                if yield_count <= 3 or chunk_data.get("type") == "done":
+                    _dbg("prompt.py:generate:yielding_sse", f"Yielding SSE event #{yield_count}", {"type": chunk_data.get("type"), "content_len": len(chunk_data.get("content", ""))}, "C")
+                # #endregion
+                
+                yield f"data: {json_data}\n\n"
+        except GeneratorExit as ge:
+            # #region agent log
+            _dbg("prompt.py:generate:generator_exit", "GeneratorExit in Flask generator", {"yield_count": yield_count}, "E")
+            # #endregion
+            raise
+        except Exception as e:
+            # #region agent log
+            _dbg("prompt.py:generate:error", "Exception in Flask generator", {"error": str(e), "yield_count": yield_count}, "D")
+            # #endregion
+            raise
+        
+        # #region agent log
+        _dbg("prompt.py:generate:complete", "Flask generator completed normally", {"total_yields": yield_count}, "C")
+        # #endregion
     
     return Response(
         stream_with_context(generate()),

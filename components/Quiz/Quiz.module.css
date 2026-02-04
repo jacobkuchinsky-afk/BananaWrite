@@ -791,8 +791,9 @@
   height: var(--confetti-size);
   background-color: var(--confetti-color);
   border-radius: 2px;
-  animation: confettiFall var(--confetti-duration) ease-out var(--confetti-delay) infinite;
+  animation: confettiFall var(--confetti-duration) cubic-bezier(0.25, 0.46, 0.45, 0.94) var(--confetti-delay) forwards;
   transform: rotate(var(--confetti-rotation));
+  opacity: 0;
 }
 
 .confettiPiece:nth-child(odd) {
@@ -805,26 +806,36 @@
   border-radius: 2px;
 }
 
+.confettiPiece:nth-child(5n) {
+  width: calc(var(--confetti-size) * 1.2);
+  height: calc(var(--confetti-size) * 0.4);
+  border-radius: 1px;
+}
+
 @keyframes confettiFall {
   0% {
     top: -20px;
     opacity: 1;
     transform: rotate(var(--confetti-rotation)) translateX(0) scale(1);
   }
-  25% {
-    transform: rotate(calc(var(--confetti-rotation) + 90deg)) translateX(20px) scale(0.95);
+  15% {
+    opacity: 1;
+    transform: rotate(calc(var(--confetti-rotation) + 60deg)) translateX(calc(var(--confetti-sway) * 0.3)) scale(1);
   }
-  50% {
-    transform: rotate(calc(var(--confetti-rotation) + 180deg)) translateX(-20px) scale(0.9);
+  35% {
+    transform: rotate(calc(var(--confetti-rotation) + 150deg)) translateX(calc(var(--confetti-sway) * -0.5)) scale(0.95);
+  }
+  55% {
+    transform: rotate(calc(var(--confetti-rotation) + 240deg)) translateX(calc(var(--confetti-sway) * 0.4)) scale(0.9);
   }
   75% {
-    transform: rotate(calc(var(--confetti-rotation) + 270deg)) translateX(15px) scale(0.85);
-    opacity: 0.8;
+    opacity: 0.9;
+    transform: rotate(calc(var(--confetti-rotation) + 320deg)) translateX(calc(var(--confetti-sway) * -0.3)) scale(0.85);
   }
   100% {
-    top: 110vh;
+    top: 105vh;
     opacity: 0;
-    transform: rotate(calc(var(--confetti-rotation) + 360deg)) translateX(-10px) scale(0.8);
+    transform: rotate(calc(var(--confetti-rotation) + 400deg)) translateX(var(--confetti-sway)) scale(0.7);
   }
 }
 
