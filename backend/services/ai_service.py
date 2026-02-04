@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 # Chutes API configuration from environment variables
 API_KEY = os.getenv('CHUTES_API_KEY', '')
 BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
-MAIN_MODEL = "moonshotai/Kimi-K2-Instruct-0905"
+MAIN_MODEL = "moonshotai/Kimi-K2.5-TEE"
 SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2-Thinking-TEE"
 
 # =============================================================================
