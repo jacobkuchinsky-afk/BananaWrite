@@ -95,7 +95,7 @@ def health_check():
 @app.route('/api/test-model', methods=['GET'])
 def test_model():
     """Test endpoint to check Chutes API model response - for debugging"""
-    from services.ai_service import create_client, MAIN_MODEL, BASE_URL, API_KEY
+    from services.ai_service import create_client, MAIN_MODEL, SELF_REVIEWER_MODEL, FAST_MODEL, BASE_URL, API_KEY
     
     try:
         client = create_client()
@@ -115,6 +115,11 @@ def test_model():
         return jsonify({
             "status": "ok",
             "model_used": MAIN_MODEL,
+            "models_configured": {
+                "main": MAIN_MODEL,
+                "self_reviewer": SELF_REVIEWER_MODEL,
+                "fast": FAST_MODEL
+            },
             "base_url": BASE_URL,
             "api_key_configured": bool(API_KEY),
             "model_response": result,
@@ -126,6 +131,11 @@ def test_model():
         return jsonify({
             "status": "error",
             "model_used": MAIN_MODEL,
+            "models_configured": {
+                "main": MAIN_MODEL,
+                "self_reviewer": SELF_REVIEWER_MODEL,
+                "fast": FAST_MODEL
+            },
             "base_url": BASE_URL,
             "error_type": type(e).__name__,
             "error_message": str(e),

@@ -21,6 +21,7 @@ API_KEY = os.getenv('CHUTES_API_KEY', '')
 BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
 MAIN_MODEL = "moonshotai/Kimi-K2.5-TEE"
 SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2-Thinking-TEE"
+FAST_MODEL = "tngtech/R1T2-Chimera-Speed"  # Fast model for simple tasks: prompts, quiz grading, topic validation
 
 # =============================================================================
 # AI TEMPERATURE SETTINGS
@@ -263,7 +264,7 @@ def validate_topic(topic: str) -> dict:
         logger.info(f"[VALIDATE_TOPIC] Validating topic: '{topic}'")
         
         response = client.chat.completions.create(
-            model=MAIN_MODEL,
+            model=FAST_MODEL,  # Use fast model for topic validation
             messages=[
                 {"role": "system", "content": topic_saftey_prompt},
                 {"role": "user", "content": topic}
@@ -885,7 +886,7 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
     
     try:
         stream = client.chat.completions.create(
-            model=MAIN_MODEL,
+            model=FAST_MODEL,  # Use fast model for prompt generation
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
@@ -1550,7 +1551,7 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
     
     try:
         response = client.chat.completions.create(
-            model=MAIN_MODEL,
+            model=FAST_MODEL,  # Use fast model for quiz creation
             messages=[
                 {"role": "system", "content": QUIZ_CREATOR_PROMPT},
                 {"role": "user", "content": prompt}
@@ -1638,7 +1639,7 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
     
     try:
         response = client.chat.completions.create(
-            model=MAIN_MODEL,
+            model=FAST_MODEL,  # Use fast model for quiz grading
             messages=[
                 {"role": "system", "content": grader_prompt},
                 {"role": "user", "content": prompt}
@@ -1710,7 +1711,7 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
     
     try:
         response = client.chat.completions.create(
-            model=MAIN_MODEL,
+            model=FAST_MODEL,  # Use fast model for teacher feedback
             messages=[
                 {"role": "system", "content": TEACHER_PROMPT},
                 {"role": "user", "content": user_content}
@@ -1839,7 +1840,7 @@ Remember:
     
     try:
         response = client.chat.completions.create(
-            model=MAIN_MODEL,
+            model=FAST_MODEL,  # Use fast model for teacher chat
             messages=api_messages,
             temperature=TEMPERATURE_TEACHER_CHAT
         )
