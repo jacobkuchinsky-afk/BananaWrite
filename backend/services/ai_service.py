@@ -378,6 +378,8 @@ Goal:
 - For each sentence of the essay, check if the sentence help to meet the goal of one of the requirements in the prompt Example: The amount of a certain punctuation rule needed in the essay.
 - If the sentence meets the requirments, output <Correct> in your message.
 - Make sure to use the <Think> around your counting process.
+- NEVER EVER PENELIZE THE USER FOR GOING OVER THE REQUIREMENTS.
+- The user going over the requirements is not a problem, it is a good thing.
 
 
 
