@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 # Chutes API configuration from environment variables
 API_KEY = os.getenv('CHUTES_API_KEY', '')
 BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
-MAIN_MODEL = "moonshotai/Kimi-K2.5-TEE"
-SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2-Thinking-TEE"
-FAST_MODEL = "tngtech/R1T2-Chimera-Speed"  # Fast model for simple tasks: prompts, quiz grading, topic validation
+MAIN_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
+SELF_REVIEWER_MODEL = "deepseek-ai/DeepSeek-R1-TEE"
+FAST_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"  # Fast model for simple tasks: prompts, quiz grading, topic validation
 
 # =============================================================================
 # AI TEMPERATURE SETTINGS
