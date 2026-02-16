@@ -351,6 +351,8 @@ Restrictions:
 - NEVER add sneaky requirements that were not explicitly requested—stick to what's given
 - NEVER require additional techniques beyond what is specifically provided—no creative additions
 - If no writing technique is specified, do NOT fabricate one under any circumstances
+- NEVER SAY THAT THE USER CANT GO OVER THE REQUIREMENTS.
+- For example NEVER SAY: "Use exactly 4 commas" Say: "Use 4 commas dont go under"
 - NEVER WRITE ABOUT ANYTHING TO DO WITH NSFW SUBJECTS, UNCONFORTABLE SUBJECTS, OR PUBERTY.
 Context Information:
 - If the prompt demands specific knowledge (concrete facts, hard data, precise historical context), you MUST provide that critical information on the second line—no vague generalities
