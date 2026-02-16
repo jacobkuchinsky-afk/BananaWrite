@@ -342,7 +342,8 @@ Requirements:
 
 Writing Technique Rules:
 - ONLY include a writing technique requirement if one is explicitly, undeniably provided—no assumptions.
-- When a technique IS provided, demand the quantity needed with zero ambiguity (e.g., "Include 4 compound sentences no less")
+- When a technique IS provided, demand the quantity needed (e.g., "Include 4 compound sentences no less")
+- Never say that the user can't go over the requirements. Saying exactly of something is says they cant go over the requirements.
 - Writing techniques are mandatory requirements FOR the essay content, NOT topics ABOUT the technique itself
 - Be merciless in clarity about what is required
 
