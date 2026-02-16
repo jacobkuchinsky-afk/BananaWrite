@@ -342,7 +342,7 @@ Requirements:
 
 Writing Technique Rules:
 - ONLY include a writing technique requirement if one is explicitly, undeniably provided—no assumptions.
-- When a technique IS provided, demand the EXACT quantity needed with zero ambiguity (e.g., "Include exactly 4 compound sentences—no more, no less")
+- When a technique IS provided, demand the quantity needed with zero ambiguity (e.g., "Include 4 compound sentences no less")
 - Writing techniques are mandatory requirements FOR the essay content, NOT topics ABOUT the technique itself
 - Be merciless in clarity about what is required
 
@@ -353,6 +353,7 @@ Restrictions:
 - If no writing technique is specified, do NOT fabricate one under any circumstances
 - NEVER SAY THAT THE USER CANT GO OVER THE REQUIREMENTS.
 - For example NEVER SAY: "Use exactly 4 commas" Say: "Use 4 commas dont go under"
+- Never use the word "exactly" in the prompt.
 - NEVER WRITE ABOUT ANYTHING TO DO WITH NSFW SUBJECTS, UNCONFORTABLE SUBJECTS, OR PUBERTY.
 Context Information:
 - If the prompt demands specific knowledge (concrete facts, hard data, precise historical context), you MUST provide that critical information on the second line—no vague generalities
