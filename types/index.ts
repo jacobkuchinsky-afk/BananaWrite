@@ -352,6 +352,7 @@ export interface UserSettings {
   essayType: EssayType
   setupComplete: boolean
   dismissedNotificationId: string | null  // ID of the latest dismissed update notification
+  difficultyLevel: DifficultyLevel
 }
 
 // Default user settings
@@ -360,9 +361,30 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   focus: 'Technology',
   essayType: 'Non-Fiction',
   setupComplete: false,
-  dismissedNotificationId: null
+  dismissedNotificationId: null,
+  difficultyLevel: 'learning'
 }
 
+
+// ============================================
+// Difficulty Level Types
+// ============================================
+
+export const DIFFICULTY_LEVELS = ['basic', 'learning', 'proficient'] as const
+export type DifficultyLevel = typeof DIFFICULTY_LEVELS[number]
+
+export const DIFFICULTY_LEVEL_LABELS: Record<DifficultyLevel, string> = {
+  basic: 'Basic (4th Grade)',
+  learning: 'Learning (6th Grade)',
+  proficient: 'Proficient (9th Grade)'
+}
+
+export interface DifficultyPreset {
+  email: string
+  level: DifficultyLevel
+  createdAt: Timestamp
+  updatedBy: string
+}
 
 // ============================================
 // Admin & App Settings Types

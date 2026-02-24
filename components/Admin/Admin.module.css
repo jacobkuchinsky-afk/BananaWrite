@@ -1407,6 +1407,226 @@
   border-top: 1px solid rgba(26, 26, 26, 0.1);
 }
 
+/* ============================================ */
+/* Difficulty Panel Styles */
+/* ============================================ */
+
+.difficultyPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.difficultySearchContainer {
+  margin-bottom: var(--spacing-md);
+}
+
+.difficultyUserList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.difficultyUserRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+  transition: background-color 0.15s ease;
+}
+
+.difficultyUserRow:last-child {
+  border-bottom: none;
+}
+
+.difficultyUserRow:hover {
+  background-color: rgba(45, 45, 45, 0.03);
+}
+
+.difficultyUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.difficultyUserName {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.difficultyUserEmail {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.difficultyToggleGroup {
+  display: flex;
+  gap: 0;
+  border: 2px solid #1a1a1a;
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow:
+    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.difficultyToggle {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  background-color: #ffffff;
+  border: none;
+  border-right: 1px solid rgba(26, 26, 26, 0.15);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.difficultyToggle:last-child {
+  border-right: none;
+}
+
+.difficultyToggle:hover:not(:disabled) {
+  background-color: rgba(45, 45, 45, 0.08);
+}
+
+.difficultyToggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.difficultyToggleActive_basic {
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.difficultyToggleActive_basic:hover:not(:disabled) {
+  background-color: #bfdbfe;
+}
+
+.difficultyToggleActive_learning {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.difficultyToggleActive_learning:hover:not(:disabled) {
+  background-color: #fde68a;
+}
+
+.difficultyToggleActive_proficient {
+  background-color: #dcfce7;
+  color: #166534;
+  font-weight: 600;
+}
+
+.difficultyToggleActive_proficient:hover:not(:disabled) {
+  background-color: #bbf7d0;
+}
+
+/* Email Presets */
+.difficultyPresetForm {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.difficultySelect {
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  background-color: #fafafa;
+  border: 3px solid #1a1a1a;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow:
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.06);
+  appearance: auto;
+}
+
+.difficultySelect:focus {
+  outline: none;
+  background-color: #ffffff;
+}
+
+.difficultyPresetList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 3px solid #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.difficultyPresetRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.difficultyPresetRow:last-child {
+  border-bottom: none;
+}
+
+.difficultyPresetEmail {
+  flex: 1;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.difficultyRemoveBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.difficultyRemoveBtn:hover {
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .adminHeader {
@@ -1462,5 +1682,21 @@
   .updateCardHeader {
     flex-direction: column;
     gap: var(--spacing-xs);
+  }
+
+  .difficultyUserRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .difficultyPresetForm {
+    flex-direction: column;
+  }
+
+  .difficultyPresetRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
   }
 }

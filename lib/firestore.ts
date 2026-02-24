@@ -33,6 +33,7 @@ import {
   FocusTopic,
   EssayType
 } from '@/types'
+import { getDifficultyPresetForEmail } from '@/lib/adminFirestore'
 
 // Collection paths
 const USERS_COLLECTION = 'users'
@@ -84,10 +85,15 @@ export async function initializeUser(userId: string, email: string, displayName:
     // Create session
     await setDoc(sessionRef, DEFAULT_CURRENT_SESSION)
 
-    // Only create settings if they don't already exist
-    // (User may have completed setup before profile was created)
     if (!settingsSnap.exists()) {
-      await setDoc(settingsRef, DEFAULT_USER_SETTINGS)
+      let difficultyLevel = DEFAULT_USER_SETTINGS.difficultyLevel
+      try {
+        const preset = await getDifficultyPresetForEmail(email)
+        if (preset) difficultyLevel = preset
+      } catch (e) {
+        console.warn('Could not check difficulty preset:', e)
+      }
+      await setDoc(settingsRef, { ...DEFAULT_USER_SETTINGS, difficultyLevel })
     }
     
     console.log('New user documents created successfully')

@@ -15,7 +15,7 @@ import SubmitButton from '@/components/Write/SubmitButton'
 import MarkedEssay from '@/components/Write/MarkedEssay'
 import { ModuleComplete, WinScreen } from '@/components/Quiz'
 import { startQuizSession, completeLesson, resetSession, getQuizSession, getUserSettings } from '@/lib/firestore'
-import { getAppSettings } from '@/lib/adminFirestore'
+import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
 import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS } from '@/types'
 import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
 import { ContestButton } from '@/components/Contest'
@@ -319,6 +319,7 @@ function WriteContent() {
       
       if (!reviewResult.has_errors) {
         // No errors! Module complete - advance lesson
+        incrementAnalytics('essaysSubmitted').catch(() => {})
         await completeLesson(user.uid, currentLesson, 100)
         await resetSession(user.uid)
         setIsReviewingEssay(false)
@@ -331,6 +332,12 @@ function WriteContent() {
           reviewResult.errors,
           reviewResult.raw_response
         )
+
+        // Track essay submission with error types (fire-and-forget)
+        const errorTypes = reviewResult.errors
+          .map((e: string) => e.split('~')[0].trim())
+          .filter((t: string) => t.length > 0)
+        incrementAnalytics('essaysSubmitted', { errorTypes }).catch(() => {})
         
         const errorCount = reviewResult.problem_count || reviewResult.errors.length
         const forceQuiz = reviewResult.force_quiz || false

@@ -30,7 +30,7 @@ import {
   completeLesson,
   resetSession
 } from '@/lib/firestore'
-import { getAppSettings } from '@/lib/adminFirestore'
+import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
 import { 
   QuizSession, 
   QuizQuestion as QuizQuestionType,
@@ -399,6 +399,12 @@ function QuizContent() {
       
       // Save results
       await saveQuizResults(user.uid, results)
+
+      // Track quiz completion in analytics (fire-and-forget)
+      incrementAnalytics('quizzesCompleted', { quizScore: data.score }).catch(() => {})
+      if (data.passed) {
+        incrementAnalytics('quizzesPassed').catch(() => {})
+      }
       
       // Update local state
       setQuizSessionState(prev => prev ? {
@@ -571,6 +577,9 @@ function QuizContent() {
     
     // Save corrected results
     await saveQuizResults(user.uid, correctedResults)
+
+    // Track corrected quiz as passed (fire-and-forget)
+    incrementAnalytics('quizzesPassed').catch(() => {})
     
     // Update local state with corrected results
     setQuizSessionState(prev => prev ? {

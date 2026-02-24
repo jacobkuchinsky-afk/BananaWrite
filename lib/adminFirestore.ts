@@ -29,13 +29,16 @@ import {
   CurrentSession,
   QuizSession,
   UserProfile,
+  UserSettings,
   BugReport,
   BugReportStatus,
   BugReportContextType,
   BugReportMessage,
-  UpdateNotification
+  UpdateNotification,
+  DifficultyLevel,
+  DifficultyPreset
 } from '@/types'
-import { addDoc } from 'firebase/firestore'
+import { addDoc, deleteDoc } from 'firebase/firestore'
 
 // Collection paths
 const APP_SETTINGS_COLLECTION = 'appSettings'
@@ -43,6 +46,7 @@ const ANALYTICS_COLLECTION = 'analytics'
 const USERS_COLLECTION = 'users'
 const BUG_REPORTS_COLLECTION = 'bugReports'
 const UPDATE_NOTIFICATIONS_COLLECTION = 'updateNotifications'
+const DIFFICULTY_PRESETS_COLLECTION = 'difficultyPresets'
 
 // Document references
 const getAppSettingsDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'global')
@@ -151,7 +155,7 @@ export async function getAnalyticsRange(days: number = 7): Promise<DailyAnalytic
  */
 export async function incrementAnalytics(
   field: keyof Pick<DailyAnalytics, 'essaysSubmitted' | 'quizzesCompleted' | 'quizzesPassed'>,
-  additionalData?: { errorType?: string; quizScore?: number }
+  additionalData?: { errorTypes?: string[]; quizScore?: number }
 ): Promise<void> {
   const dateStr = getTodayDateString()
   const analyticsRef = doc(db, ANALYTICS_COLLECTION, `daily_${dateStr}`)
@@ -177,15 +181,25 @@ export async function incrementAnalytics(
   currentData[field] = (currentData[field] || 0) + 1
   
   // Update error type breakdown if provided
-  if (additionalData?.errorType) {
-    currentData.errorTypesBreakdown[additionalData.errorType] = 
-      (currentData.errorTypesBreakdown[additionalData.errorType] || 0) + 1
+  if (additionalData?.errorTypes) {
+    for (const errorType of additionalData.errorTypes) {
+      currentData.errorTypesBreakdown[errorType] = 
+        (currentData.errorTypesBreakdown[errorType] || 0) + 1
+    }
   }
   
   // Update average quiz score if provided
   if (additionalData?.quizScore !== undefined && field === 'quizzesCompleted') {
     const prevTotal = currentData.averageQuizScore * (currentData.quizzesCompleted - 1)
     currentData.averageQuizScore = (prevTotal + additionalData.quizScore) / currentData.quizzesCompleted
+  }
+
+  // Snapshot the current total user count
+  try {
+    const userCount = await getTotalUserCount()
+    currentData.totalUsers = userCount
+  } catch {
+    // Non-critical, skip if it fails
   }
   
   await setDoc(analyticsRef, currentData)
@@ -614,4 +628,118 @@ export async function getAllUpdateNotifications(): Promise<UpdateNotification[]>
     id: doc.id,
     ...doc.data()
   } as UpdateNotification))
+}
+
+// ============================================
+// Difficulty Level Functions
+// ============================================
+
+export interface UserWithDifficulty {
+  userId: string
+  email: string
+  displayName: string | null
+  difficultyLevel: DifficultyLevel
+}
+
+/**
+ * Get all users with their difficulty levels
+ */
+export async function getAllUsersWithDifficulty(): Promise<UserWithDifficulty[]> {
+  const usersRef = collection(db, USERS_COLLECTION)
+  const usersSnap = await getDocs(usersRef)
+  
+  const users: UserWithDifficulty[] = []
+  
+  for (const userDoc of usersSnap.docs) {
+    const userId = userDoc.id
+    const userData = userDoc.data()
+    
+    const profileRef = doc(db, USERS_COLLECTION, userId, 'data', 'profile')
+    const settingsRef = doc(db, USERS_COLLECTION, userId, 'data', 'settings')
+    
+    const [profileSnap, settingsSnap] = await Promise.all([
+      getDoc(profileRef),
+      getDoc(settingsRef)
+    ])
+    
+    const profile = profileSnap.exists() ? profileSnap.data() as UserProfile : null
+    const settings = settingsSnap.exists() ? settingsSnap.data() as UserSettings : null
+    
+    users.push({
+      userId,
+      email: profile?.email || userData.email || 'Unknown',
+      displayName: profile?.displayName || null,
+      difficultyLevel: settings?.difficultyLevel || 'learning'
+    })
+  }
+  
+  return users.sort((a, b) => a.email.localeCompare(b.email))
+}
+
+/**
+ * Set difficulty level for a specific user
+ */
+export async function setUserDifficultyLevel(
+  userId: string,
+  level: DifficultyLevel
+): Promise<void> {
+  const settingsRef = doc(db, USERS_COLLECTION, userId, 'data', 'settings')
+  await updateDoc(settingsRef, { difficultyLevel: level })
+}
+
+/**
+ * Get all difficulty presets (emails pre-assigned to levels)
+ */
+export async function getDifficultyPresets(): Promise<DifficultyPreset[]> {
+  const presetsRef = collection(db, DIFFICULTY_PRESETS_COLLECTION)
+  const q = query(presetsRef, orderBy('createdAt', 'desc'))
+  const snapshot = await getDocs(q)
+  
+  return snapshot.docs.map(d => ({
+    ...d.data(),
+    email: d.id
+  } as DifficultyPreset))
+}
+
+/**
+ * Set a difficulty preset for an email address.
+ * Uses the normalized email as the document ID for easy lookup on signup.
+ */
+export async function setDifficultyPreset(
+  email: string,
+  level: DifficultyLevel,
+  adminEmail: string
+): Promise<void> {
+  const normalizedEmail = email.trim().toLowerCase()
+  const presetRef = doc(db, DIFFICULTY_PRESETS_COLLECTION, normalizedEmail)
+  
+  await setDoc(presetRef, {
+    email: normalizedEmail,
+    level,
+    createdAt: serverTimestamp(),
+    updatedBy: adminEmail
+  })
+}
+
+/**
+ * Remove a difficulty preset
+ */
+export async function removeDifficultyPreset(email: string): Promise<void> {
+  const normalizedEmail = email.trim().toLowerCase()
+  const presetRef = doc(db, DIFFICULTY_PRESETS_COLLECTION, normalizedEmail)
+  await deleteDoc(presetRef)
+}
+
+/**
+ * Get difficulty preset for a specific email (used during signup)
+ */
+export async function getDifficultyPresetForEmail(email: string): Promise<DifficultyLevel | null> {
+  const normalizedEmail = email.trim().toLowerCase()
+  const presetRef = doc(db, DIFFICULTY_PRESETS_COLLECTION, normalizedEmail)
+  const presetSnap = await getDoc(presetRef)
+  
+  if (presetSnap.exists()) {
+    return (presetSnap.data() as DifficultyPreset).level
+  }
+  return null
 }
