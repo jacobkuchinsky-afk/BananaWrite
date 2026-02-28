@@ -36,9 +36,10 @@ import {
   BugReportMessage,
   UpdateNotification,
   DifficultyLevel,
-  DifficultyPreset
+  DifficultyPreset,
+  SUPER_ADMIN_EMAIL
 } from '@/types'
-import { addDoc, deleteDoc } from 'firebase/firestore'
+import { addDoc, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
 
 // Collection paths
 const APP_SETTINGS_COLLECTION = 'appSettings'
@@ -50,6 +51,86 @@ const DIFFICULTY_PRESETS_COLLECTION = 'difficultyPresets'
 
 // Document references
 const getAppSettingsDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'global')
+const getAdminListDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'admins')
+
+// ============================================
+// Admin List Functions
+// ============================================
+
+/**
+ * Get list of admin emails from Firestore.
+ * Always includes the super admin.
+ */
+export async function getAdminEmails(): Promise<string[]> {
+  const adminsRef = getAdminListDocRef()
+  const adminsSnap = await getDoc(adminsRef)
+  
+  const superAdmin = SUPER_ADMIN_EMAIL.toLowerCase()
+  
+  if (adminsSnap.exists()) {
+    const data = adminsSnap.data()
+    const emails: string[] = (data.emails || []).map((e: string) => e.toLowerCase())
+    if (!emails.includes(superAdmin)) {
+      emails.unshift(superAdmin)
+    }
+    return emails
+  }
+  
+  return [superAdmin]
+}
+
+/**
+ * Check if an email is an admin
+ */
+export async function checkIsAdmin(email: string): Promise<boolean> {
+  const admins = await getAdminEmails()
+  return admins.includes(email.toLowerCase())
+}
+
+/**
+ * Add an email to the admin list
+ */
+export async function addAdmin(email: string): Promise<void> {
+  const adminsRef = getAdminListDocRef()
+  const adminsSnap = await getDoc(adminsRef)
+  
+  if (!adminsSnap.exists()) {
+    await setDoc(adminsRef, {
+      emails: [SUPER_ADMIN_EMAIL.toLowerCase(), email.toLowerCase()]
+    })
+  } else {
+    await updateDoc(adminsRef, {
+      emails: arrayUnion(email.toLowerCase())
+    })
+  }
+}
+
+/**
+ * Remove an email from the admin list. Cannot remove super admin.
+ */
+export async function removeAdmin(email: string): Promise<void> {
+  if (email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+    throw new Error('Cannot remove the super admin')
+  }
+  const adminsRef = getAdminListDocRef()
+  await updateDoc(adminsRef, {
+    emails: arrayRemove(email.toLowerCase())
+  })
+}
+
+/**
+ * Initialize the admin list if it doesn't exist
+ */
+export async function initializeAdminList(): Promise<void> {
+  const adminsRef = getAdminListDocRef()
+  const adminsSnap = await getDoc(adminsRef)
+  
+  if (!adminsSnap.exists()) {
+    await setDoc(adminsRef, {
+      emails: [SUPER_ADMIN_EMAIL.toLowerCase()]
+    })
+  }
+}
 
 // ============================================
 // App Settings Functions
@@ -321,6 +402,82 @@ export async function getTotalUserCount(): Promise<number> {
   const usersRef = collection(db, USERS_COLLECTION)
   const usersSnap = await getDocs(usersRef)
   return usersSnap.size
+}
+
+/**
+ * Get lesson progress distribution across all users.
+ * Returns a map of lessonIndex -> number of users at that lesson.
+ */
+export async function getLessonProgressDistribution(): Promise<Record<number, number>> {
+  const usersRef = collection(db, USERS_COLLECTION)
+  const usersSnap = await getDocs(usersRef)
+  
+  const distribution: Record<number, number> = {}
+  
+  for (const userDoc of usersSnap.docs) {
+    const userId = userDoc.id
+    const progressRef = doc(db, USERS_COLLECTION, userId, 'data', 'progress')
+    const progressSnap = await getDoc(progressRef)
+    
+    if (progressSnap.exists()) {
+      const progress = progressSnap.data()
+      const lesson = progress.currentLesson ?? 0
+      distribution[lesson] = (distribution[lesson] || 0) + 1
+    }
+  }
+  
+  return distribution
+}
+
+/**
+ * Get user signup counts per day for the past N days.
+ * Queries user profiles and groups by createdAt date.
+ */
+export async function getUserGrowthData(days: number = 14): Promise<{ date: string; newUsers: number; cumulativeUsers: number }[]> {
+  const usersRef = collection(db, USERS_COLLECTION)
+  const usersSnap = await getDocs(usersRef)
+  
+  const signupsByDate: Record<string, number> = {}
+  
+  for (const userDoc of usersSnap.docs) {
+    const userId = userDoc.id
+    const profileRef = doc(db, USERS_COLLECTION, userId, 'data', 'profile')
+    const profileSnap = await getDoc(profileRef)
+    
+    if (profileSnap.exists()) {
+      const profile = profileSnap.data() as UserProfile
+      if (profile.createdAt) {
+        const createdDate = profile.createdAt.toDate().toISOString().split('T')[0]
+        signupsByDate[createdDate] = (signupsByDate[createdDate] || 0) + 1
+      }
+    }
+  }
+  
+  const result: { date: string; newUsers: number; cumulativeUsers: number }[] = []
+  const today = new Date()
+  let cumulative = 0
+  
+  // Count all users before the window
+  const windowStart = new Date(today)
+  windowStart.setDate(windowStart.getDate() - (days - 1))
+  const windowStartStr = windowStart.toISOString().split('T')[0]
+  
+  for (const [date, count] of Object.entries(signupsByDate)) {
+    if (date < windowStartStr) {
+      cumulative += count
+    }
+  }
+  
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - i)
+    const dateStr = date.toISOString().split('T')[0]
+    const newUsers = signupsByDate[dateStr] || 0
+    cumulative += newUsers
+    result.push({ date: dateStr, newUsers, cumulativeUsers: cumulative })
+  }
+  
+  return result
 }
 
 /**

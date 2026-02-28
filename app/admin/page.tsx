@@ -5,24 +5,28 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
-import { ADMIN_EMAIL, AppSettings } from '@/types'
-import { getAppSettings, getAdminDashboardStats, initializeAppSettings, getPendingBugReportsCount } from '@/lib/adminFirestore'
+import { AppSettings, SUPER_ADMIN_EMAIL } from '@/types'
+import { getAppSettings, getAdminDashboardStats, initializeAppSettings, getPendingBugReportsCount, initializeAdminList } from '@/lib/adminFirestore'
 import SettingsPanel from '@/components/Admin/SettingsPanel'
 import AnalyticsPanel from '@/components/Admin/AnalyticsPanel'
 import ActiveSessionsPanel from '@/components/Admin/ActiveSessionsPanel'
 import BugReportsPanel from '@/components/Admin/BugReportsPanel'
 import UpdatesPanel from '@/components/Admin/UpdatesPanel'
 import DifficultyPanel from '@/components/Admin/DifficultyPanel'
+import AdminManagementPanel from '@/components/Admin/AdminManagementPanel'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Admin/Admin.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
 
-type TabType = 'settings' | 'analytics' | 'sessions' | 'reports' | 'updates' | 'difficulty'
+type TabType = 'settings' | 'analytics' | 'sessions' | 'reports' | 'updates' | 'difficulty' | 'admins'
+
+const isSuperAdmin = (email: string | null | undefined) =>
+  email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
 
 function AdminContent() {
   const router = useRouter()
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('settings')
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [stats, setStats] = useState<{
@@ -35,9 +39,6 @@ function AdminContent() {
   } | null>(null)
   const [pendingReports, setPendingReports] = useState(0)
   const [loadingData, setLoadingData] = useState(true)
-
-  // Check admin access (case-insensitive)
-  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
   
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
@@ -51,8 +52,10 @@ function AdminContent() {
       if (!user || !isAdmin) return
 
       try {
-        // Initialize settings if needed
-        await initializeAppSettings(user.email)
+        await Promise.all([
+          initializeAppSettings(user.email),
+          initializeAdminList()
+        ])
         
         const [settingsData, statsData, pendingCount] = await Promise.all([
           getAppSettings(),
@@ -176,6 +179,14 @@ function AdminContent() {
         >
           Difficulty
         </button>
+        {isSuperAdmin(user.email) && (
+          <button
+            className={`${styles.tabButton} ${activeTab === 'admins' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('admins')}
+          >
+            Admins
+          </button>
+        )}
       </nav>
 
       {/* Content */}
@@ -228,6 +239,9 @@ function AdminContent() {
           )}
           {activeTab === 'difficulty' && user.email && (
             <DifficultyPanel adminEmail={user.email} />
+          )}
+          {activeTab === 'admins' && user.email && isSuperAdmin(user.email) && (
+            <AdminManagementPanel />
           )}
         </div>
       </main>

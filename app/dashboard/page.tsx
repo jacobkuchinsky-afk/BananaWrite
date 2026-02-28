@@ -10,7 +10,7 @@ import StartLessonButton from '@/components/Dashboard/StartLessonButton'
 import UpdateNotificationModal from '@/components/Dashboard/UpdateNotificationModal'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
 import { SettingsIcon, BellIcon } from '@/components/Icons/Icons'
-import { ADMIN_EMAIL, UpdateNotification } from '@/types'
+import { UpdateNotification } from '@/types'
 import { getLatestUpdateNotification } from '@/lib/adminFirestore'
 import { getUserDismissedNotificationId, dismissUpdateNotification } from '@/lib/firestore'
 import styles from '@/components/Dashboard/Dashboard.module.css'
@@ -29,7 +29,7 @@ const WRITING_TECHNIQUES = [
 ]
 
 function DashboardContent() {
-  const { user, resendVerificationEmail } = useAuth()
+  const { user, resendVerificationEmail, isAdmin } = useAuth()
   const { progress, session, loading, error, refreshSession } = useUserSession()
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
@@ -97,9 +97,6 @@ function DashboardContent() {
   // Get display name
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'Writer'
   
-  // Check if user is admin (case-insensitive comparison)
-  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
-
   return (
     <div className={styles.dashboardPage}>
       {/* Update Notification Modal */}

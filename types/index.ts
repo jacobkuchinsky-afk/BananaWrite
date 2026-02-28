@@ -390,8 +390,11 @@ export interface DifficultyPreset {
 // Admin & App Settings Types
 // ============================================
 
-// Admin email constant
-export const ADMIN_EMAIL = 'jacob.kuchinsky@gmail.com'
+// Super admin email (always has admin access, cannot be removed)
+export const SUPER_ADMIN_EMAIL = 'jacob.kuchinsky@gmail.com'
+
+// Kept for backward compatibility - prefer checking the admin list via AuthContext
+export const ADMIN_EMAIL = SUPER_ADMIN_EMAIL
 
 // Global app settings (configurable by admin)
 export interface AppSettings {

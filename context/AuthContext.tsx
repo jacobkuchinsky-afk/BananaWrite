@@ -13,10 +13,13 @@ import {
   onAuthStateChanged,
   User
 } from '@/lib/firebase'
+import { SUPER_ADMIN_EMAIL } from '@/types'
+import { getAdminEmails } from '@/lib/adminFirestore'
 
 interface AuthContextType {
   user: User | null
   loading: boolean
+  isAdmin: boolean
   signup: (email: string, password: string) => Promise<void>
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
@@ -42,10 +45,26 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
+      if (user?.email) {
+        const email = user.email.toLowerCase()
+        if (email === SUPER_ADMIN_EMAIL.toLowerCase()) {
+          setIsAdmin(true)
+        } else {
+          try {
+            const admins = await getAdminEmails()
+            setIsAdmin(admins.includes(email))
+          } catch {
+            setIsAdmin(false)
+          }
+        }
+      } else {
+        setIsAdmin(false)
+      }
       setLoading(false)
     })
 
@@ -85,6 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value = {
     user,
     loading,
+    isAdmin,
     signup,
     login,
     loginWithGoogle,

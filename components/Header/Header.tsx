@@ -4,14 +4,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { ADMIN_EMAIL } from '@/types'
 import styles from './Header.module.css'
 
 export default function Header() {
-  const { user, logout, loading } = useAuth()
+  const { user, logout, loading, isAdmin } = useAuth()
   const router = useRouter()
-  
-  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
 
   const handleLogout = async () => {
     try {

@@ -484,7 +484,14 @@
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.chartSubtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
   margin-bottom: var(--spacing-md);
+  line-height: 1.4;
 }
 
 .barChart {
@@ -530,6 +537,191 @@
   font-weight: 600;
   color: #1a1a1a;
   text-align: right;
+}
+
+/* Line Chart */
+.lineChartContainer {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.lineChartYAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 0 20px;
+  min-width: 36px;
+  text-align: right;
+}
+
+.lineChartYAxis span {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+}
+
+.lineChartArea {
+  flex: 1;
+  min-height: 120px;
+}
+
+/* Funnel Chart */
+.funnelChart {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.funnelStep {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.funnelBarWrapper {
+  flex: 1;
+}
+
+.funnelBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  background-color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: 12px;
+  transition: width 0.6s ease;
+  box-shadow:
+    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.funnelBar[data-level="mid"] {
+  background-color: #404040;
+  border-color: #404040;
+  box-shadow:
+    0 3px 0 0 rgba(64, 64, 64, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.funnelBar[data-level="end"] {
+  background-color: #22c55e;
+  border-color: #16a34a;
+  box-shadow:
+    0 3px 0 0 rgba(22, 163, 74, 0.9),
+    0 3px 10px rgba(22, 163, 74, 0.15);
+}
+
+.funnelBarLabel {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.funnelStepInfo {
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.funnelStepName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.funnelStepPct {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.funnelConnector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px 0 4px 24px;
+}
+
+.funnelDropoff {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #dc2626;
+  opacity: 0.8;
+}
+
+/* User Growth */
+.userGrowthContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.growthStatsRow {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: flex-start;
+}
+
+.growthMiniStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.growthMiniStatValue {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.growthMiniStatLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Learning Efficiency */
+.efficiencyContent {
+  display: flex;
+  gap: var(--spacing-xl);
+  align-items: center;
+}
+
+.efficiencyHighlight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 140px;
+  padding: var(--spacing-lg);
+  background-color: #fafafa;
+  border: 3px solid #1a1a1a;
+  border-radius: 20px;
+  box-shadow:
+    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.efficiencyValue {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.efficiencyUnit {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.efficiencyCaption {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Active Sessions Panel */
@@ -1604,6 +1796,21 @@
   white-space: nowrap;
 }
 
+.adminSuperBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #92400e;
+  background-color: #fef3c7;
+  border: 1.5px solid #f59e0b;
+  border-radius: 50px;
+  vertical-align: middle;
+}
+
 .difficultyRemoveBtn {
   display: flex;
   align-items: center;
@@ -1653,6 +1860,18 @@
 
   .settingsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .efficiencyContent {
+    flex-direction: column;
+  }
+
+  .funnelStepInfo {
+    min-width: 100px;
+  }
+
+  .growthStatsRow {
+    flex-wrap: wrap;
   }
 
   .sessionsTableHeader,

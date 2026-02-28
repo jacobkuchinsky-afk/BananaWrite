@@ -26,15 +26,23 @@ Go to: **Firebase Console** → **Firestore Database** → **Rules**
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Admin email constant
-    function isAdmin() {
+    // Super admin - always has full access
+    function isSuperAdmin() {
       return request.auth != null && request.auth.token.email == 'jacob.kuchinsky@gmail.com';
     }
     
-    // App Settings - admin only write, authenticated users can read
+    // Check if user is in the admin list OR is the super admin
+    function isAdmin() {
+      return isSuperAdmin() ||
+        (request.auth != null &&
+         request.auth.token.email in get(/databases/$(database)/documents/appSettings/admins).data.emails);
+    }
+    
+    // App Settings - admin can read/write, authenticated users can read
     match /appSettings/{document} {
       allow read: if request.auth != null;
-      allow write: if isAdmin();
+      // Only super admin can modify the admins list
+      allow write: if document == 'admins' ? isSuperAdmin() : isAdmin();
     }
     
     // Analytics - admin can read, authenticated users can write (for tracking)
@@ -45,58 +53,37 @@ service cloud.firestore {
     
     // Update Notifications - admin can create, all authenticated users can read
     match /updateNotifications/{notificationId} {
-      // All authenticated users can read notifications
       allow read: if request.auth != null;
-      
-      // Only admin can create notifications
       allow create: if isAdmin();
-      
-      // No updates or deletes allowed (notifications are permanent)
       allow update, delete: if false;
     }
     
-    // Bug Reports - users can create and read their own, admin can read/update all
-    match /bugReports/{reportId} {
-      // Any authenticated user can create a bug report
-      allow create: if request.auth != null;
-      
-      // Users can read their own bug reports, admin can read all
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      
-      // Only admin can update bug reports
-      allow update: if isAdmin();
-      
-      // No one can delete bug reports
-      allow delete: if false;
-      
-      // Messages subcollection within bug reports
-      match /messages/{messageId} {
-        // Users can read messages on their own reports, admin can read all
-        allow read: if request.auth != null && 
-          (get(/databases/$(database)/documents/bugReports/$(reportId)).data.userId == request.auth.uid || isAdmin());
-        
-        // Users can create messages on their own reports, admin can create on any
-        allow create: if request.auth != null && 
-          (get(/databases/$(database)/documents/bugReports/$(reportId)).data.userId == request.auth.uid || isAdmin());
-        
-        // No one can update or delete messages
-        allow update, delete: if false;
-      }
-    }
-    
-    // Difficulty Presets - admin only read/write
+    // Difficulty Presets - authenticated users can read, admin can write
     match /difficultyPresets/{email} {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
     
+    // Bug Reports - users can create and read their own, admin can read/update all
+    match /bugReports/{reportId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if false;
+      
+      match /messages/{messageId} {
+        allow read: if request.auth != null && 
+          (get(/databases/$(database)/documents/bugReports/$(reportId)).data.userId == request.auth.uid || isAdmin());
+        allow create: if request.auth != null && 
+          (get(/databases/$(database)/documents/bugReports/$(reportId)).data.userId == request.auth.uid || isAdmin());
+        allow update, delete: if false;
+      }
+    }
+    
     // Users collection
     match /users/{userId} {
-      // Users can read/write their own data
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Admin can read and write all users
       allow read, write: if isAdmin();
       
       match /data/{document} {
@@ -190,6 +177,8 @@ appSettings/
     - quizPassingScore: number
     - updatedAt: timestamp
     - updatedBy: string
+  admins/                      # Admin email list
+    - emails: array            # Array of admin email strings (lowercase)
 
 analytics/
   daily_{date}/                # Daily analytics (YYYY-MM-DD)
