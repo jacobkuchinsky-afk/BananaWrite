@@ -52,36 +52,42 @@ function AdminContent() {
       if (!user || !isAdmin) return
 
       try {
-        await Promise.all([
+        // Initialize independently so one failure doesn't block the other
+        await Promise.allSettled([
           initializeAppSettings(user.email),
           initializeAdminList()
         ])
         
-        const [settingsData, statsData, pendingCount] = await Promise.all([
+        const [settingsResult, statsResult, pendingResult] = await Promise.allSettled([
           getAppSettings(),
           getAdminDashboardStats(),
           getPendingBugReportsCount()
         ])
+
+        const settingsData = settingsResult.status === 'fulfilled' ? settingsResult.value : null
+        const statsData = statsResult.status === 'fulfilled' ? statsResult.value : null
+        const pendingCount = pendingResult.status === 'fulfilled' ? pendingResult.value : 0
         
-        setSettings(settingsData)
-        setStats(statsData)
+        if (settingsData) setSettings(settingsData)
+        if (statsData) setStats(statsData)
         setPendingReports(pendingCount)
         
         // Sync settings to backend on admin page load
-        // This ensures the backend has the correct thresholds even after a restart
-        try {
-          await fetch(`${FLASK_API_URL}/api/app-settings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sameErrorQuizThreshold: settingsData.sameErrorQuizThreshold,
-              totalErrorQuizThreshold: settingsData.totalErrorQuizThreshold,
-              quizPassingScore: settingsData.quizPassingScore
+        if (settingsData) {
+          try {
+            await fetch(`${FLASK_API_URL}/api/app-settings`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sameErrorQuizThreshold: settingsData.sameErrorQuizThreshold,
+                totalErrorQuizThreshold: settingsData.totalErrorQuizThreshold,
+                quizPassingScore: settingsData.quizPassingScore
+              })
             })
-          })
-          console.log('[Admin] Settings synced to backend')
-        } catch (syncError) {
-          console.warn('[Admin] Could not sync settings to backend:', syncError)
+            console.log('[Admin] Settings synced to backend')
+          } catch (syncError) {
+            console.warn('[Admin] Could not sync settings to backend:', syncError)
+          }
         }
       } catch (error) {
         console.error('Error loading admin data:', error)

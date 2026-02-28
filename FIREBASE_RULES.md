@@ -35,6 +35,7 @@ service cloud.firestore {
     function isAdmin() {
       return isSuperAdmin() ||
         (request.auth != null &&
+         exists(/databases/$(database)/documents/appSettings/admins) &&
          request.auth.token.email in get(/databases/$(database)/documents/appSettings/admins).data.emails);
     }
     
