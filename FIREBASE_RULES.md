@@ -85,22 +85,28 @@ service cloud.firestore {
       }
     }
     
+    // Difficulty Presets - admin only read/write
+    match /difficultyPresets/{email} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+    
     // Users collection
     match /users/{userId} {
       // Users can read/write their own data
       allow read, write: if request.auth != null && request.auth.uid == userId;
       
-      // Admin can read all users
-      allow read: if isAdmin();
+      // Admin can read and write all users
+      allow read, write: if isAdmin();
       
       match /data/{document} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
-        allow read: if isAdmin();
+        allow read, write: if isAdmin();
       }
       
       match /{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
-        allow read: if isAdmin();
+        allow read, write: if isAdmin();
       }
     }
   }
@@ -201,4 +207,11 @@ updateNotifications/
     - bulletPoints: array      # Array of strings
     - createdAt: timestamp
     - createdBy: string        # Admin email
+
+difficultyPresets/
+  {normalizedEmail}/           # Pre-assigned difficulty level for email
+    - email: string
+    - level: string            # 'basic' | 'learning' | 'proficient'
+    - createdAt: timestamp
+    - updatedBy: string        # Admin email
 ```

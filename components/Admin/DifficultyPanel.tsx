@@ -39,12 +39,20 @@ export default function DifficultyPanel({ adminEmail }: DifficultyPanelProps) {
   async function loadData() {
     setLoading(true)
     try {
-      const [usersData, presetsData] = await Promise.all([
+      const [usersResult, presetsResult] = await Promise.allSettled([
         getAllUsersWithDifficulty(),
         getDifficultyPresets()
       ])
-      setUsers(usersData)
-      setPresets(presetsData)
+      if (usersResult.status === 'fulfilled') {
+        setUsers(usersResult.value)
+      } else {
+        console.error('Error loading users:', usersResult.reason)
+      }
+      if (presetsResult.status === 'fulfilled') {
+        setPresets(presetsResult.value)
+      } else {
+        console.error('Error loading presets:', presetsResult.reason)
+      }
     } catch (error) {
       console.error('Error loading difficulty data:', error)
     } finally {
