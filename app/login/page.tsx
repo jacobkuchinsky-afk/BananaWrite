@@ -58,6 +58,7 @@ export default function LoginPage() {
       await loginWithGoogle()
       router.push('/dashboard')
     } catch (err: unknown) {
+      console.error('Google login error:', err)
       const error = err as { code?: string }
       if (error.code === 'auth/popup-closed-by-user') {
         // User closed popup, no error needed

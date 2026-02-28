@@ -69,6 +69,7 @@ export default function SignupPage() {
       // New users go to setup first to choose their prompt preferences
       router.push('/setup')
     } catch (err: unknown) {
+      console.error('Google signup error:', err)
       const error = err as { code?: string }
       if (error.code === 'auth/popup-closed-by-user') {
         // User closed popup, no error needed
