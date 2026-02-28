@@ -362,7 +362,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   essayType: 'Non-Fiction',
   setupComplete: false,
   dismissedNotificationId: null,
-  difficultyLevel: 'learning'
+  difficultyLevel: 'proficient'
 }
 
 

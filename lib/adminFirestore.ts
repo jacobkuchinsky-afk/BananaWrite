@@ -669,7 +669,7 @@ export async function getAllUsersWithDifficulty(): Promise<UserWithDifficulty[]>
       userId,
       email: profile?.email || userData.email || 'Unknown',
       displayName: profile?.displayName || null,
-      difficultyLevel: settings?.difficultyLevel || 'learning'
+      difficultyLevel: settings?.difficultyLevel || 'proficient'
     })
   }
   

@@ -27,7 +27,7 @@ export default function DifficultyPanel({ adminEmail }: DifficultyPanelProps) {
   const [loading, setLoading] = useState(true)
   const [savingUser, setSavingUser] = useState<string | null>(null)
   const [newPresetEmail, setNewPresetEmail] = useState('')
-  const [newPresetLevel, setNewPresetLevel] = useState<DifficultyLevel>('learning')
+  const [newPresetLevel, setNewPresetLevel] = useState<DifficultyLevel>('proficient')
   const [addingPreset, setAddingPreset] = useState(false)
   const [presetError, setPresetError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -90,7 +90,7 @@ export default function DifficultyPanel({ adminEmail }: DifficultyPanelProps) {
     try {
       await setDifficultyPreset(email, newPresetLevel, adminEmail)
       setNewPresetEmail('')
-      setNewPresetLevel('learning')
+      setNewPresetLevel('proficient')
       const presetsData = await getDifficultyPresets()
       setPresets(presetsData)
     } catch (error) {
