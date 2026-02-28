@@ -49,7 +49,7 @@ function AdminContent() {
   // Load initial data
   useEffect(() => {
     async function loadData() {
-      if (!user || !isAdmin) return
+      if (!user || !isAdmin || !user.email) return
 
       try {
         // Initialize independently so one failure doesn't block the other
