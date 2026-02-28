@@ -32,7 +32,16 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 }
 
-// Warn if required config is missing
+// Debug: log loaded config keys (remove after debugging)
+console.log('Firebase config loaded:', {
+  apiKey: firebaseConfig.apiKey ? '✓ set' : '✗ MISSING',
+  authDomain: firebaseConfig.authDomain || '✗ MISSING',
+  projectId: firebaseConfig.projectId || '✗ MISSING',
+  storageBucket: firebaseConfig.storageBucket ? '✓ set' : '✗ MISSING',
+  messagingSenderId: firebaseConfig.messagingSenderId ? '✓ set' : '✗ MISSING',
+  appId: firebaseConfig.appId ? '✓ set' : '✗ MISSING',
+})
+
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
   console.error('Firebase configuration missing. Check your environment variables.')
 }
