@@ -118,7 +118,53 @@ WRITING_TECHNIQUE_PROMPTS = {
     "Citation styles": "Request the user to include 2 in-text citations attributing information to sources, using a consistent format (author, year) or similar.",
 }
 
-# TEKS-aligned grade-level technique tracks
+# Grade-specific technique prompt overrides
+# These replace the default WRITING_TECHNIQUE_PROMPTS for lower grade levels,
+# using kid-friendly language and scaled-down requirements.
+GRADE_TECHNIQUE_OVERRIDES = {
+    'basic': {
+        "Commas": "Request the user to include 1 list that uses commas (like listing 3 favorite things) and 2 sentences that use a comma before a connecting word like 'and', 'but', or 'so' to join two ideas.",
+        "Periods": "Request the user to write at least 6 complete sentences that each end with a period. Each sentence should have a complete thought.",
+        "Question marks": "Request the user to include 2 questions in their essay that end with question marks.",
+        "Apostrophes": "Request the user to include 2 words that show ownership (like 'the dog's bone' or 'Maria's backpack') and 2 shortened words like 'don't' or 'it's'.",
+        "Quotation marks": "Request the user to include 2 places where a character or person says something out loud, with quotation marks around what they say.",
+        "Capitalization": "Request the user to make sure they capitalize the first word of every sentence, all names of people and places, and at least 2 titles (like book titles or holidays).",
+        "Subject-verb agreement": "Request the user to include 3 sentences where the action word matches the subject — for example, 'The dog runs' (not 'The dog run') and 'The dogs run' (not 'The dogs runs').",
+        "Verb conjugation": "Request the user to write some sentences about the past, some about right now, and some about the future. Include at least 2 tricky past-tense words like 'ran', 'went', or 'brought'.",
+        "Pronoun-antecedent agreement": "Request the user to include 3 sentences that use words like 'he', 'she', 'they', or 'it' to refer back to a person or thing mentioned earlier. Make sure it's clear who the word refers to.",
+        "Coordinating conjunctions": "Request the user to use the connecting words 'and', 'but', 'or', and 'so' at least once each to join ideas together in their sentences.",
+        "Compound sentences": "Request the user to write 3 sentences where they connect two complete ideas using a comma and a connecting word (like 'and', 'but', or 'so'). For example: 'I like dogs, and my friend likes cats.'",
+        "Point of view": "Request the user to pick one point of view — either 'I/we' (first person) or 'he/she/they' (third person) — and stick with it for the entire essay without switching.",
+        "Dialogue formatting": "Request the user to write a short conversation (at least 3 lines) between two characters. Each time someone new talks, start a new line and put quotation marks around what they say.",
+    },
+    'learning': {
+        "Commas": "Request the user to include 1 list with commas, 2 sentences that use a comma before a connecting word (and, but, or, so) to join two ideas, and 2 sentences that start with an introductory word or phrase followed by a comma (like 'However,' or 'After the game,').",
+        "Periods": "Request the user to write at least 7 complete sentences that end with periods, ensuring each expresses a complete thought.",
+        "Apostrophes": "Request the user to include 3 words showing possession (like 'the team's captain') and 2 contractions (like 'doesn't' or 'they're').",
+        "Quotation marks": "Request the user to include 2 direct quotes from people or characters, properly enclosed in quotation marks with correct punctuation.",
+        "Subject-verb agreement": "Request the user to include 2 sentences where the subject and verb are separated by extra words in between (like 'The box of chocolates was delicious') and 2 sentences with compound subjects, all with correct agreement.",
+        "Verb conjugation": "Request the user to use at least 3 different verb tenses (past, present, future) correctly and include 2 irregular verbs in past tense.",
+        "Pronoun-antecedent agreement": "Request the user to include 3 sentences where pronouns clearly refer back to the right person or thing, including at least 1 sentence using 'who' or 'that' to add extra information.",
+        "Coordinating conjunctions": "Request the user to use at least 4 different connecting words (and, but, or, so, yet) to join ideas in their sentences.",
+        "Compound sentences": "Request the user to write 3 compound sentences, each joining two complete ideas with a comma and a connecting word (and, but, or, so).",
+        "Semicolons": "Request the user to connect 2 pairs of closely related sentences using semicolons instead of periods.",
+        "Colons": "Request the user to use 1 colon to introduce a list and 1 colon to introduce an explanation.",
+        "Parentheses": "Request the user to include 2 parenthetical asides that add extra information without disrupting the main sentence.",
+        "Complex sentences": "Request the user to write 3 complex sentences using words like 'because', 'although', 'when', or 'if' to connect a main idea with a supporting idea.",
+        "Subordinating conjunctions": "Request the user to use 3 different words like 'because', 'although', 'when', 'if', 'while', or 'since' to begin the supporting part of a sentence.",
+        "Transitional phrases": "Request the user to use 4 different transition phrases (like 'however', 'in addition', 'for example', 'on the other hand') to connect ideas between sentences.",
+        "Active vs. passive voice": "Request the user to write 2 sentences where the subject does the action (like 'The dog chased the cat') and 1 sentence where the subject receives the action (like 'The cat was chased by the dog').",
+        "Parallel structure": "Request the user to include 2 sentences with parallel lists — where items in a list follow the same pattern (like 'swimming, hiking, and biking' not 'swimming, hiking, and to bike').",
+        "Point of view": "Request the user to write the entire essay in a consistent point of view (first person or third person) without shifting perspective.",
+        "Capitalization": "Request the user to correctly capitalize at least 3 proper nouns, 1 title of a person, and the first word of every sentence.",
+        "Dialogue formatting": "Request the user to include a short dialogue exchange (at least 4 lines) between two characters, with correct punctuation, quotation marks, and new paragraphs for each speaker.",
+    },
+}
+
+# 'proficient' uses the default WRITING_TECHNIQUE_PROMPTS (no overrides needed)
+
+
+
 # Each level includes all techniques from lower levels plus new ones
 GRADE_WRITING_TECHNIQUES = {
     'basic': [
@@ -535,6 +581,7 @@ Requirements:
 - Tone/Creativity Level: {craziness_level} (dictates the intensity of humor, wild originality, and raw engagement—push boundaries accordingly)
 - Target Audience: {config['audience_age']} (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
 - Target Essay Length: Strictly {config['essay_length']} words 
+- LANGUAGE LEVEL: All instructions, including writing technique requirements, MUST use vocabulary and explanations appropriate for {config['audience_age']}. Do NOT use grammar jargon the student wouldn't know. For example, instead of "coordinating conjunction" say "connecting word like 'and', 'but', or 'so'". Instead of "independent clause" say "complete idea" or "complete sentence". Instead of "introductory element" say "opening word or phrase". The student must be able to understand every word of the prompt without a teacher explaining it.
 - Your prompt intructions should be freindly. Do not scare the user or use adjetives that are uneeded.
 - ALWAYS allow the user to go over a specified requirement.
 - If your context on a topic is not expansive enough to make a full specific prompt, make the prompt broad.
@@ -1087,8 +1134,9 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
     
     # Build the user message based on whether there's a specific technique
     if writing_technique and writing_technique.lower() != "none":
-        # Get the specific prompt instruction for this technique
-        technique_prompt = WRITING_TECHNIQUE_PROMPTS.get(writing_technique, "")
+        # Use grade-specific override if available, otherwise fall back to default
+        grade_overrides = GRADE_TECHNIQUE_OVERRIDES.get(difficulty_level, {})
+        technique_prompt = grade_overrides.get(writing_technique) or WRITING_TECHNIQUE_PROMPTS.get(writing_technique, "")
         user_message = f"Create an essay prompt. The student is currently learning about: {writing_technique}."
         if technique_prompt:
             user_message += f" {technique_prompt}"
