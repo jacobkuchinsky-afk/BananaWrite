@@ -12,7 +12,9 @@ from services.ai_service import (
     generate_essay_prompt_stream, 
     get_writing_technique, 
     get_total_lessons, 
-    WRITING_TECHNIQUES, 
+    WRITING_TECHNIQUES,
+    GRADE_WRITING_TECHNIQUES,
+    GRADE_CONFIG,
     check_essay,
     review_essay,
     review_essay_with_context,
@@ -53,24 +55,27 @@ def generate_prompt():
     if not data:
         return {"error": "No data provided"}, 400
     
+    # Get difficulty level
+    difficulty_level = data.get('difficulty_level', 'proficient')
+    
     # Get the writing technique - either from direct string or lesson index
     writing_technique = data.get('writingTechnique')
     
     if not writing_technique:
         lesson_index = data.get('lessonIndex', 0)
-        writing_technique = get_writing_technique(lesson_index)
+        writing_technique = get_writing_technique(lesson_index, difficulty_level)
     
     # Get user's craziness, focus, and essay type settings (optional)
     craziness = data.get('craziness')
     focus = data.get('focus')
     essay_type = data.get('essayType')
     
-    logger.info(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}, Essay Type: {essay_type}")
+    logger.info(f"[GENERATE_PROMPT] Writing technique: {writing_technique}, Craziness: {craziness}, Focus: {focus}, Essay Type: {essay_type}, Difficulty: {difficulty_level}")
     
     def generate():
         """Generator function for SSE streaming"""
         try:
-            for chunk_data in generate_essay_prompt_stream(writing_technique, craziness, focus, essay_type):
+            for chunk_data in generate_essay_prompt_stream(writing_technique, craziness, focus, essay_type, difficulty_level):
                 # Format as Server-Sent Event
                 json_data = json.dumps(chunk_data)
                 yield f"data: {json_data}\n\n"
@@ -94,32 +99,38 @@ def generate_prompt():
 @prompt_bp.route('/api/writing-techniques', methods=['GET'])
 def get_techniques():
     """
-    Get the list of all writing techniques and total count.
+    Get the list of writing techniques. Accepts optional difficulty_level query param.
     
     Response:
         {
-            "techniques": ["None", "Commas", ...],
-            "total": 54
+            "techniques": ["Commas", ...],
+            "total": 13,
+            "difficulty_level": "basic"
         }
     """
+    difficulty_level = request.args.get('difficulty_level', 'proficient')
+    techniques = GRADE_WRITING_TECHNIQUES.get(difficulty_level, GRADE_WRITING_TECHNIQUES['proficient'])
     return {
-        "techniques": WRITING_TECHNIQUES,
-        "total": get_total_lessons()
+        "techniques": techniques,
+        "total": len(techniques),
+        "difficulty_level": difficulty_level,
+        "all_techniques": WRITING_TECHNIQUES
     }
 
 
 @prompt_bp.route('/api/technique/<int:index>', methods=['GET'])
 def get_technique_by_index(index: int):
     """
-    Get a specific writing technique by its index.
+    Get a specific writing technique by its index. Accepts optional difficulty_level query param.
     
     Response:
         {
             "index": 0,
-            "technique": "None"
+            "technique": "Commas"
         }
     """
-    technique = get_writing_technique(index)
+    difficulty_level = request.args.get('difficulty_level', 'proficient')
+    technique = get_writing_technique(index, difficulty_level)
     return {
         "index": index,
         "technique": technique
@@ -195,6 +206,7 @@ def review_essay_endpoint():
     
     essay = data.get('essay')
     correction_feedback = data.get('correction_feedback')  # Optional
+    difficulty_level = data.get('difficulty_level', 'proficient')
     
     if not essay:
         return jsonify({"error": "No essay provided"}), 400
@@ -202,7 +214,7 @@ def review_essay_endpoint():
     if correction_feedback:
         logger.info(f"[REVIEW_ESSAY_ENDPOINT] Re-evaluating with correction feedback")
     
-    result = review_essay(essay, correction_feedback)
+    result = review_essay(essay, correction_feedback, difficulty_level)
     return jsonify(result)
 
 
@@ -271,11 +283,12 @@ def create_quiz_endpoint():
     question_type = data.get('question_type', 'A,B,C,D')
     question_count = data.get('question_count', 5)
     last_quiz_results = data.get('last_quiz_results', '')
+    difficulty_level = data.get('difficulty_level', 'proficient')
     
     if not topic:
         return jsonify({"error": "No topic provided"}), 400
     
-    result = create_quiz(topic, question_type, question_count, last_quiz_results)
+    result = create_quiz(topic, question_type, question_count, last_quiz_results, difficulty_level)
     return jsonify(result)
 
 
@@ -307,6 +320,7 @@ def grade_quiz_endpoint():
     
     answers = data.get('answers')
     correction_feedback = data.get('correction_feedback')  # Optional
+    difficulty_level = data.get('difficulty_level', 'proficient')
     
     if not answers:
         return jsonify({"error": "No answers provided"}), 400
@@ -317,7 +331,7 @@ def grade_quiz_endpoint():
     if correction_feedback:
         logger.info(f"[GRADE_QUIZ_ENDPOINT] Re-grading with correction feedback")
     
-    result = grade_quiz(answers, correction_feedback)
+    result = grade_quiz(answers, correction_feedback, difficulty_level)
     return jsonify(result)
 
 
@@ -345,11 +359,12 @@ def get_teacher_feedback_endpoint():
     
     grades_feedback = data.get('grades_feedback')
     answers = data.get('answers', [])  # Full question/answer context
+    difficulty_level = data.get('difficulty_level', 'proficient')
     
     if not grades_feedback:
         return jsonify({"error": "No grades feedback provided"}), 400
     
-    result = get_teacher_feedback(grades_feedback, answers)
+    result = get_teacher_feedback(grades_feedback, answers, difficulty_level)
     return jsonify(result)
 
 
@@ -381,6 +396,7 @@ def review_essay_redo_endpoint():
     
     essay = data.get('essay')
     original_errors = data.get('original_errors', [])
+    difficulty_level = data.get('difficulty_level', 'proficient')
     
     if not essay:
         return jsonify({"error": "No essay provided"}), 400
@@ -390,7 +406,7 @@ def review_essay_redo_endpoint():
     
     logger.info(f"[REVIEW_ESSAY_REDO] Re-reviewing essay with {len(original_errors)} original errors")
     
-    result = review_essay_with_context(essay, original_errors)
+    result = review_essay_with_context(essay, original_errors, difficulty_level)
     return jsonify(result)
 
 
@@ -596,8 +612,10 @@ def teacher_chat_endpoint():
         if msg['role'] not in ['user', 'assistant']:
             return jsonify({"error": "Message role must be 'user' or 'assistant'"}), 400
     
-    logger.info(f"[TEACHER_CHAT_ENDPOINT] Processing {len(messages)} messages, topic: {context.get('topic', 'N/A')}")
+    difficulty_level = data.get('difficulty_level', 'proficient')
     
-    result = teacher_chat(messages, context)
+    logger.info(f"[TEACHER_CHAT_ENDPOINT] Processing {len(messages)} messages, topic: {context.get('topic', 'N/A')}, difficulty: {difficulty_level}")
+    
+    result = teacher_chat(messages, context, difficulty_level)
     
     return jsonify(result)

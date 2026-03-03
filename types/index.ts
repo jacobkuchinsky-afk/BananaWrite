@@ -386,6 +386,85 @@ export interface DifficultyPreset {
   updatedBy: string
 }
 
+// TEKS-aligned writing technique tracks per difficulty level
+export const GRADE_WRITING_TECHNIQUES: Record<DifficultyLevel, string[]> = {
+  basic: [
+    "Commas",
+    "Periods",
+    "Question marks",
+    "Apostrophes",
+    "Quotation marks",
+    "Capitalization",
+    "Subject-verb agreement",
+    "Verb conjugation",
+    "Pronoun-antecedent agreement",
+    "Coordinating conjunctions",
+    "Compound sentences",
+    "Point of view",
+    "Dialogue formatting",
+  ],
+  learning: [
+    "Commas",
+    "Periods",
+    "Question marks",
+    "Apostrophes",
+    "Quotation marks",
+    "Capitalization",
+    "Subject-verb agreement",
+    "Verb conjugation",
+    "Pronoun-antecedent agreement",
+    "Coordinating conjunctions",
+    "Compound sentences",
+    "Point of view",
+    "Dialogue formatting",
+    "Semicolons",
+    "Colons",
+    "Parentheses",
+    "Complex sentences",
+    "Subordinating conjunctions",
+    "Transitional phrases",
+    "Active vs. passive voice",
+    "Parallel structure",
+  ],
+  proficient: [
+    "Commas",
+    "Periods",
+    "Question marks",
+    "Apostrophes",
+    "Quotation marks",
+    "Capitalization",
+    "Subject-verb agreement",
+    "Verb conjugation",
+    "Pronoun-antecedent agreement",
+    "Coordinating conjunctions",
+    "Compound sentences",
+    "Point of view",
+    "Dialogue formatting",
+    "Semicolons",
+    "Colons",
+    "Parentheses",
+    "Complex sentences",
+    "Subordinating conjunctions",
+    "Transitional phrases",
+    "Active vs. passive voice",
+    "Parallel structure",
+    "Hyphens",
+    "Dashes (em dash, en dash)",
+    "Brackets",
+    "Ellipses",
+    "Modifiers",
+    "Compound-complex sentences",
+    "Paragraph structure",
+    "Topic sentences",
+    "Thesis statements",
+    "Metaphors and similes",
+    "Citation styles",
+  ],
+}
+
+// Flat list of ALL writing techniques (used by admin analytics)
+export const ALL_WRITING_TECHNIQUES = GRADE_WRITING_TECHNIQUES.proficient
+
 // ============================================
 // Admin & App Settings Types
 // ============================================

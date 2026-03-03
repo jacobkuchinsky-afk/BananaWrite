@@ -37,26 +37,17 @@ import {
   QuizAnswer,
   QuizGradingResult,
   TeacherFeedback,
-  TeacherChatContext
+  TeacherChatContext,
+  GRADE_WRITING_TECHNIQUES,
+  DifficultyLevel,
+  UserSettings
 } from '@/types'
+import { getUserSettings } from '@/lib/firestore'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/Icons/Icons'
 import { TeacherChat, TeacherChatRef } from '@/components/TeacherChat'
 import styles from '@/components/Quiz/Quiz.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
-
-// Writing techniques - same order as backend (32 total, indices 0-31)
-const WRITING_TECHNIQUES = [
-  "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
-  "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
-  "Parentheses", "Brackets", "Ellipses", "Subject-verb agreement",
-  "Verb conjugation", "Pronoun-antecedent agreement", "Active vs. passive voice",
-  "Parallel structure", "Modifiers", "Compound sentences", "Complex sentences",
-  "Compound-complex sentences", "Subordinating conjunctions", "Coordinating conjunctions",
-  "Transitional phrases", "Point of view", "Paragraph structure", "Topic sentences",
-  "Thesis statements", "Metaphors and similes", "Capitalization", "Dialogue formatting",
-  "Citation styles"
-]
 
 type QuizPhase = 
   | 'loading' 
@@ -89,6 +80,10 @@ function QuizContent() {
   // Contest state for quiz grading
   const [quizGradeContestConfirmed, setQuizGradeContestConfirmed] = useState(false)
   const [showQuizGradeLoadingGame, setShowQuizGradeLoadingGame] = useState(false)
+  
+  // User settings for difficulty level
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
+  const difficultyLevel = (userSettings?.difficultyLevel || 'proficient') as DifficultyLevel
   
   // Guard ref to prevent duplicate API calls during generation
   const isGenerating = useRef(false)
@@ -157,6 +152,14 @@ function QuizContent() {
           console.warn('[Quiz] Could not sync settings to backend:', syncError)
         }
         
+        // Fetch user settings for difficulty level
+        try {
+          const settings = await getUserSettings(user.uid)
+          if (settings) setUserSettings(settings)
+        } catch (settingsError) {
+          console.warn('[Quiz] Could not fetch user settings:', settingsError)
+        }
+        
         const session = await getQuizSession(user.uid)
         
         if (!session || !session.essayErrors || session.essayErrors.length === 0) {
@@ -217,7 +220,8 @@ function QuizContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           essay_errors: quizSession.rawErrorsResponse,
-          learned_topics: quizSession.learnedTopics
+          learned_topics: quizSession.learnedTopics,
+          difficulty_level: difficultyLevel
         })
       })
       
@@ -278,7 +282,8 @@ function QuizContent() {
           topic,
           question_type: questionType,
           question_count: questionCount,
-          last_quiz_results: quizSession.lastQuizResults || ''
+          last_quiz_results: quizSession.lastQuizResults || '',
+          difficulty_level: difficultyLevel
         })
       })
       
@@ -385,7 +390,8 @@ function QuizContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           answers,
-          correction_feedback: correctionFeedback  // Include correction if re-grading
+          correction_feedback: correctionFeedback,
+          difficulty_level: difficultyLevel
         })
       })
       
@@ -446,7 +452,8 @@ function QuizContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           grades_feedback: quizSession.quizResults.feedback,
-          answers: answersWithContext  // Pass full question context
+          answers: answersWithContext,
+          difficulty_level: difficultyLevel
         })
       })
       
@@ -705,8 +712,9 @@ function QuizContent() {
   
   // Module complete
   if (phase === 'module_complete') {
-    const currentTechnique = WRITING_TECHNIQUES[currentLesson] || 'Writing'
-    const nextTechnique = WRITING_TECHNIQUES[currentLesson + 1]
+    const techniques = GRADE_WRITING_TECHNIQUES[difficultyLevel]
+    const currentTechnique = techniques[currentLesson] || 'Writing'
+    const nextTechnique = techniques[currentLesson + 1]
     
     return (
       <ModuleComplete
@@ -854,7 +862,7 @@ function QuizContent() {
         </main>
         
         {/* Teacher Chat - Available during results */}
-        <TeacherChat context={teacherChatContext} />
+        <TeacherChat context={teacherChatContext} difficultyLevel={difficultyLevel} />
       </div>
     )
   }
@@ -886,7 +894,7 @@ function QuizContent() {
         </main>
         
         {/* Teacher Chat - Available during feedback */}
-        <TeacherChat ref={teacherChatRef} context={teacherChatContext} />
+        <TeacherChat ref={teacherChatRef} context={teacherChatContext} difficultyLevel={difficultyLevel} />
       </div>
     )
   }
@@ -914,7 +922,7 @@ function QuizContent() {
         </main>
         
         {/* Teacher Chat - Available during memory hooks */}
-        <TeacherChat context={teacherChatContext} />
+        <TeacherChat context={teacherChatContext} difficultyLevel={difficultyLevel} />
       </div>
     )
   }

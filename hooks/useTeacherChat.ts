@@ -5,7 +5,7 @@
  * Manages teacher chat state and API communication
  */
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { 
   TeacherChatMessage, 
   TeacherChatContext, 
@@ -27,7 +27,7 @@ interface UseTeacherChatReturn {
   clearChat: () => void
 }
 
-export function useTeacherChat(initialContext?: TeacherChatContext): UseTeacherChatReturn {
+export function useTeacherChat(initialContext?: TeacherChatContext, difficultyLevel: string = 'proficient'): UseTeacherChatReturn {
   const [messages, setMessages] = useState<TeacherChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +38,8 @@ export function useTeacherChat(initialContext?: TeacherChatContext): UseTeacherC
     currentFeedback: '',
     memoryHooks: []
   })
+  const difficultyRef = useRef(difficultyLevel)
+  useEffect(() => { difficultyRef.current = difficultyLevel }, [difficultyLevel])
 
   // Update context
   const setContext = useCallback((context: TeacherChatContext) => {
@@ -82,7 +84,8 @@ export function useTeacherChat(initialContext?: TeacherChatContext): UseTeacherC
         },
         body: JSON.stringify({
           messages: apiMessages,
-          context: contextRef.current
+          context: contextRef.current,
+          difficulty_level: difficultyRef.current
         })
       })
 

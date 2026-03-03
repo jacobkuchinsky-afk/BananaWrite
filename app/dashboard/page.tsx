@@ -10,23 +10,10 @@ import StartLessonButton from '@/components/Dashboard/StartLessonButton'
 import UpdateNotificationModal from '@/components/Dashboard/UpdateNotificationModal'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
 import { SettingsIcon, BellIcon } from '@/components/Icons/Icons'
-import { UpdateNotification } from '@/types'
+import { UpdateNotification, GRADE_WRITING_TECHNIQUES, DifficultyLevel, UserSettings } from '@/types'
 import { getLatestUpdateNotification } from '@/lib/adminFirestore'
-import { getUserDismissedNotificationId, dismissUpdateNotification } from '@/lib/firestore'
+import { getUserDismissedNotificationId, dismissUpdateNotification, getUserSettings } from '@/lib/firestore'
 import styles from '@/components/Dashboard/Dashboard.module.css'
-
-// Writing techniques - same order as backend (32 total, indices 0-31)
-const WRITING_TECHNIQUES = [
-  "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
-  "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
-  "Parentheses", "Brackets", "Ellipses", "Subject-verb agreement",
-  "Verb conjugation", "Pronoun-antecedent agreement", "Active vs. passive voice",
-  "Parallel structure", "Modifiers", "Compound sentences", "Complex sentences",
-  "Compound-complex sentences", "Subordinating conjunctions", "Coordinating conjunctions",
-  "Transitional phrases", "Point of view", "Paragraph structure", "Topic sentences",
-  "Thesis statements", "Metaphors and similes", "Capitalization", "Dialogue formatting",
-  "Citation styles"
-]
 
 function DashboardContent() {
   const { user, resendVerificationEmail, isAdmin } = useAuth()
@@ -37,6 +24,21 @@ function DashboardContent() {
   // Update notification state
   const [pendingNotification, setPendingNotification] = useState<UpdateNotification | null>(null)
   const [showNotificationModal, setShowNotificationModal] = useState(false)
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
+
+  // Fetch user settings for difficulty level
+  useEffect(() => {
+    async function fetchSettings() {
+      if (!user) return
+      try {
+        const settings = await getUserSettings(user.uid)
+        if (settings) setUserSettings(settings)
+      } catch (err) {
+        console.error('Error fetching user settings:', err)
+      }
+    }
+    fetchSettings()
+  }, [user])
 
   // Check for pending update notifications
   useEffect(() => {
@@ -88,10 +90,12 @@ function DashboardContent() {
     }
   }
 
-  // Get current skill name
+  // Get current skill name using grade-level technique track
+  const difficultyLevel = (userSettings?.difficultyLevel || 'proficient') as DifficultyLevel
+  const techniques = GRADE_WRITING_TECHNIQUES[difficultyLevel]
   const currentLesson = progress?.currentLesson ?? 0
-  const currentSkill = WRITING_TECHNIQUES[currentLesson] || 'Commas'
-  const totalSkills = WRITING_TECHNIQUES.length
+  const currentSkill = techniques[currentLesson] || 'Commas'
+  const totalSkills = techniques.length
   const progressPercent = (currentLesson / totalSkills) * 100
 
   // Get display name

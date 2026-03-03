@@ -29,7 +29,8 @@ interface MarkedEssayProps {
 /**
  * Component that displays an essay with errors highlighted in red.
  * The marked essay uses ¦ character to surround error portions.
- * Example: "This is correct ¦error part¦ more correct text"
+ * Double markers ¦¦text¦¦ indicate above-level observations (not counted as errors).
+ * Example: "This is correct ¦error part¦ more correct text ¦¦above-level¦¦"
  */
 export default function MarkedEssay({ 
   markedEssay, 
@@ -53,17 +54,54 @@ export default function MarkedEssay({
   onShowLoadingGame,
   onLoadingComplete
 }: MarkedEssayProps) {
-  // Parse the marked essay - split by ¦ to get alternating normal/error segments
-  const parseMarkedEssay = (text: string) => {
-    // Split by the error marker character ¦
-    const segments = text.split('¦')
+  type SegmentType = 'normal' | 'error' | 'above_level'
+  
+  const parseMarkedEssay = (text: string): { text: string; type: SegmentType }[] => {
+    const result: { text: string; type: SegmentType }[] = []
+    let remaining = text
     
-    // The pattern is: normal text, error, normal text, error, ...
-    // So odd-indexed segments (1, 3, 5...) are errors
-    return segments.map((segment, index) => ({
-      text: segment,
-      isError: index % 2 === 1 // Odd indices are errors
-    }))
+    while (remaining.length > 0) {
+      // Check for double marker (above-level) first
+      const doubleStart = remaining.indexOf('¦¦')
+      const singleStart = remaining.indexOf('¦')
+      
+      if (doubleStart !== -1 && (singleStart === -1 || doubleStart <= singleStart)) {
+        // Found double marker — push text before it
+        if (doubleStart > 0) {
+          result.push({ text: remaining.slice(0, doubleStart), type: 'normal' })
+        }
+        const afterOpen = remaining.slice(doubleStart + 2)
+        const doubleEnd = afterOpen.indexOf('¦¦')
+        if (doubleEnd !== -1) {
+          result.push({ text: afterOpen.slice(0, doubleEnd), type: 'above_level' })
+          remaining = afterOpen.slice(doubleEnd + 2)
+        } else {
+          // No closing double marker, treat rest as normal
+          result.push({ text: remaining.slice(doubleStart), type: 'normal' })
+          remaining = ''
+        }
+      } else if (singleStart !== -1) {
+        // Found single marker (in-scope error)
+        if (singleStart > 0) {
+          result.push({ text: remaining.slice(0, singleStart), type: 'normal' })
+        }
+        const afterOpen = remaining.slice(singleStart + 1)
+        const singleEnd = afterOpen.indexOf('¦')
+        if (singleEnd !== -1) {
+          result.push({ text: afterOpen.slice(0, singleEnd), type: 'error' })
+          remaining = afterOpen.slice(singleEnd + 1)
+        } else {
+          result.push({ text: remaining.slice(singleStart), type: 'normal' })
+          remaining = ''
+        }
+      } else {
+        // No more markers
+        result.push({ text: remaining, type: 'normal' })
+        remaining = ''
+      }
+    }
+    
+    return result.filter(s => s.text.length > 0)
   }
 
   const parsedSegments = parseMarkedEssay(markedEssay)
@@ -120,15 +158,27 @@ export default function MarkedEssay({
         {/* Marked Essay Display */}
         <div className={styles.markedEssayContent}>
           <p className={styles.markedEssayText}>
-            {parsedSegments.map((segment, index) => (
-              segment.isError ? (
-                <span key={index} className={styles.errorHighlight}>
-                  {segment.text}
-                </span>
-              ) : (
-                <span key={index}>{segment.text}</span>
-              )
-            ))}
+            {parsedSegments.map((segment, index) => {
+              if (segment.type === 'error') {
+                return (
+                  <span key={index} className={styles.errorHighlight}>
+                    {segment.text}
+                  </span>
+                )
+              }
+              if (segment.type === 'above_level') {
+                return (
+                  <span
+                    key={index}
+                    className={styles.aboveLevelHighlight}
+                    title="This is above your current level — it won't count against you"
+                  >
+                    {segment.text}
+                  </span>
+                )
+              }
+              return <span key={index}>{segment.text}</span>
+            })}
           </p>
         </div>
 

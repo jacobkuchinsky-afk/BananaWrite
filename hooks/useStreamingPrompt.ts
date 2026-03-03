@@ -17,6 +17,7 @@ interface StartStreamingOptions {
   craziness?: string
   focus?: string
   essayType?: string
+  difficultyLevel?: string
 }
 
 interface UseStreamingPromptReturn {
@@ -54,7 +55,7 @@ export function useStreamingPrompt(): UseStreamingPromptReturn {
   const startStreaming = useCallback(async (
     options: StartStreamingOptions
   ): Promise<string> => {
-    const { lessonIndex, writingTechnique, craziness, focus, essayType } = options
+    const { lessonIndex, writingTechnique, craziness, focus, essayType, difficultyLevel } = options
     
     // Reset state
     reset()
@@ -74,7 +75,8 @@ export function useStreamingPrompt(): UseStreamingPromptReturn {
           writingTechnique,
           craziness,
           focus,
-          essayType
+          essayType,
+          difficulty_level: difficultyLevel
         }),
         signal: abortControllerRef.current.signal
       })

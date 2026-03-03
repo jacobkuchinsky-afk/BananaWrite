@@ -239,6 +239,32 @@
   cursor: not-allowed;
 }
 
+/* Grade Level Info */
+.gradeLevelSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--spacing-md) 0;
+}
+
+.gradeLevelLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gradeLevelValue {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  letter-spacing: -0.01em;
+}
+
 /* Sign Out Section */
 .signOutSection {
   width: 100%;

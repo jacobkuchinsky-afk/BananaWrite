@@ -118,6 +118,107 @@ WRITING_TECHNIQUE_PROMPTS = {
     "Citation styles": "Request the user to include 2 in-text citations attributing information to sources, using a consistent format (author, year) or similar.",
 }
 
+# TEKS-aligned grade-level technique tracks
+# Each level includes all techniques from lower levels plus new ones
+GRADE_WRITING_TECHNIQUES = {
+    'basic': [
+        "Commas",
+        "Periods",
+        "Question marks",
+        "Apostrophes",
+        "Quotation marks",
+        "Capitalization",
+        "Subject-verb agreement",
+        "Verb conjugation",
+        "Pronoun-antecedent agreement",
+        "Coordinating conjunctions",
+        "Compound sentences",
+        "Point of view",
+        "Dialogue formatting",
+    ],
+    'learning': [
+        "Commas",
+        "Periods",
+        "Question marks",
+        "Apostrophes",
+        "Quotation marks",
+        "Capitalization",
+        "Subject-verb agreement",
+        "Verb conjugation",
+        "Pronoun-antecedent agreement",
+        "Coordinating conjunctions",
+        "Compound sentences",
+        "Point of view",
+        "Dialogue formatting",
+        # 6th-grade additions
+        "Semicolons",
+        "Colons",
+        "Parentheses",
+        "Complex sentences",
+        "Subordinating conjunctions",
+        "Transitional phrases",
+        "Active vs. passive voice",
+        "Parallel structure",
+    ],
+    'proficient': [
+        "Commas",
+        "Periods",
+        "Question marks",
+        "Apostrophes",
+        "Quotation marks",
+        "Capitalization",
+        "Subject-verb agreement",
+        "Verb conjugation",
+        "Pronoun-antecedent agreement",
+        "Coordinating conjunctions",
+        "Compound sentences",
+        "Point of view",
+        "Dialogue formatting",
+        "Semicolons",
+        "Colons",
+        "Parentheses",
+        "Complex sentences",
+        "Subordinating conjunctions",
+        "Transitional phrases",
+        "Active vs. passive voice",
+        "Parallel structure",
+        # 9th-grade additions
+        "Hyphens",
+        "Dashes (em dash, en dash)",
+        "Brackets",
+        "Ellipses",
+        "Modifiers",
+        "Compound-complex sentences",
+        "Paragraph structure",
+        "Topic sentences",
+        "Thesis statements",
+        "Metaphors and similes",
+        "Citation styles",
+    ],
+}
+
+# Grade-level configuration for prompts and thresholds
+GRADE_CONFIG = {
+    'basic': {
+        'label': '4th Grade',
+        'essay_length': 150,
+        'audience_age': 'Ages 9-10',
+        'quiz_passing_score': 80,
+    },
+    'learning': {
+        'label': '6th Grade',
+        'essay_length': 200,
+        'audience_age': 'Ages 11-12',
+        'quiz_passing_score': 80,
+    },
+    'proficient': {
+        'label': '9th Grade',
+        'essay_length': 225,
+        'audience_age': 'Ages 14-18',
+        'quiz_passing_score': 85,
+    },
+}
+
 # Default craziness and focus (used if not provided)
 DEFAULT_CRAZINESS = "Engaging"
 DEFAULT_FOCUS = "Technology"
@@ -157,41 +258,135 @@ def set_dynamic_thresholds(same_error_threshold: int = None, total_error_thresho
         DYNAMIC_THRESHOLDS['quiz_passing_score'] = passing_score
     logger.info(f"Updated dynamic thresholds: {DYNAMIC_THRESHOLDS}")
 
-def get_reviewer_prompt():
-    """Generate reviewer prompt with dynamic threshold."""
+TEKS_REVIEW_SCOPE = {
+    'basic': """TEKS 4th Grade — Skills to check (these COUNT as scoring errors):
+- End punctuation: periods, question marks, exclamation points
+- Commas: in compound sentences (before coordinating conjunctions), in a series, in dates/addresses
+- Apostrophes: in possessives and contractions
+- Quotation marks: in dialogue with correct accompanying punctuation
+- Complete simple sentences (flag fragments as hard errors)
+- Compound sentences using coordinating conjunctions (flag run-ons and comma splices as hard errors)
+- Subject-verb agreement (basic singular/plural)
+- Verb tense: past, present, future used correctly and consistently; past tense of irregular verbs (e.g., "ran" not "runned", "went" not "goed")
+- Singular, plural, common, and proper nouns: flag incorrect plural forms (e.g., "childs" instead of "children", "mouses" instead of "mice")
+- Adjectives, including comparative and superlative forms: flag double comparatives/superlatives (e.g., "more bigger", "most fastest")
+- Adverbs that convey frequency and degree: flag adjective used in place of adverb (e.g., "ran quick" instead of "ran quickly")
+- Prepositions and prepositional phrases: accept correct use
+- Pronoun usage including reflexive pronouns (e.g., "myself", "herself" — not "hisself")
+- Commonly confused words: to/too/two, their/there/they're, its/it's, your/you're
+- Capitalization: sentence-initial, proper nouns, historical periods/events/documents, titles of books/stories/essays, languages/races/nationalities
+- Coordinating conjunctions used correctly
+- Spelling: correct spelling of words with grade-appropriate orthographic patterns and rules (consonant doubling, silent e, y to i, common high-frequency words) — flag clear misspellings as errors
+
+Skills ABOVE this student's level (mark with ¦¦double markers¦¦, do NOT count in error list or quiz trigger):
+- Semicolons, colons, parentheses, brackets, ellipses, hyphens, dashes
+- Complex sentences, compound-complex sentences, subordinating conjunctions
+- Parallel structure, modifiers, active/passive voice
+- Transitional phrases, paragraph structure, topic sentences, thesis statements""",
+
+    'learning': """TEKS 6th Grade — Skills to check (these COUNT as scoring errors):
+All 4th-grade skills PLUS:
+- End punctuation, commas (compound, series, dates, introductory elements, transitions), apostrophes, quotation marks
+- Commas after introductory dependent clauses and introductory words/phrases/transitions
+- Semicolons: joining closely related independent clauses (flag semicolons between dependent and independent clauses)
+- Colons: after independent clauses to introduce lists/explanations (flag colons after incomplete sentences)
+- Parentheses: for supplementary information (flag misuse or unbalanced)
+- Complete sentences: fragments, run-ons, and comma splices are ALL hard errors
+- Complex sentences using subordinating conjunctions (because, although, when, if, since, while, unless)
+- Conjunctive adverbs: proper use and punctuation of conjunctive adverbs (however, therefore, furthermore, moreover, consequently, nevertheless) — typically preceded by a semicolon and followed by a comma when joining independent clauses
+- Correlative conjunctions: proper parallel structure with either/or, neither/nor, both/and, not only/but also
+- Subject-verb agreement in complex constructions with intervening phrases; prepositions and prepositional phrases and their influence on subject-verb agreement (e.g., "The list of ingredients was long" not "were long")
+- Consistent verb tense throughout the piece (flag unintentional tense shifts)
+- Active vs. passive voice awareness (flag excessive passive as soft error)
+- Relative pronouns: who, whom, which, that, whose used correctly
+- Pronoun clarity: every pronoun needs a clear antecedent
+- Pronoun case in compounds (She and I, not Her and me)
+- Parallel structure in simple series
+- Commonly confused words including affect/effect, then/than, accept/except, lose/loose, principle/principal
+- All prior capitalization rules plus official titles of people, abbreviations, initials, acronyms, and organizations
+- Sentence variety (flag 3+ consecutive identical structures as soft error)
+- Spelling: correct spelling including commonly confused terms (its/it's, affect/effect, there/their/they're, to/two/too) and grade-level academic vocabulary; flag misspellings including errors in prefixes and suffixes
+
+Skills ABOVE this student's level (mark with ¦¦double markers¦¦, do NOT count in error list or quiz trigger):
+- Hyphens in compound modifiers, em dashes, brackets, ellipses
+- Compound-complex sentences, advanced parallel structure
+- Modifiers (dangling/misplaced), who vs. whom mastery, subjunctive mood
+- Paragraph structure, topic sentences, thesis statements, metaphors/similes, citation styles""",
+
+    'proficient': """TEKS 9th Grade (English I) — MASTERY STANDARD. Skills to check (ALL count as scoring errors):
+ALL prior skills from 4th and 6th grade are expected to be mastered. Foundational errors are SERIOUS.
+- Zero tolerance for: fragments, run-ons, comma splices, basic subject-verb disagreement, end punctuation errors, common homophone errors, basic capitalization, simple spelling errors
+- Very low tolerance for: comma misuse in compound/complex sentences, incorrect semicolons/colons, faulty pronoun reference, tense inconsistency, incorrect pronoun case
+- Semicolons (mastery): between independent clauses, before conjunctive adverbs (however, therefore, moreover) followed by a comma
+- Colons (mastery): after independent clauses to introduce lists, explanations, amplifications, quotations
+- Commas: restrictive vs. nonrestrictive clauses (flag missing commas around nonrestrictive, unnecessary commas around restrictive)
+- Em dashes for emphasis (flag overuse as soft error)
+- Hyphens in compound modifiers before nouns
+- Ellipses for omission in quotations
+- Varied sentence structures (flag monotonous patterns as error)
+- Parallel structure in complex series, comparisons, correlative conjunctions (not only…but also, either…or)
+- Modifier placement: flag dangling and misplaced modifiers
+- Who vs. whom in questions and relative clauses
+- Subjunctive mood in formal conditionals (If I were, not If I was)
+- Consistent register and tone throughout
+- Tense consistency across multiple paragraphs
+- Pronoun reference clarity in complex multi-clause sentences
+- Advanced confused words: allude/elude, comprise/compose, farther/further, lay/lie, imply/infer, which/that
+- Spelling (mastery): correct spelling of all words including advanced academic vocabulary (juxtaposition, rhetoric, ambiguity, synthesis, paradox), domain-specific vocabulary (protagonist, hypothesis, amendment, algorithm), and words built from Latin/Greek roots — any misspelling is an error
+
+There are NO skills above this student's level — check everything.""",
+}
+
+
+def get_reviewer_prompt(difficulty_level: str = 'proficient'):
+    """Generate reviewer prompt with dynamic threshold and TEKS-scoped skill list."""
     threshold = DYNAMIC_THRESHOLDS['same_error_quiz_threshold']
+    teks_scope = TEKS_REVIEW_SCOPE.get(difficulty_level, TEKS_REVIEW_SCOPE['proficient'])
+    grade_label = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])['label']
+
     return f"""Task: Identify grammar and writing errors in the essay.
+Student Level: {grade_label} ({difficulty_level})
+
+{teks_scope}
 
 Scope:
-- Report ONLY objective grammar/punctuation/syntax errors
-- Ignore: spelling, style preferences, creativity, flow, word choice suggestions
-- Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry)
+- Report ONLY objective grammar/punctuation/syntax/spelling errors that are WITHIN the student's grade-level skills listed above
+- Ignore: style preferences, creativity, flow, word choice suggestions
+- Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry, multiple spelling errors = one "Spelling" entry)
 - Report only significant errors; ignore minor issues
 - Count individual error instances within each category
+- Only report actual errors, non-errors or flow mistakes should not be reported.
+
+Above-Level Observations:
+- If you spot errors in skills ABOVE this student's level, mark them in the essay text with DOUBLE markers ¦¦text¦¦ instead of single ¦text¦
+- Do NOT include above-level errors in the error list (§...§ section)
+- Do NOT count above-level errors toward the quiz trigger threshold
+- Above-level observations are informational only
 
 Severity Scale: 1 (minor) to 10 (severe)
 
 No Errors Found:
-- If no significant errors exist, output exactly: <No Errors>
+- If no significant in-scope errors exist, output exactly: <No Errors>
+- (Even if above-level observations exist, if there are no in-scope errors, output <No Errors>)
 
 Quiz Tag Rule:
-- If any single error category has {threshold} or more individual instances, add <quiz> as the FIRST line of output
+- If any single IN-SCOPE error category has {threshold} or more individual instances, add <quiz> as the FIRST line of output
 - Example: {threshold} comma errors in the essay = add <quiz> tag
 
 Output Format:
-<quiz> (ONLY if {threshold}+ instances of the same error type exist)
-§[count of distinct error categories]§
+<quiz> (ONLY if {threshold}+ instances of the same in-scope error type exist)
+§[count of distinct in-scope error categories]§
 - [Error category and description] (X instances)~[severity 1-10]
 - [Error category and description] (X instances)~[severity 1-10]
 µ
-[Full essay with each error wrapped in ¦ markers]
+[Full essay with in-scope errors wrapped in ¦single markers¦ and above-level errors in ¦¦double markers¦¦]
 
 Example WITHOUT quiz tag (fewer than {threshold} of any single type):
 §2§
 - Comma splices creating run-on sentences (2 instances)~7
 - Colons used incorrectly as periods (1 instance)~5
 µ
-The dog ran fast¦,¦ it was excited. The weather was nice¦:¦ We went outside.
+The dog ran fast¦,¦ it was excited. The weather was nice¦:¦ We went outside. The well¦¦-¦¦known author wrote daily.
 
 Example WITH quiz tag ({threshold}+ of same type):
 <quiz>
@@ -203,36 +398,43 @@ The dog ran fast¦,¦ it was excited¦,¦ the cat jumped¦,¦ they played¦,¦ i
 
 {anti_jailbreak_prompt}"""
 
-def get_reviewer_redo_prompt(original_errors: str):
-    """Generate reviewer redo prompt with dynamic threshold."""
+def get_reviewer_redo_prompt(original_errors: str, difficulty_level: str = 'proficient'):
+    """Generate reviewer redo prompt with dynamic threshold and TEKS scope."""
     threshold = DYNAMIC_THRESHOLDS['same_error_quiz_threshold']
+    teks_scope = TEKS_REVIEW_SCOPE.get(difficulty_level, TEKS_REVIEW_SCOPE['proficient'])
+    grade_label = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])['label']
+
     return f"""Task: Re-evaluate the essay after the user attempted to fix the original errors.
+Student Level: {grade_label} ({difficulty_level})
+
+{teks_scope}
 
 Original Errors to Check:
 {original_errors}
 
 Evaluation Steps:
 1. Verify whether each original error has been corrected
-2. Identify any new errors introduced during revision
-3. Report only significant grammar/punctuation/syntax errors
-4. Ignore: spelling, style preferences, creativity, flow
+2. Identify any new IN-SCOPE errors introduced during revision
+3. Report only significant grammar/punctuation/syntax/spelling errors within the student's grade-level skills
+4. Ignore: style preferences, creativity, flow
 5. Count individual error instances within each category
+6. Mark any above-level errors with ¦¦double markers¦¦ in the essay but do NOT list them
 
 Severity Scale: 1 (minor) to 10 (severe)
 
 All Fixed:
-- If all original errors are fixed AND no new significant errors exist, output exactly: <No Errors>
+- If all original errors are fixed AND no new significant in-scope errors exist, output exactly: <No Errors>
 
 Quiz Tag Rule:
-- If any single error category has {threshold} or more individual instances, add <quiz> as the FIRST line of output
+- If any single IN-SCOPE error category has {threshold} or more individual instances, add <quiz> as the FIRST line of output
 
 Output Format:
-<quiz> (ONLY if {threshold}+ instances of the same error type exist)
-§[count of distinct error categories]§
+<quiz> (ONLY if {threshold}+ instances of the same in-scope error type exist)
+§[count of distinct in-scope error categories]§
 - [Error description] (X instances)~[severity] [UNFIXED or NEW]
 - [Error description] (X instances)~[severity] [UNFIXED or NEW]
 µ
-[Full essay with each error wrapped in ¦ markers]
+[Full essay with in-scope errors in ¦single markers¦ and above-level errors in ¦¦double markers¦¦]
 
 {anti_jailbreak_prompt}"""
 
@@ -299,20 +501,22 @@ def validate_topic(topic: str) -> dict:
         }
 
 
-def get_essay_prompt_creator(craziness: str = None, focus: str = None, essay_type: str = None) -> str:
+def get_essay_prompt_creator(craziness: str = None, focus: str = None, essay_type: str = None, difficulty_level: str = 'proficient') -> str:
     """
-    Generate the essay prompt creator system instruction with dynamic craziness and focus.
+    Generate the essay prompt creator system instruction with dynamic craziness, focus, and difficulty.
     
     Args:
         craziness: The craziness level (e.g., "Wild", "Absurd", "Mundane")
         focus: The topic focus (e.g., "Technology", "Sports", "History")
         essay_type: The essay type preference ("Fiction" or "Non-Fiction")
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         The system prompt for essay prompt generation
     """
     craziness_level = craziness or DEFAULT_CRAZINESS
     focus_topic = focus or DEFAULT_FOCUS
+    config = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])
     
     # Determine essay type instruction based on user preference
     if essay_type == "Fiction":
@@ -329,8 +533,8 @@ Requirements:
 - Topic: {focus_topic} (This should be the topic of the prompt itself, For example if the topic is "Video Games" the prompt could be "Write about your current favorite video game" or "Write about the first time you ever played a video game" or "Write a story about a boy who gets stuck in a video game and must beat a warlock to escape"
 ")
 - Tone/Creativity Level: {craziness_level} (dictates the intensity of humor, wild originality, and raw engagement—push boundaries accordingly)
-- Target Audience: Ages 14-18 (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
-- Target Essay Length: Strictly 225 words 
+- Target Audience: {config['audience_age']} (absolutely MUST match their exact maturity level and comedic sensibilities—no exceptions)
+- Target Essay Length: Strictly {config['essay_length']} words 
 - Your prompt intructions should be freindly. Do not scare the user or use adjetives that are uneeded.
 - ALWAYS allow the user to go over a specified requirement.
 - If your context on a topic is not expansive enough to make a full specific prompt, make the prompt broad.
@@ -408,8 +612,8 @@ DO NOTE DO THE FOLLOWING:
 REVIEWER_PROMPT = f"""Task: Identify grammar and writing errors in the essay.
 
 Scope:
-- Report ONLY objective grammar/punctuation/syntax errors
-- Ignore: spelling, style preferences, creativity, flow, word choice suggestions
+- Report ONLY objective grammar/punctuation/syntax/spelling errors
+- Ignore: style preferences, creativity, flow, word choice suggestions
 - Group repeated error types under one category (e.g., multiple comma errors = one "Commas" entry)
 - Report only significant errors; ignore minor issues
 - Count individual error instances within each category
@@ -458,8 +662,8 @@ Original Errors to Check:
 Evaluation Steps:
 1. Verify whether each original error has been corrected
 2. Identify any new errors introduced during revision
-3. Report only significant grammar/punctuation/syntax errors
-4. Ignore: spelling, style preferences, creativity, flow
+3. Report only significant grammar/punctuation/syntax/spelling errors
+4. Ignore: style preferences, creativity, flow
 5. Count individual error instances within each category
 
 Severity Scale: 1 (minor) to 10 (severe)
@@ -702,7 +906,7 @@ Your Job:
 3. Evaluate whether each marked item is truly a grammar/punctuation/syntax error
 
 Evaluation Rules:
-- Only objective grammar/punctuation/syntax errors count
+- Only objective grammar/punctuation/syntax/spelling errors count
 - Style preferences, flow suggestions, or word choice are NOT errors
 - Check if the marked text is grammatically correct in context
 - Consider that some constructions have multiple valid forms
@@ -862,7 +1066,7 @@ Please review if this response is correct."""
         }
 
 
-def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, focus: str = None, essay_type: str = None):
+def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, focus: str = None, essay_type: str = None, difficulty_level: str = 'proficient'):
     """
     Generator function that yields chunks of the essay prompt as they stream in.
     
@@ -871,14 +1075,15 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
         craziness: The craziness level for the prompt (e.g., "Wild", "Absurd")
         focus: The topic focus for the prompt (e.g., "Technology", "Sports")
         essay_type: The essay type preference ("Fiction" or "Non-Fiction")
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Yields:
         dict: Contains 'type' ('chunk' or 'done') and 'content' (the text chunk or full prompt)
     """
     client = create_client()
     
-    # Get the system prompt with dynamic craziness, focus, and essay type
-    system_prompt = get_essay_prompt_creator(craziness, focus, essay_type)
+    # Get the system prompt with dynamic craziness, focus, essay type, and difficulty
+    system_prompt = get_essay_prompt_creator(craziness, focus, essay_type, difficulty_level)
     
     # Build the user message based on whether there's a specific technique
     if writing_technique and writing_technique.lower() != "none":
@@ -929,24 +1134,27 @@ def generate_essay_prompt_stream(writing_technique: str, craziness: str = None, 
         }
 
 
-def get_writing_technique(lesson_index: int) -> str:
+def get_writing_technique(lesson_index: int, difficulty_level: str = 'proficient') -> str:
     """
-    Get the writing technique for a given lesson index.
+    Get the writing technique for a given lesson index and difficulty level.
     
     Args:
         lesson_index: The current lesson number (0-indexed)
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         The writing technique string, or "None" if index is out of bounds
     """
-    if 0 <= lesson_index < len(WRITING_TECHNIQUES):
-        return WRITING_TECHNIQUES[lesson_index]
+    techniques = GRADE_WRITING_TECHNIQUES.get(difficulty_level, GRADE_WRITING_TECHNIQUES['proficient'])
+    if 0 <= lesson_index < len(techniques):
+        return techniques[lesson_index]
     return "None"
 
 
-def get_total_lessons() -> int:
-    """Return the total number of writing techniques/lessons"""
-    return len(WRITING_TECHNIQUES)
+def get_total_lessons(difficulty_level: str = 'proficient') -> int:
+    """Return the total number of writing techniques/lessons for a difficulty level"""
+    techniques = GRADE_WRITING_TECHNIQUES.get(difficulty_level, GRADE_WRITING_TECHNIQUES['proficient'])
+    return len(techniques)
 
 
 def sanitize_think_tags(text: str) -> str:
@@ -1170,13 +1378,14 @@ def _parse_review_response(result: str, essay: str) -> dict:
     }
 
 
-def review_essay(essay: str, correction_feedback: str = None) -> dict:
+def review_essay(essay: str, correction_feedback: str = None, difficulty_level: str = 'proficient') -> dict:
     """
     Review an essay for learning errors (grammar, punctuation, style issues).
     
     Args:
         essay: The user's submitted essay text
         correction_feedback: Optional feedback from self-reviewer indicating what was wrong with previous evaluation
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         dict: Contains 'has_errors' (bool), 'errors' (list of error strings with severity),
@@ -1185,8 +1394,8 @@ def review_essay(essay: str, correction_feedback: str = None) -> dict:
     """
     client = create_client()
     
-    # Use dynamic reviewer prompt with configurable threshold
-    reviewer_prompt = get_reviewer_prompt()
+    # Use dynamic reviewer prompt with configurable threshold and TEKS scope
+    reviewer_prompt = get_reviewer_prompt(difficulty_level)
     
     # If correction feedback provided, add it to the system prompt
     if correction_feedback:
@@ -1222,7 +1431,7 @@ Re-evaluate the essay with this correction in mind. Only mark items that are tru
         }
 
 
-def review_essay_with_context(essay: str, original_errors: list) -> dict:
+def review_essay_with_context(essay: str, original_errors: list, difficulty_level: str = 'proficient') -> dict:
     """
     Re-review an essay with memory of the original errors found.
     Used when user is given a chance to fix their errors.
@@ -1230,6 +1439,7 @@ def review_essay_with_context(essay: str, original_errors: list) -> dict:
     Args:
         essay: The user's re-submitted essay text
         original_errors: List of original error strings that were found
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         dict: Contains 'has_errors' (bool), 'errors' (list of error strings with severity),
@@ -1241,8 +1451,8 @@ def review_essay_with_context(essay: str, original_errors: list) -> dict:
     # Format original errors for the prompt
     original_errors_str = "\n".join(f"- {error}" for error in original_errors)
     
-    # Create the redo prompt with dynamic threshold
-    redo_prompt = get_reviewer_redo_prompt(original_errors_str)
+    # Create the redo prompt with dynamic threshold and TEKS scope
+    redo_prompt = get_reviewer_redo_prompt(original_errors_str, difficulty_level)
     
     try:
         response = client.chat.completions.create(
@@ -1536,7 +1746,7 @@ def _parse_quiz_numbered_format(result: str) -> tuple:
     return quiz_name, questions
 
 
-def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_results: str = "") -> dict:
+def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_results: str = "", difficulty_level: str = 'proficient') -> dict:
     """
     Create quiz questions based on requirements.
     
@@ -1545,13 +1755,17 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         question_type: Type of questions (A,B,C,D, fill in blank, etc.)
         question_count: Number of questions
         last_quiz_results: Results from previous quiz attempt (for tailoring)
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         dict: Contains 'name' (str), 'questions' (list of question dicts)
     """
     client = create_client()
+    config = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])
     
-    prompt = f"Quiz topic (Follow this): {topic}\nQuestion type: {question_type}\nAmount of questions: {question_count}"
+    grade_context = f"\nStudent grade level: {config['label']}. Use vocabulary and sentence complexity appropriate for {config['audience_age']}."
+    
+    prompt = f"Quiz topic (Follow this): {topic}\nQuestion type: {question_type}\nAmount of questions: {question_count}{grade_context}"
     if last_quiz_results:
         prompt += f"\nThe results from the last quiz: {last_quiz_results}"
     
@@ -1609,13 +1823,14 @@ def create_quiz(topic: str, question_type: str, question_count: int, last_quiz_r
         }
 
 
-def grade_quiz(answers: list, correction_feedback: str = None) -> dict:
+def grade_quiz(answers: list, correction_feedback: str = None, difficulty_level: str = 'proficient') -> dict:
     """
     Grade quiz answers.
     
     Args:
         answers: List of dicts with 'user_answer', 'question', 'correct_answer'
         correction_feedback: Optional feedback from self-reviewer indicating what was wrong with previous grading
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         dict: Contains 'score' (int 0-100), 'feedback' (str), 'passed' (bool)
@@ -1669,8 +1884,9 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
             if numbers:
                 score = int(numbers[0])
         
-        # Use dynamic passing score
-        passing_score = DYNAMIC_THRESHOLDS['quiz_passing_score']
+        # Use per-level passing score from GRADE_CONFIG, falling back to dynamic threshold
+        config = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])
+        passing_score = config['quiz_passing_score']
         
         return {
             "score": score,
@@ -1688,21 +1904,25 @@ Re-grade the answers with this correction in mind. Remember to accept grammatica
         }
 
 
-def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
+def get_teacher_feedback(grades_feedback: str, answers: list = None, difficulty_level: str = 'proficient') -> dict:
     """
     Get detailed teacher feedback for wrong answers.
     
     Args:
         grades_feedback: The grading feedback from grade_quiz
         answers: Optional list of answer dicts with 'user_answer', 'question', 'correct_answer'
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         dict: Contains 'explanations' (list of str), 'memory_hooks' (list of str)
     """
     client = create_client()
+    config = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])
+    
+    grade_instruction = f"The student is at {config['label']} level ({config['audience_age']}). Adjust your explanations to be appropriate for this age group."
     
     # Build rich context if answers are provided
-    user_content = grades_feedback
+    user_content = f"{grade_instruction}\n\n{grades_feedback}"
     if answers and len(answers) > 0:
         # Build context with full question data for each wrong answer
         question_context = []
@@ -1765,7 +1985,7 @@ def get_teacher_feedback(grades_feedback: str, answers: list = None) -> dict:
         }
 
 
-def teacher_chat(messages: list, context: dict) -> dict:
+def teacher_chat(messages: list, context: dict, difficulty_level: str = 'proficient') -> dict:
     """
     Handle teacher chat interactions for helping students understand grammar concepts.
     
@@ -1778,6 +1998,7 @@ def teacher_chat(messages: list, context: dict) -> dict:
                 "feedbackExplanations": ["..."],
                 "memoryHooks": ["..."]
             }
+        difficulty_level: 'basic', 'learning', or 'proficient'
     
     Returns:
         {
@@ -1818,8 +2039,14 @@ def teacher_chat(messages: list, context: dict) -> dict:
     
     context_string = "\n\n".join(context_parts) if context_parts else "No specific context provided."
     
+    config = GRADE_CONFIG.get(difficulty_level, GRADE_CONFIG['proficient'])
+    grade_language = f"This student is at {config['label']} level ({config['audience_age']}). Use vocabulary and explanations appropriate for this age group."
+    
     # Build system prompt with context
     system_prompt = f"""{teacher_chat_prompt}
+
+STUDENT LEVEL:
+{grade_language}
 
 STUDENT CONTEXT:
 {context_string}

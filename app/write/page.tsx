@@ -16,23 +16,10 @@ import MarkedEssay from '@/components/Write/MarkedEssay'
 import { ModuleComplete, WinScreen } from '@/components/Quiz'
 import { startQuizSession, completeLesson, resetSession, getQuizSession, getUserSettings } from '@/lib/firestore'
 import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
-import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS } from '@/types'
+import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS, GRADE_WRITING_TECHNIQUES, DifficultyLevel } from '@/types'
 import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
 import { ContestButton } from '@/components/Contest'
 import styles from '@/components/Write/Write.module.css'
-
-// Writing techniques - same order as backend (32 total, indices 0-31)
-const WRITING_TECHNIQUES = [
-  "Commas", "Periods", "Semicolons", "Colons", "Apostrophes",
-  "Quotation marks", "Question marks", "Hyphens", "Dashes (em dash, en dash)",
-  "Parentheses", "Brackets", "Ellipses", "Subject-verb agreement",
-  "Verb conjugation", "Pronoun-antecedent agreement", "Active vs. passive voice",
-  "Parallel structure", "Modifiers", "Compound sentences", "Complex sentences",
-  "Compound-complex sentences", "Subordinating conjunctions", "Coordinating conjunctions",
-  "Transitional phrases", "Point of view", "Paragraph structure", "Topic sentences",
-  "Thesis statements", "Metaphors and similes", "Capitalization", "Dialogue formatting",
-  "Citation styles"
-]
 
 // Count words in text
 function countWords(text: string): number {
@@ -131,7 +118,9 @@ function WriteContent() {
 
     const lessonIndex = progress?.currentLesson ?? 0
     setCurrentLesson(lessonIndex)
-    const technique = WRITING_TECHNIQUES[lessonIndex] || 'Commas'
+    const diffLevel = (userSettings?.difficultyLevel || 'proficient') as DifficultyLevel
+    const techniques = GRADE_WRITING_TECHNIQUES[diffLevel]
+    const technique = techniques[lessonIndex] || 'Commas'
     setCurrentTechnique(technique)
 
     // Check if we have an existing session with a prompt
@@ -159,7 +148,8 @@ function WriteContent() {
             writingTechnique: technique,
             craziness: userSettings?.craziness,
             focus: userSettings?.focus,
-            essayType: userSettings?.essayType
+            essayType: userSettings?.essayType,
+            difficultyLevel: diffLevel
           })
             .then(async (fullPrompt) => {
               setCurrentPrompt(fullPrompt)
@@ -180,7 +170,8 @@ function WriteContent() {
           writingTechnique: technique,
           craziness: userSettings?.craziness,
           focus: userSettings?.focus,
-          essayType: userSettings?.essayType
+          essayType: userSettings?.essayType,
+          difficultyLevel: diffLevel
         })
           .then(async (fullPrompt) => {
             setCurrentPrompt(fullPrompt)
@@ -203,7 +194,8 @@ function WriteContent() {
         writingTechnique: technique,
         craziness: userSettings?.craziness,
         focus: userSettings?.focus,
-        essayType: userSettings?.essayType
+        essayType: userSettings?.essayType,
+        difficultyLevel: diffLevel
       })
         .then(async (fullPrompt) => {
           setCurrentPrompt(fullPrompt)
@@ -246,6 +238,8 @@ function WriteContent() {
     try {
       const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
       
+      const currentDifficulty = userSettings?.difficultyLevel || 'proficient'
+      
       // First, check if the essay follows the prompt
       const checkResponse = await fetch(`${FLASK_API_URL}/api/check-essay`, {
         method: 'POST',
@@ -255,7 +249,8 @@ function WriteContent() {
         body: JSON.stringify({
           essay: essayText,
           prompt: currentPrompt,
-          correction_feedback: checkCorrectionFeedback  // Include correction if re-checking
+          correction_feedback: checkCorrectionFeedback,
+          difficulty_level: currentDifficulty
         })
       })
 
@@ -294,7 +289,8 @@ function WriteContent() {
           },
           body: JSON.stringify({
             essay: essayText,
-            original_errors: originalErrors
+            original_errors: originalErrors,
+            difficulty_level: currentDifficulty
           })
         })
       } else {
@@ -306,7 +302,8 @@ function WriteContent() {
           },
           body: JSON.stringify({
             essay: essayText,
-            correction_feedback: reviewCorrectionFeedback  // Include correction if re-reviewing
+            correction_feedback: reviewCorrectionFeedback,
+            difficulty_level: currentDifficulty
           })
         })
       }

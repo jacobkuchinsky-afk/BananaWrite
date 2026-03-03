@@ -8,15 +8,16 @@ import styles from './TeacherChat.module.css'
 
 interface TeacherChatProps {
   context: TeacherChatContext
+  difficultyLevel?: string
 }
 
 export interface TeacherChatRef {
   open: () => void
 }
 
-const TeacherChat = forwardRef<TeacherChatRef, TeacherChatProps>(({ context }, ref) => {
+const TeacherChat = forwardRef<TeacherChatRef, TeacherChatProps>(({ context, difficultyLevel = 'proficient' }, ref) => {
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, isLoading, error, sendMessage, setContext, clearChat } = useTeacherChat(context)
+  const { messages, isLoading, error, sendMessage, setContext, clearChat } = useTeacherChat(context, difficultyLevel)
 
   // Expose open method to parent via ref
   useImperativeHandle(ref, () => ({

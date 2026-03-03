@@ -10,7 +10,7 @@ import NotificationHistory from '@/components/Settings/NotificationHistory'
 import { CrazinessSelector, FocusSelector, EssayTypeSelector } from '@/components/Setup'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import { getUserSettings, updateUserSettings } from '@/lib/firestore'
-import { CrazinessLevel, FocusTopic, EssayType, UserSettings } from '@/types'
+import { CrazinessLevel, FocusTopic, EssayType, UserSettings, DIFFICULTY_LEVEL_LABELS } from '@/types'
 import styles from '@/components/Settings/Settings.module.css'
 
 function SettingsContent() {
@@ -329,6 +329,16 @@ function SettingsContent() {
             View past announcements and app updates
           </p>
           <NotificationHistory />
+        </section>
+
+        {/* Grade Level Info */}
+        <section className={styles.gradeLevelSection}>
+          <div className={styles.gradeLevelLabel}>Current Grade Level</div>
+          <div className={styles.gradeLevelValue}>
+            {settings?.difficultyLevel
+              ? DIFFICULTY_LEVEL_LABELS[settings.difficultyLevel]
+              : 'Not assigned'}
+          </div>
         </section>
 
         {/* Sign Out Section */}
