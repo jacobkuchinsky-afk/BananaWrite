@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 API_KEY = os.getenv('CHUTES_API_KEY', '')
 BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
 MAIN_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
-SELF_REVIEWER_MODEL = "deepseek-ai/DeepSeek-R1-TEE"
+SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2.5-TEE"
 FAST_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"  # Fast model for simple tasks: prompts, quiz grading, topic validation
 
 # =============================================================================
