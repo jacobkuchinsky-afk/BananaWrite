@@ -17,8 +17,9 @@ import { ModuleComplete, WinScreen } from '@/components/Quiz'
 import { startQuizSession, completeLesson, resetSession, getQuizSession, getUserSettings } from '@/lib/firestore'
 import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
 import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS, GRADE_WRITING_TECHNIQUES, DifficultyLevel } from '@/types'
-import { ArrowLeftIcon, AlertIcon, RefreshIcon } from '@/components/Icons/Icons'
+import { ArrowLeftIcon, AlertIcon, RefreshIcon, BookIcon } from '@/components/Icons/Icons'
 import { ContestButton } from '@/components/Contest'
+import WritingGuidePanel from '@/components/Write/WritingGuidePanel'
 import styles from '@/components/Write/Write.module.css'
 
 // Count words in text
@@ -73,6 +74,9 @@ function WriteContent() {
   const [hasUsedRedoChance, setHasUsedRedoChance] = useState(false)
   const [originalErrors, setOriginalErrors] = useState<string[]>([])
   const [isRedoMode, setIsRedoMode] = useState(false)
+
+  // Writing guide panel
+  const [isGuideOpen, setIsGuideOpen] = useState(false)
 
   // Contest state for essay check
   const [essayCheckResponse, setEssayCheckResponse] = useState<string | null>(null)
@@ -617,15 +621,25 @@ function WriteContent() {
             writingTechnique={currentTechnique}
           />
           {!isRedoMode && (
-            <button 
-              onClick={handleRegeneratePrompt}
-              className={styles.regenerateBtn}
-              disabled={isGeneratingPrompt}
-              title="Generate a new prompt"
-            >
-              <RefreshIcon size={18} />
-              New Prompt
-            </button>
+            <div className={styles.promptActions}>
+              <button 
+                onClick={handleRegeneratePrompt}
+                className={styles.regenerateBtn}
+                disabled={isGeneratingPrompt}
+                title="Generate a new prompt"
+              >
+                <RefreshIcon size={18} />
+                New Prompt
+              </button>
+              <button
+                onClick={() => setIsGuideOpen(true)}
+                className={styles.guideBtn}
+                title="Writing guide"
+              >
+                <BookIcon size={18} />
+                Guide
+              </button>
+            </div>
           )}
         </div>
 
@@ -738,6 +752,13 @@ function WriteContent() {
           loading={isSubmitting || isChecking}
         />
       </main>
+
+      <WritingGuidePanel
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        writingTechnique={currentTechnique}
+        difficultyLevel={(userSettings?.difficultyLevel || 'proficient') as DifficultyLevel}
+      />
     </div>
   )
 }

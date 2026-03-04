@@ -630,27 +630,27 @@ ESSAY_CHECKER_PROMPT = f"""Task: Verify whether the essay meets the prompt's spe
 
 Goal: 
 - Verify that the essay meets the prompt's specific requirements.
-- For each sentence of the essay, check if the sentence help to meet the goal of one of the requirements in the prompt Example: The amount of a certain punctuation rule needed in the essay.
-- If the sentence meets the requirments, output <Correct> in your message.
-- Make sure to use the <Think> around your counting process.
-- NEVER EVER PENELIZE THE USER FOR GOING OVER THE REQUIREMENTS.
+- For each sentence of the essay, check if the sentence helps meet one of the requirements in the prompt.
+- If the essay meets the requirements, output <Correct> in your message.
+- Make sure to use <Think> around your reasoning process.
+- NEVER EVER PENALIZE THE USER FOR GOING OVER THE REQUIREMENTS.
 - The user going over the requirements is not a problem, it is a good thing.
+- You should generally allow the user to pass if they are close to meeting the requirements even if they are slightly off.
 
-
+Pre-Computed Counts:
+- You will receive programmatically verified punctuation counts with the essay. These counts are ACCURATE — trust them as ground truth for raw totals.
+- For simple punctuation requirements (e.g., "use 4 semicolons"), check the pre-computed count directly instead of counting yourself.
+- For usage-based requirements (e.g., "use 3 commas before coordinating conjunctions"), use the pre-computed total as a ceiling and focus on classifying which instances match the required usage pattern.
 
 Output structure:
 <Think>
-One sentence checking if the essay follow the theme of the prompt. If the essay does not follow the theme do not do any more of the output.
-Sentence 1: Check if it adds to the count needed in the prompt. If it does, write that down.
-Sentence 2: Check if it adds to the count needed in the prompt. If it does, write that down.
-Sentence 3: Check if it adds to the count needed in the prompt. If it does, write that down.
-...
-Sentence n: Check if it adds to the count needed in the prompt. If it does, write that down.
-Once you have checked all sentences, please output if the essay meets the requirments or not. 
+One sentence checking if the essay follows the theme of the prompt. If the essay does not follow the theme do not do any more of the output.
+For each requirement in the prompt, check if the essay satisfies it. Use the pre-computed punctuation counts as your reference for totals. For usage-based requirements, walk through the relevant sentences and classify each instance.
+Once you have checked all requirements, output whether the essay meets them or not.
 <Think>
-If the essay meets reuqirments output <Correct> if not please output in a readable format why the essayd does not meet requirments.
+If the essay meets requirements output <Correct> if not please output in a readable format why the essay does not meet requirements.
 
-DO NOTE DO THE FOLLOWING:
+DO NOT DO THE FOLLOWING:
 1. NEVER OUTPUT <Correct> if the essay does not meet the requirements of the prompt.
 
 {anti_jailbreak_prompt}"""
@@ -1227,6 +1227,93 @@ def sanitize_think_tags(text: str) -> str:
     return sanitized.strip()
 
 
+def count_essay_punctuation(essay: str) -> dict:
+    """
+    Programmatically count punctuation and structural elements in an essay.
+    Provides verified counts so the AI only needs to classify usage correctness.
+    """
+    counts = {}
+    text = essay
+
+    ellipsis_unicode = text.count('\u2026')
+    ellipsis_dots = len(re.findall(r'\.{3}', text))
+    counts['ellipses'] = ellipsis_unicode + ellipsis_dots
+
+    text_no_ellipsis = re.sub(r'\.{3}', '', text).replace('\u2026', '')
+    counts['periods'] = text_no_ellipsis.count('.')
+    counts['commas'] = text.count(',')
+    counts['semicolons'] = text.count(';')
+    counts['colons'] = text.count(':')
+    counts['question_marks'] = text.count('?')
+    counts['exclamation_marks'] = text.count('!')
+    counts['apostrophes'] = text.count("'") + text.count('\u2019')
+
+    straight_quotes = text.count('"')
+    smart_open = text.count('\u201c')
+    smart_close = text.count('\u201d')
+    counts['quotation_mark_pairs'] = (straight_quotes + smart_open + smart_close) // 2
+
+    counts['em_dashes'] = text.count('\u2014') + len(re.findall(r'(?<!-)--(?!-)', text))
+    counts['en_dashes'] = text.count('\u2013')
+
+    text_no_dashes = text.replace('\u2014', '').replace('\u2013', '')
+    text_no_dashes = re.sub(r'--', '', text_no_dashes)
+    counts['hyphens'] = text_no_dashes.count('-')
+
+    counts['parentheses_pairs'] = min(text.count('('), text.count(')'))
+    counts['bracket_pairs'] = min(text.count('['), text.count(']'))
+
+    sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
+    counts['approximate_sentences'] = len(sentences)
+
+    paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text) if p.strip()]
+    counts['paragraphs'] = len(paragraphs)
+    counts['word_count'] = len(text.split())
+
+    return counts
+
+
+def format_punctuation_counts(counts: dict) -> str:
+    """Format punctuation counts into a readable string for AI prompt injection."""
+    lines = [
+        "Pre-computed punctuation counts (programmatically verified, use these as ground truth):"
+    ]
+
+    punctuation_items = [
+        ('commas', 'Commas'),
+        ('periods', 'Periods (excluding ellipses)'),
+        ('semicolons', 'Semicolons'),
+        ('colons', 'Colons'),
+        ('question_marks', 'Question marks'),
+        ('exclamation_marks', 'Exclamation marks'),
+        ('apostrophes', 'Apostrophes'),
+        ('quotation_mark_pairs', 'Quotation mark pairs'),
+        ('hyphens', 'Hyphens'),
+        ('em_dashes', 'Em dashes'),
+        ('en_dashes', 'En dashes'),
+        ('ellipses', 'Ellipses'),
+        ('parentheses_pairs', 'Parenthesis pairs'),
+        ('bracket_pairs', 'Bracket pairs'),
+    ]
+
+    for key, label in punctuation_items:
+        count = counts.get(key, 0)
+        if count > 0:
+            lines.append(f"  - {label}: {count}")
+
+    structure_items = [
+        ('approximate_sentences', 'Approximate sentence count'),
+        ('paragraphs', 'Paragraphs'),
+        ('word_count', 'Word count'),
+    ]
+
+    lines.append("")
+    for key, label in structure_items:
+        lines.append(f"  - {label}: {counts.get(key, 0)}")
+
+    return "\n".join(lines)
+
+
 def check_essay(essay: str, prompt: str, correction_feedback: str = None) -> dict:
     """
     Check if the user's essay correctly follows the prompt requirements.
@@ -1241,12 +1328,19 @@ def check_essay(essay: str, prompt: str, correction_feedback: str = None) -> dic
     """
     client = create_client()
     
+    # Pre-compute punctuation counts so the AI doesn't have to count manually
+    punctuation_counts = count_essay_punctuation(essay)
+    counts_str = format_punctuation_counts(punctuation_counts)
+    logger.info(f"[CHECK_ESSAY] Pre-computed counts: {punctuation_counts}")
+    
     # Build user message
     user_message = f"""Original Prompt:
 {prompt}
 
 User's Essay:
 {essay}
+
+{counts_str}
 
 Check if this essay follows the prompt requirements. Remember: If correct, respond with ONLY <Correct> and nothing else."""
     
@@ -1330,6 +1424,62 @@ Re-evaluate the essay with this correction in mind."""
         }
 
 
+def _calculate_essay_score(errors: list) -> int:
+    """
+    Calculate a fair essay score using consistent per-instance deductions.
+
+    Each error instance is penalized the same amount based on its severity tier,
+    regardless of how many instances share a category. This prevents the old
+    inversion where high-count categories got lighter per-instance penalties
+    while single-instance categories were disproportionately punished.
+
+    Severity tiers (per instance):
+        1-3  (minor):    1.0 point
+        4-6  (moderate): 1.5 points
+        7-10 (severe):   2.0 points
+    """
+    import re
+
+    DEDUCTION_BY_TIER = {
+        'minor':    1.0,
+        'moderate': 1.5,
+        'severe':   2.0,
+    }
+
+    def _severity_tier(severity: int) -> str:
+        if severity <= 3:
+            return 'minor'
+        if severity <= 6:
+            return 'moderate'
+        return 'severe'
+
+    total_deduction = 0.0
+
+    for error in errors:
+        severity = 5
+        instances = 1
+
+        if '~' in error:
+            parts = error.split('~')
+            severity_str = parts[-1].strip().split()[0]
+            try:
+                severity = int(severity_str)
+            except ValueError:
+                severity = 5
+            error_desc = parts[0]
+        else:
+            error_desc = error
+
+        instance_match = re.search(r'\((\d+)\s*instance', error_desc)
+        if instance_match:
+            instances = int(instance_match.group(1))
+
+        tier = _severity_tier(severity)
+        total_deduction += DEDUCTION_BY_TIER[tier] * instances
+
+    return max(0, round(100 - total_deduction))
+
+
 def _parse_review_response(result: str, essay: str) -> dict:
     """
     Helper function to parse the review response from the AI.
@@ -1339,7 +1489,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
         essay: The original essay text (used as fallback for marked_essay)
     
     Returns:
-        dict: Parsed review data including 'force_quiz' flag
+        dict: Parsed review data including 'force_quiz' flag and 'essay_score'
     """
     # Check if no errors found
     if "<No Errors>" in result or "<no errors>" in result.lower():
@@ -1348,6 +1498,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
             "errors": [],
             "marked_essay": essay,
             "problem_count": 0,
+            "essay_score": 100,
             "force_quiz": False,
             "raw_response": result
         }
@@ -1412,6 +1563,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
             "errors": [],
             "marked_essay": essay,
             "problem_count": 0,
+            "essay_score": 100,
             "force_quiz": False,
             "raw_response": result
         }
@@ -1421,6 +1573,7 @@ def _parse_review_response(result: str, essay: str) -> dict:
         "errors": errors,
         "marked_essay": marked_essay,
         "problem_count": problem_count,
+        "essay_score": _calculate_essay_score(errors),
         "force_quiz": force_quiz,
         "raw_response": result
     }
@@ -1438,6 +1591,7 @@ def review_essay(essay: str, correction_feedback: str = None, difficulty_level: 
     Returns:
         dict: Contains 'has_errors' (bool), 'errors' (list of error strings with severity),
               'marked_essay' (str with errors surrounded by ¦), 'problem_count' (int),
+              'essay_score' (int 0-100, per-instance deductions by severity tier),
               and 'raw_response' (str)
     """
     client = create_client()
@@ -1492,6 +1646,7 @@ def review_essay_with_context(essay: str, original_errors: list, difficulty_leve
     Returns:
         dict: Contains 'has_errors' (bool), 'errors' (list of error strings with severity),
               'marked_essay' (str with errors surrounded by ¦), 'problem_count' (int),
+              'essay_score' (int 0-100, per-instance deductions by severity tier),
               and 'raw_response' (str)
     """
     client = create_client()
