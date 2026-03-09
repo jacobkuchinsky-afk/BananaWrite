@@ -71,7 +71,6 @@ export default function NotificationHistory() {
               aria-expanded={isExpanded}
             >
               <div className={styles.historyItemLeft}>
-                <span className={styles.historyItemIcon}>📢</span>
                 <span className={styles.historyItemTitle}>{notification.title}</span>
               </div>
               <div className={styles.historyItemRight}>
