@@ -25,8 +25,8 @@ function MiniLineChart({ data, color = '#1a1a1a', height = 120 }: {
   if (data.length === 0) return null
 
   const maxVal = Math.max(...data.map(d => d.value), 1)
-  const width = 100
-  const padding = { top: 10, right: 5, bottom: 20, left: 5 }
+  const width = 500
+  const padding = { top: 15, right: 25, bottom: 30, left: 25 }
   const chartW = width - padding.left - padding.right
   const chartH = height - padding.top - padding.bottom
 
@@ -40,14 +40,13 @@ function MiniLineChart({ data, color = '#1a1a1a', height = 120 }: {
   const areaPath = linePath + ` L ${points[points.length - 1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ width: '100%', height: `${height}px` }}>
+    <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto' }}>
       <defs>
         <linearGradient id={`grad-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.15" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* Grid lines */}
       {[0, 0.25, 0.5, 0.75, 1].map(pct => (
         <line
           key={pct}
@@ -56,20 +55,16 @@ function MiniLineChart({ data, color = '#1a1a1a', height = 120 }: {
           x2={padding.left + chartW}
           y2={padding.top + chartH * (1 - pct)}
           stroke="rgba(26,26,26,0.08)"
-          strokeWidth="0.3"
+          strokeWidth="0.6"
         />
       ))}
-      {/* Area fill */}
       <path d={areaPath} fill={`url(#grad-${color.replace('#', '')})`} />
-      {/* Line */}
-      <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Dots */}
+      <path d={linePath} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {points.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r="1.5" fill={color} />
+        <circle key={i} cx={p.x} cy={p.y} r="3" fill={color} />
       ))}
-      {/* X-axis labels */}
       {points.filter((_, i) => i % Math.max(1, Math.floor(data.length / 5)) === 0 || i === data.length - 1).map((p, i) => (
-        <text key={i} x={p.x} y={height - 3} textAnchor="middle" fontSize="3.5" fill="rgba(26,26,26,0.5)">
+        <text key={i} x={p.x} y={height - 5} textAnchor="middle" fontSize="9" fill="rgba(26,26,26,0.5)">
           {p.label}
         </text>
       ))}

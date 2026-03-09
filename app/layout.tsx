@@ -28,8 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body>
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         <AuthProvider>
-          {children}
+          <div id="main-content">
+            {children}
+          </div>
         </AuthProvider>
       </body>
     </html>

@@ -14,12 +14,13 @@ import BugReportsPanel from '@/components/Admin/BugReportsPanel'
 import UpdatesPanel from '@/components/Admin/UpdatesPanel'
 import DifficultyPanel from '@/components/Admin/DifficultyPanel'
 import AdminManagementPanel from '@/components/Admin/AdminManagementPanel'
+import TeacherManagementPanel from '@/components/Admin/TeacherManagementPanel'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Admin/Admin.module.css'
 
 const FLASK_API_URL = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'
 
-type TabType = 'settings' | 'analytics' | 'sessions' | 'reports' | 'updates' | 'difficulty' | 'admins'
+type TabType = 'settings' | 'analytics' | 'sessions' | 'reports' | 'updates' | 'difficulty' | 'teachers' | 'admins'
 
 const isSuperAdmin = (email: string | null | undefined) =>
   email?.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
@@ -79,9 +80,11 @@ function AdminContent() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                sameErrorQuizThreshold: settingsData.sameErrorQuizThreshold,
-                totalErrorQuizThreshold: settingsData.totalErrorQuizThreshold,
-                quizPassingScore: settingsData.quizPassingScore
+                repeatedErrorThreshold: settingsData.repeatedErrorThreshold,
+                maxErrorsBeforeQuiz: settingsData.maxErrorsBeforeQuiz,
+                quizPassingScore: settingsData.quizPassingScore,
+                maxQuizQuestions: settingsData.maxQuizQuestions,
+                minQuizSeverity: settingsData.minQuizSeverity
               })
             })
             console.log('[Admin] Settings synced to backend')
@@ -127,7 +130,7 @@ function AdminContent() {
     <div className={styles.adminPage}>
       {/* Header */}
       <header className={styles.adminHeader}>
-        <Link href="/dashboard" className={styles.backButton}>
+        <Link href="/dashboard" className={styles.backButton} aria-label="Back to dashboard">
           <ArrowLeftIcon size={18} /> Dashboard
         </Link>
         <h1 className={styles.adminTitle}>
@@ -184,6 +187,12 @@ function AdminContent() {
           onClick={() => setActiveTab('difficulty')}
         >
           Difficulty
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'teachers' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('teachers')}
+        >
+          Teachers
         </button>
         {isSuperAdmin(user.email) && (
           <button
@@ -245,6 +254,9 @@ function AdminContent() {
           )}
           {activeTab === 'difficulty' && user.email && (
             <DifficultyPanel adminEmail={user.email} />
+          )}
+          {activeTab === 'teachers' && (
+            <TeacherManagementPanel />
           )}
           {activeTab === 'admins' && user.email && isSuperAdmin(user.email) && (
             <AdminManagementPanel />

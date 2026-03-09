@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { UpdateNotification } from '@/types'
 import { createUpdateNotification, getAllUpdateNotifications } from '@/lib/adminFirestore'
 import styles from './Admin.module.css'
@@ -20,6 +20,13 @@ export default function UpdatesPanel({ adminEmail }: UpdatesPanelProps) {
   const [bulletPointsText, setBulletPointsText] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const successTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (successTimerRef.current) clearTimeout(successTimerRef.current)
+    }
+  }, [])
 
   // Load notifications
   useEffect(() => {
@@ -70,7 +77,7 @@ export default function UpdatesPanel({ adminEmail }: UpdatesPanelProps) {
       setBulletPointsText('')
       setShowCreateForm(false)
       setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      successTimerRef.current = setTimeout(() => setSuccess(false), 3000)
       
       // Reload notifications
       await loadNotifications()

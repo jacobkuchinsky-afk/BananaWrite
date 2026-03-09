@@ -29,6 +29,7 @@ import {
   CurrentSession,
   QuizSession,
   UserProfile,
+  UserProgress,
   UserSettings,
   BugReport,
   BugReportStatus,
@@ -37,6 +38,8 @@ import {
   UpdateNotification,
   DifficultyLevel,
   DifficultyPreset,
+  QuizHistoryEntry,
+  Classroom,
   SUPER_ADMIN_EMAIL
 } from '@/types'
 import { addDoc, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
@@ -48,10 +51,12 @@ const USERS_COLLECTION = 'users'
 const BUG_REPORTS_COLLECTION = 'bugReports'
 const UPDATE_NOTIFICATIONS_COLLECTION = 'updateNotifications'
 const DIFFICULTY_PRESETS_COLLECTION = 'difficultyPresets'
+const CLASSROOMS_COLLECTION = 'classrooms'
 
 // Document references
 const getAppSettingsDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'global')
 const getAdminListDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'admins')
+const getTeacherListDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'teachers')
 
 // ============================================
 // Admin List Functions
@@ -113,6 +118,10 @@ export async function removeAdmin(email: string): Promise<void> {
     throw new Error('Cannot remove the super admin')
   }
   const adminsRef = getAdminListDocRef()
+  const adminsSnap = await getDoc(adminsRef)
+  if (!adminsSnap.exists()) {
+    throw new Error('Admin list does not exist')
+  }
   await updateDoc(adminsRef, {
     emails: arrayRemove(email.toLowerCase())
   })
@@ -130,6 +139,257 @@ export async function initializeAdminList(): Promise<void> {
       emails: [SUPER_ADMIN_EMAIL.toLowerCase()]
     })
   }
+}
+
+// ============================================
+// Teacher List Functions
+// ============================================
+
+export async function getTeacherEmails(): Promise<string[]> {
+  const teachersRef = getTeacherListDocRef()
+  const teachersSnap = await getDoc(teachersRef)
+  if (teachersSnap.exists()) {
+    return (teachersSnap.data().emails || []).map((e: string) => e.toLowerCase())
+  }
+  return []
+}
+
+export async function checkIsTeacher(email: string): Promise<boolean> {
+  const teachers = await getTeacherEmails()
+  return teachers.includes(email.toLowerCase())
+}
+
+export async function addTeacher(email: string): Promise<void> {
+  const teachersRef = getTeacherListDocRef()
+  const teachersSnap = await getDoc(teachersRef)
+  if (!teachersSnap.exists()) {
+    await setDoc(teachersRef, { emails: [email.toLowerCase()] })
+  } else {
+    await updateDoc(teachersRef, { emails: arrayUnion(email.toLowerCase()) })
+  }
+}
+
+export async function removeTeacher(email: string): Promise<void> {
+  const teachersRef = getTeacherListDocRef()
+  await updateDoc(teachersRef, { emails: arrayRemove(email.toLowerCase()) })
+}
+
+// ============================================
+// Classroom Functions
+// ============================================
+
+function generateClassCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return code
+}
+
+export async function createClassroom(name: string, teacherEmail: string): Promise<string> {
+  const classroomsRef = collection(db, CLASSROOMS_COLLECTION)
+  const classCode = generateClassCode()
+  const docRef = await addDoc(classroomsRef, {
+    name,
+    teacherEmail: teacherEmail.toLowerCase(),
+    classCode,
+    studentEmails: [],
+    createdAt: serverTimestamp()
+  })
+  return docRef.id
+}
+
+export async function getTeacherClassrooms(teacherEmail: string): Promise<Classroom[]> {
+  const classroomsRef = collection(db, CLASSROOMS_COLLECTION)
+  const q = query(classroomsRef, where('teacherEmail', '==', teacherEmail.toLowerCase()), orderBy('createdAt', 'desc'))
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Classroom))
+}
+
+export async function getClassroomById(classroomId: string): Promise<Classroom | null> {
+  const classroomRef = doc(db, CLASSROOMS_COLLECTION, classroomId)
+  const snap = await getDoc(classroomRef)
+  if (snap.exists()) {
+    return { id: snap.id, ...snap.data() } as Classroom
+  }
+  return null
+}
+
+export async function joinClassroom(classCode: string, studentEmail: string): Promise<string | null> {
+  const classroomsRef = collection(db, CLASSROOMS_COLLECTION)
+  const q = query(classroomsRef, where('classCode', '==', classCode.toUpperCase()))
+  const snapshot = await getDocs(q)
+  if (snapshot.empty) return null
+
+  const classroomDoc = snapshot.docs[0]
+  await updateDoc(doc(db, CLASSROOMS_COLLECTION, classroomDoc.id), {
+    studentEmails: arrayUnion(studentEmail.toLowerCase())
+  })
+  return classroomDoc.id
+}
+
+export async function removeStudentFromClassroom(classroomId: string, studentEmail: string): Promise<void> {
+  const classroomRef = doc(db, CLASSROOMS_COLLECTION, classroomId)
+  await updateDoc(classroomRef, {
+    studentEmails: arrayRemove(studentEmail.toLowerCase())
+  })
+}
+
+export async function deleteClassroom(classroomId: string): Promise<void> {
+  const classroomRef = doc(db, CLASSROOMS_COLLECTION, classroomId)
+  await deleteDoc(classroomRef)
+}
+
+// ============================================
+// Student Data Functions (for teacher views)
+// ============================================
+
+export interface StudentOverview {
+  userId: string
+  email: string
+  displayName: string | null
+  currentLesson: number
+  completedLessons: number[]
+  totalXP: number
+  difficultyLevel: DifficultyLevel
+  sessionStatus: string
+  lastActive: Timestamp | null
+}
+
+export async function getClassroomStudents(classroomId: string): Promise<StudentOverview[]> {
+  const classroom = await getClassroomById(classroomId)
+  if (!classroom) return []
+
+  const students: StudentOverview[] = []
+  const usersRef = collection(db, USERS_COLLECTION)
+  const usersSnap = await getDocs(usersRef)
+
+  for (const userDoc of usersSnap.docs) {
+    const userId = userDoc.id
+    const userData = userDoc.data()
+    const email = (userData.email || '').toLowerCase()
+    if (!classroom.studentEmails.includes(email)) continue
+
+    const [profileSnap, progressSnap, settingsSnap, sessionSnap] = await Promise.all([
+      getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'profile')),
+      getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'progress')),
+      getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'settings')),
+      getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'session'))
+    ])
+
+    const profile = profileSnap.exists() ? profileSnap.data() as UserProfile : null
+    const progress = progressSnap.exists() ? progressSnap.data() as UserProgress : null
+    const settings = settingsSnap.exists() ? settingsSnap.data() as UserSettings : null
+    const session = sessionSnap.exists() ? sessionSnap.data() as CurrentSession : null
+
+    students.push({
+      userId,
+      email: profile?.email || email,
+      displayName: profile?.displayName || null,
+      currentLesson: progress?.currentLesson ?? 0,
+      completedLessons: progress?.completedLessons ?? [],
+      totalXP: progress?.totalXP ?? 0,
+      difficultyLevel: settings?.difficultyLevel || 'proficient',
+      sessionStatus: session?.status || 'idle',
+      lastActive: profile?.lastActive || null
+    })
+  }
+
+  return students.sort((a, b) => a.email.localeCompare(b.email))
+}
+
+export async function getStudentQuizHistory(userId: string): Promise<QuizHistoryEntry[]> {
+  const historyRef = collection(db, USERS_COLLECTION, userId, 'quizHistory')
+  const q = query(historyRef, orderBy('timestamp', 'desc'))
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as QuizHistoryEntry))
+}
+
+export async function getStudentFullProfile(userId: string): Promise<{
+  profile: UserProfile | null
+  progress: UserProgress | null
+  settings: UserSettings | null
+  sessionStatus: string
+}> {
+  const [profileSnap, progressSnap, settingsSnap, sessionSnap] = await Promise.all([
+    getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'profile')),
+    getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'progress')),
+    getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'settings')),
+    getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'session'))
+  ])
+
+  const session = sessionSnap.exists() ? sessionSnap.data() as CurrentSession : null
+  return {
+    profile: profileSnap.exists() ? profileSnap.data() as UserProfile : null,
+    progress: progressSnap.exists() ? progressSnap.data() as UserProgress : null,
+    settings: settingsSnap.exists() ? settingsSnap.data() as UserSettings : null,
+    sessionStatus: session?.status || 'idle'
+  }
+}
+
+export function parseErrorCategory(errorStr: string): string {
+  const withoutSeverity = errorStr.split('~')[0].trim()
+  return withoutSeverity.replace(/\s*\(\d+\s*instances?\)/i, '').trim()
+}
+
+export interface StruggleArea {
+  category: string
+  occurrences: number
+  scores: { date: Date; score: number; passed: boolean }[]
+  latestScore: number
+  trend: 'improving' | 'declining' | 'stable'
+  mastered: boolean
+}
+
+export function computeStruggleAreas(history: QuizHistoryEntry[], passingScore: number = 75): StruggleArea[] {
+  const categoryMap: Record<string, StruggleArea> = {}
+
+  const sorted = [...history].sort((a, b) => {
+    const aTime = a.timestamp?.toDate?.() ? a.timestamp.toDate().getTime() : 0
+    const bTime = b.timestamp?.toDate?.() ? b.timestamp.toDate().getTime() : 0
+    return aTime - bTime
+  })
+
+  for (const entry of sorted) {
+    const topicCategory = parseErrorCategory(entry.quizTopic)
+    if (!topicCategory) continue
+
+    if (!categoryMap[topicCategory]) {
+      categoryMap[topicCategory] = {
+        category: topicCategory,
+        occurrences: 0,
+        scores: [],
+        latestScore: 0,
+        trend: 'stable',
+        mastered: false
+      }
+    }
+
+    categoryMap[topicCategory].occurrences++
+    const date = entry.timestamp?.toDate?.() ? entry.timestamp.toDate() : new Date()
+    categoryMap[topicCategory].scores.push({ date, score: entry.score, passed: entry.passed })
+    categoryMap[topicCategory].latestScore = entry.score
+  }
+
+  for (const area of Object.values(categoryMap)) {
+    const scores = area.scores
+    if (scores.length >= 2) {
+      const recent = scores.slice(-3)
+      const avgRecent = recent.reduce((s, e) => s + e.score, 0) / recent.length
+      const earlier = scores.slice(0, -3).length > 0 ? scores.slice(0, -3) : scores.slice(0, 1)
+      const avgEarlier = earlier.reduce((s, e) => s + e.score, 0) / earlier.length
+      const diff = avgRecent - avgEarlier
+      area.trend = diff > 5 ? 'improving' : diff < -5 ? 'declining' : 'stable'
+    }
+    const lastTwo = scores.slice(-2)
+    area.mastered = lastTwo.length >= 2 && lastTwo.every(s => s.passed)
+  }
+
+  return Object.values(categoryMap).sort((a, b) => {
+    if (a.mastered !== b.mastered) return a.mastered ? 1 : -1
+    return b.occurrences - a.occurrences
+  })
 }
 
 // ============================================
@@ -317,7 +577,7 @@ export async function getActiveWritingSessions(): Promise<ActiveSession[]> {
         const profile = profileSnap.exists() ? profileSnap.data() as UserProfile : null
         
         activeSessions.push({
-          oderId: userId,
+          orderId: userId,
           userEmail: userData.email || profile?.email || 'Unknown',
           displayName: profile?.displayName || null,
           sessionType: 'essay',
@@ -363,7 +623,7 @@ export async function getActiveQuizSessions(): Promise<ActiveSession[]> {
         const currentQuestion = quizSession.currentQuestionIndex + 1
         
         activeSessions.push({
-          oderId: userId,
+          orderId: userId,
           userEmail: userData.email || profile?.email || 'Unknown',
           displayName: profile?.displayName || null,
           sessionType: 'quiz',
@@ -841,7 +1101,7 @@ export async function setUserDifficultyLevel(
   level: DifficultyLevel
 ): Promise<void> {
   const settingsRef = doc(db, USERS_COLLECTION, userId, 'data', 'settings')
-  await updateDoc(settingsRef, { difficultyLevel: level })
+  await setDoc(settingsRef, { difficultyLevel: level }, { merge: true })
 }
 
 /**

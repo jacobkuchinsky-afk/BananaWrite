@@ -12,7 +12,7 @@ interface SubmitButtonProps {
 
 export default function SubmitButton({ 
   wordCount, 
-  targetWords = 300,
+  targetWords = 225,
   onSubmit,
   disabled = false,
   loading = false
@@ -38,11 +38,12 @@ export default function SubmitButton({
         className={styles.submitBtn}
         onClick={handleClick}
         disabled={!canSubmit}
+        aria-busy={loading}
       >
         {getButtonText()}
       </button>
       {!canSubmit && !loading && wordsNeeded > 0 && (
-        <p className={styles.submitHint}>
+        <p className={styles.submitHint} aria-live="polite">
           Write {wordsNeeded} more word{wordsNeeded !== 1 ? 's' : ''} to submit
         </p>
       )}

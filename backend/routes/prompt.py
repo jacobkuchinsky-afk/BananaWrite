@@ -418,9 +418,11 @@ def update_app_settings_endpoint():
     
     Request body:
         {
-            "sameErrorQuizThreshold": 3,
-            "totalErrorQuizThreshold": 5,
-            "quizPassingScore": 75
+            "repeatedErrorThreshold": 3,
+            "maxErrorsBeforeQuiz": 3,
+            "quizPassingScore": 75,
+            "maxQuizQuestions": 10,
+            "minQuizSeverity": 2
         }
     
     Response:
@@ -434,25 +436,30 @@ def update_app_settings_endpoint():
     if not data:
         return jsonify({"error": "No data provided"}), 400
     
-    same_error_threshold = data.get('sameErrorQuizThreshold', 3)
-    total_error_threshold = data.get('totalErrorQuizThreshold', 5)
+    repeated_error_threshold = data.get('repeatedErrorThreshold', 3)
+    max_errors_before_quiz = data.get('maxErrorsBeforeQuiz', 3)
     passing_score = data.get('quizPassingScore', 75)
+    max_quiz_questions = data.get('maxQuizQuestions', 10)
+    min_quiz_severity = data.get('minQuizSeverity', 2)
     
-    # Update the dynamic thresholds in AI service
     set_dynamic_thresholds(
-        same_error_threshold=same_error_threshold,
-        total_error_threshold=total_error_threshold,
-        passing_score=passing_score
+        repeated_error_threshold=repeated_error_threshold,
+        max_errors_before_quiz=max_errors_before_quiz,
+        passing_score=passing_score,
+        max_quiz_questions=max_quiz_questions,
+        min_quiz_severity=min_quiz_severity
     )
     
-    logger.info(f"[APP_SETTINGS] Updated thresholds: same_error={same_error_threshold}, total={total_error_threshold}, passing={passing_score}")
+    logger.info(f"[APP_SETTINGS] Updated: repeated_error={repeated_error_threshold}, max_errors={max_errors_before_quiz}, passing={passing_score}, max_questions={max_quiz_questions}, min_severity={min_quiz_severity}")
     
     return jsonify({
         "success": True,
         "settings": {
-            "sameErrorQuizThreshold": same_error_threshold,
-            "totalErrorQuizThreshold": total_error_threshold,
-            "quizPassingScore": passing_score
+            "repeatedErrorThreshold": repeated_error_threshold,
+            "maxErrorsBeforeQuiz": max_errors_before_quiz,
+            "quizPassingScore": passing_score,
+            "maxQuizQuestions": max_quiz_questions,
+            "minQuizSeverity": min_quiz_severity
         }
     })
 

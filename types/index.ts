@@ -63,6 +63,38 @@ export const DEFAULT_CURRENT_SESSION: Omit<CurrentSession, 'startedAt' | 'lastSa
   submittedAt: null
 }
 
+// ============================================
+// Quiz History Types (for teacher progress tracking)
+// ============================================
+
+export interface QuizHistoryEntry {
+  id?: string
+  timestamp: Timestamp
+  lessonNumber: number
+  writingTechnique: string
+  essayErrors: string[]
+  quizTopic: string
+  questionType: string
+  questionCount: number
+  score: number
+  passed: boolean
+  userAnswers: QuizAnswer[]
+  teacherFeedback?: { explanations: string[]; memoryHooks: string[] }
+}
+
+// ============================================
+// Classroom & Teacher Types
+// ============================================
+
+export interface Classroom {
+  id?: string
+  name: string
+  teacherEmail: string
+  classCode: string
+  studentEmails: string[]
+  createdAt: Timestamp
+}
+
 // API response types
 export interface StreamChunk {
   type: 'chunk' | 'done' | 'error'
@@ -348,11 +380,12 @@ export type EssayType = typeof ESSAY_TYPE_OPTIONS[number]
 // User settings interface
 export interface UserSettings {
   craziness: CrazinessLevel
-  focus: string  // Can be from FOCUS_OPTIONS or a custom validated topic
+  focus: string
   essayType: EssayType
   setupComplete: boolean
-  dismissedNotificationId: string | null  // ID of the latest dismissed update notification
+  dismissedNotificationId: string | null
   difficultyLevel: DifficultyLevel
+  classroomId?: string | null
 }
 
 // Default user settings
@@ -477,20 +510,29 @@ export const ADMIN_EMAIL = SUPER_ADMIN_EMAIL
 
 // Global app settings (configurable by admin)
 export interface AppSettings {
-  maxErrorsForRedo: number         // Default: 2 (max errors to allow fixing)
-  sameErrorQuizThreshold: number   // Default: 3 (same error type triggers quiz)
-  totalErrorQuizThreshold: number  // Default: 5 (total errors triggers quiz)
-  quizPassingScore: number         // Default: 75 (percentage)
+  // Error handling
+  maxErrorsBeforeQuiz: number      // Default: 3 (total errors that still allow redo; above this → forced quiz)
+  repeatedErrorThreshold: number   // Default: 3 (same error type N+ times → forced quiz via AI)
+  // Essay
+  targetWordCount: number          // Default: 225 (minimum words to submit)
+  maxWordCount: number             // Default: 500 (soft cap shown in UI)
+  // Quiz
+  quizPassingScore: number         // Default: 75 (percentage to pass)
+  maxQuizQuestions: number         // Default: 10 (cap on AI-generated questions)
+  minQuizSeverity: number          // Default: 2 (errors below this severity are not quizzed)
   updatedAt: Timestamp | null
   updatedBy: string
 }
 
 // Default app settings
 export const DEFAULT_APP_SETTINGS: Omit<AppSettings, 'updatedAt'> & { updatedAt: null } = {
-  maxErrorsForRedo: 2,
-  sameErrorQuizThreshold: 3,
-  totalErrorQuizThreshold: 5,
+  maxErrorsBeforeQuiz: 3,
+  repeatedErrorThreshold: 3,
+  targetWordCount: 225,
+  maxWordCount: 500,
   quizPassingScore: 75,
+  maxQuizQuestions: 10,
+  minQuizSeverity: 2,
   updatedAt: null,
   updatedBy: ''
 }
@@ -508,7 +550,7 @@ export interface DailyAnalytics {
 
 // Active session for admin view
 export interface ActiveSession {
-  oderId: string  // Note: keeping as-is to match existing code references
+  orderId: string
   userEmail: string
   displayName: string | null
   sessionType: 'essay' | 'quiz'

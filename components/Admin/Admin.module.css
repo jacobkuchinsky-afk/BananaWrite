@@ -298,6 +298,13 @@
   gap: var(--spacing-xs);
 }
 
+.sliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
 .slider {
   -webkit-appearance: none;
   appearance: none;
@@ -549,7 +556,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 10px 0 20px;
+  padding: 15px 0 30px;
   min-width: 36px;
   text-align: right;
 }
@@ -561,7 +568,6 @@
 
 .lineChartArea {
   flex: 1;
-  min-height: 120px;
 }
 
 /* Funnel Chart */

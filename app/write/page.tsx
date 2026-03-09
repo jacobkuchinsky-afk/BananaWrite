@@ -226,7 +226,7 @@ function WriteContent() {
 
   // Handle submit with optional correction feedback from contest
   const handleSubmit = async (checkCorrectionFeedback?: string, reviewCorrectionFeedback?: string) => {
-    if (wordCount < 225 || isSubmitting || isChecking || !user) return
+    if (wordCount < appSettings.targetWordCount || isSubmitting || isChecking || !user) return
 
     setIsChecking(true)
     setFeedbackMessage(null)
@@ -512,7 +512,7 @@ function WriteContent() {
   // Show marked essay with errors highlighted
   if (showMarkedEssay && markedEssayData) {
     // Can only redo if: haven't used redo chance, not force_quiz, and errors within threshold
-    const canRedo = !hasUsedRedoChance && !markedEssayData.forceQuiz && markedEssayData.problemCount <= appSettings.maxErrorsForRedo
+    const canRedo = !hasUsedRedoChance && !markedEssayData.forceQuiz && markedEssayData.problemCount <= appSettings.maxErrorsBeforeQuiz
     
     return (
       <MarkedEssay
@@ -520,7 +520,7 @@ function WriteContent() {
         errors={markedEssayData.errors}
         problemCount={markedEssayData.problemCount}
         canRedo={canRedo}
-        maxErrorsForRedo={appSettings.maxErrorsForRedo}
+        maxErrorsBeforeQuiz={appSettings.maxErrorsBeforeQuiz}
         onContinue={handleContinueToQuiz}
         onRedo={handleRedo}
         // Contest props
@@ -657,8 +657,8 @@ function WriteContent() {
               {/* Word Counter */}
               <WordCounter 
                 wordCount={wordCount}
-                targetWords={225}
-                maxWords={500}
+                targetWords={appSettings.targetWordCount}
+                maxWords={appSettings.maxWordCount}
               />
             </div>
 
@@ -706,8 +706,8 @@ function WriteContent() {
             {/* Word Counter */}
             <WordCounter 
               wordCount={wordCount}
-              targetWords={225}
-              maxWords={500}
+              targetWords={appSettings.targetWordCount}
+              maxWords={appSettings.maxWordCount}
             />
           </>
         )}
@@ -747,7 +747,7 @@ function WriteContent() {
         {/* Submit Button */}
         <SubmitButton
           wordCount={wordCount}
-          targetWords={225}
+          targetWords={appSettings.targetWordCount}
           onSubmit={handleSubmit}
           loading={isSubmitting || isChecking}
         />

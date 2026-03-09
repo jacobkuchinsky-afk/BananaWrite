@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
@@ -16,10 +16,17 @@ import { getUserDismissedNotificationId, dismissUpdateNotification, getUserSetti
 import styles from '@/components/Dashboard/Dashboard.module.css'
 
 function DashboardContent() {
-  const { user, resendVerificationEmail, isAdmin } = useAuth()
+  const { user, resendVerificationEmail, isAdmin, isTeacher } = useAuth()
   const { progress, session, loading, error, refreshSession } = useUserSession()
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
+  const resendTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (resendTimerRef.current) clearTimeout(resendTimerRef.current)
+    }
+  }, [])
   
   // Update notification state
   const [pendingNotification, setPendingNotification] = useState<UpdateNotification | null>(null)
@@ -82,7 +89,7 @@ function DashboardContent() {
     try {
       await resendVerificationEmail()
       setResendSuccess(true)
-      setTimeout(() => setResendSuccess(false), 5000)
+      resendTimerRef.current = setTimeout(() => setResendSuccess(false), 5000)
     } catch (error) {
       console.error('Resend verification error:', error)
     } finally {
@@ -139,12 +146,17 @@ function DashboardContent() {
           />
         </Link>
         <div className={styles.headerRight}>
+          {isTeacher && (
+            <Link href="/teacher" className={styles.adminLink}>
+              Teacher
+            </Link>
+          )}
           {isAdmin && (
             <Link href="/admin" className={styles.adminLink}>
               Admin
             </Link>
           )}
-          <Link href="/notifications" className={styles.bellButton}>
+          <Link href="/notifications" className={styles.bellButton} aria-label="Notifications">
             <BellIcon size={22} />
           </Link>
           <Link href="/settings">
@@ -196,7 +208,7 @@ function DashboardContent() {
               <p className={styles.progressLabel}>
                 Progress: {currentLesson}/{totalSkills} skills
               </p>
-              <div className={styles.progressBarContainer}>
+              <div className={styles.progressBarContainer} role="progressbar" aria-valuenow={currentLesson} aria-valuemin={0} aria-valuemax={totalSkills} aria-label={`${currentLesson} of ${totalSkills} skills completed`}>
                 <div 
                   className={styles.progressBarFill}
                   style={{ width: `${progressPercent}%` }}
@@ -210,7 +222,7 @@ function DashboardContent() {
               </div>
             )}
 
-            <Link href="/settings" className={styles.settingsBtn}>
+            <Link href="/settings" className={styles.settingsBtn} aria-label="Settings">
               <SettingsIcon size={20} />
               Settings
             </Link>

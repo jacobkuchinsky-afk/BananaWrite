@@ -38,6 +38,8 @@ export function useTeacherChat(initialContext?: TeacherChatContext, difficultyLe
     currentFeedback: '',
     memoryHooks: []
   })
+  const messagesRef = useRef<TeacherChatMessage[]>([])
+  useEffect(() => { messagesRef.current = messages }, [messages])
   const difficultyRef = useRef(difficultyLevel)
   useEffect(() => { difficultyRef.current = difficultyLevel }, [difficultyLevel])
 
@@ -72,7 +74,7 @@ export function useTeacherChat(initialContext?: TeacherChatContext, difficultyLe
 
     try {
       // Build messages array for API (without id and timestamp)
-      const apiMessages = [...messages, userMessage].map(m => ({
+      const apiMessages = [...messagesRef.current, userMessage].map(m => ({
         role: m.role,
         content: m.content
       }))
@@ -113,7 +115,7 @@ export function useTeacherChat(initialContext?: TeacherChatContext, difficultyLe
     } finally {
       setIsLoading(false)
     }
-  }, [messages])
+  }, [])
 
   return {
     messages,

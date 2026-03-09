@@ -33,7 +33,7 @@ export default function StartLessonButton({
       return {
         icon: '',
         text: 'Continue Writing',
-        subtext: `${wordCount}/300 words saved`
+        subtext: `${wordCount}/225 words saved`
       }
     } else if (hasPrompt) {
       // User has a prompt but hasn't started writing

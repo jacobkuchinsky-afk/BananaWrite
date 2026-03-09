@@ -121,6 +121,7 @@ export default function ActiveSessionsPanel() {
             onClick={handleRefresh}
             disabled={refreshing}
             className={styles.refreshButton}
+            aria-label="Refresh active sessions"
           >
             <RefreshIcon size={16} />
             {refreshing ? 'Refreshing...' : 'Refresh'}
@@ -141,7 +142,7 @@ export default function ActiveSessionsPanel() {
           
           <div className={styles.sessionsTableBody}>
             {sessions.map((session) => (
-              <div key={session.oderId} className={styles.sessionRow}>
+              <div key={session.orderId} className={styles.sessionRow}>
                 <div className={styles.sessionUser}>
                   <span className={styles.sessionUserName}>
                     {session.displayName || 'Anonymous'}

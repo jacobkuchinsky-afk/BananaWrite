@@ -14,12 +14,13 @@ import {
   User
 } from '@/lib/firebase'
 import { SUPER_ADMIN_EMAIL } from '@/types'
-import { getAdminEmails } from '@/lib/adminFirestore'
+import { getAdminEmails, getTeacherEmails } from '@/lib/adminFirestore'
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   isAdmin: boolean
+  isTeacher: boolean
   signup: (email: string, password: string) => Promise<void>
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isTeacher, setIsTeacher] = useState(false)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -62,8 +64,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setIsAdmin(false)
           }
         }
+        try {
+          const teachers = await getTeacherEmails()
+          setIsTeacher(teachers.includes(email))
+        } catch {
+          setIsTeacher(false)
+        }
       } else {
         setIsAdmin(false)
+        setIsTeacher(false)
       }
       setLoading(false)
     })
@@ -105,6 +114,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     loading,
     isAdmin,
+    isTeacher,
     signup,
     login,
     loginWithGoogle,

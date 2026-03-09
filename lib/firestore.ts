@@ -12,6 +12,7 @@ import {
   serverTimestamp,
   Timestamp 
 } from './firebase'
+import { collection, addDoc } from 'firebase/firestore'
 import { 
   UserProfile, 
   UserProgress, 
@@ -341,6 +342,34 @@ export async function submitQuizAnswer(
 }
 
 /**
+ * Save a snapshot to quizHistory subcollection for teacher progress tracking
+ */
+export async function saveQuizHistoryEntry(
+  userId: string,
+  quizSession: QuizSession,
+  results: QuizGradingResult,
+  lessonNumber: number,
+  writingTechnique: string
+): Promise<void> {
+  const historyRef = collection(db, USERS_COLLECTION, userId, 'quizHistory')
+  await addDoc(historyRef, {
+    timestamp: serverTimestamp(),
+    lessonNumber,
+    writingTechnique,
+    essayErrors: quizSession.essayErrors,
+    quizTopic: quizSession.currentQuizRequirements?.topic || '',
+    questionType: quizSession.currentQuizRequirements?.questionType || '',
+    questionCount: quizSession.currentQuiz?.questions.length || 0,
+    score: results.score,
+    passed: results.passed,
+    userAnswers: quizSession.userAnswers,
+    teacherFeedback: quizSession.teacherFeedback
+      ? { explanations: quizSession.teacherFeedback.explanations, memoryHooks: quizSession.teacherFeedback.memoryHooks }
+      : null
+  })
+}
+
+/**
  * Save quiz grading results
  */
 export async function saveQuizResults(
@@ -573,9 +602,9 @@ export async function dismissUpdateNotification(
 ): Promise<void> {
   const settingsRef = getSettingsDocRef(userId)
   
-  await updateDoc(settingsRef, {
+  await setDoc(settingsRef, {
     dismissedNotificationId: notificationId
-  })
+  }, { merge: true })
 }
 
 /**

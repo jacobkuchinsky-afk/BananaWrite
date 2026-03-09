@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
@@ -27,6 +27,7 @@ function NotificationsContent() {
 
   // Get selected report
   const selectedReport = reports.find(r => r.id === selectedReportId) || null
+  const hasAutoSelected = useRef(false)
 
   // Load user's reports
   const loadReports = useCallback(async () => {
@@ -36,8 +37,8 @@ function NotificationsContent() {
       const userReports = await getUserBugReports(user.uid)
       setReports(userReports)
       
-      // Auto-select first report if none selected
-      if (userReports.length > 0 && !selectedReportId) {
+      if (userReports.length > 0 && !hasAutoSelected.current) {
+        hasAutoSelected.current = true
         setSelectedReportId(userReports[0].id)
       }
     } catch (error) {
@@ -45,7 +46,7 @@ function NotificationsContent() {
     } finally {
       setLoadingReports(false)
     }
-  }, [user, selectedReportId])
+  }, [user])
 
   // Load messages for selected report
   const loadMessages = useCallback(async () => {

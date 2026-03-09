@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useRef, useEffect, FormEvent } from 'react'
 import { SendIcon, MessageIcon } from '@/components/Icons/Icons'
 import styles from './Notifications.module.css'
 
@@ -13,6 +13,13 @@ export default function NewReportForm({ onSubmit, disabled = false }: NewReportF
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const submittedTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (submittedTimerRef.current) clearTimeout(submittedTimerRef.current)
+    }
+  }, [])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -23,7 +30,7 @@ export default function NewReportForm({ onSubmit, disabled = false }: NewReportF
       await onSubmit(message.trim())
       setMessage('')
       setSubmitted(true)
-      setTimeout(() => setSubmitted(false), 3000)
+      submittedTimerRef.current = setTimeout(() => setSubmitted(false), 3000)
     } catch (error) {
       console.error('Error submitting report:', error)
     } finally {
@@ -39,7 +46,9 @@ export default function NewReportForm({ onSubmit, disabled = false }: NewReportF
       </h3>
       
       <form onSubmit={handleSubmit}>
+        <label htmlFor="report-message" className="sr-only">Describe your issue or question</label>
         <textarea
+          id="report-message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Describe your issue or question..."

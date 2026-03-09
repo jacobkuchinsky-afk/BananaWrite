@@ -10,7 +10,7 @@ interface WordCounterProps {
 
 export default function WordCounter({ 
   wordCount, 
-  targetWords = 300,
+  targetWords = 225,
   maxWords = 500
 }: WordCounterProps) {
   const percentage = Math.min((wordCount / targetWords) * 100, 100)
@@ -40,7 +40,7 @@ export default function WordCounter({
   }
 
   return (
-    <div className={styles.wordCounterSection}>
+    <div className={styles.wordCounterSection} aria-live="polite" aria-atomic="true">
       <div className={styles.wordCounterHeader}>
         <span className={`${styles.wordCount} ${getStatusClass()}`}>
           {wordCount}/{targetWords} words
@@ -49,7 +49,7 @@ export default function WordCounter({
           {getWordsMessage()}
         </span>
       </div>
-      <div className={styles.progressBar}>
+      <div className={styles.progressBar} role="progressbar" aria-valuenow={wordCount} aria-valuemin={0} aria-valuemax={targetWords} aria-label={`${wordCount} of ${targetWords} words written`}>
         <div 
           className={`${styles.progressBarFill} ${getStatusClass()}`}
           style={{ width: `${Math.min(percentage, 100)}%` }}

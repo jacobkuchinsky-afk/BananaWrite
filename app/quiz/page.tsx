@@ -21,6 +21,7 @@ import {
   setCurrentQuiz,
   submitQuizAnswer,
   saveQuizResults,
+  saveQuizHistoryEntry,
   saveTeacherFeedback,
   advanceFeedbackIndex,
   markTopicLearned,
@@ -28,7 +29,8 @@ import {
   completeQuizSession,
   clearQuizSession,
   completeLesson,
-  resetSession
+  resetSession,
+  getUserProgress
 } from '@/lib/firestore'
 import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
 import { 
@@ -139,15 +141,19 @@ function QuizContent() {
         // This ensures passing score threshold is correct even if backend restarted
         try {
           const appSettings = await getAppSettings()
-          await fetch(`${FLASK_API_URL}/api/app-settings`, {
+          const syncResponse = await fetch(`${FLASK_API_URL}/api/app-settings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              sameErrorQuizThreshold: appSettings.sameErrorQuizThreshold,
-              totalErrorQuizThreshold: appSettings.totalErrorQuizThreshold,
-              quizPassingScore: appSettings.quizPassingScore
+              repeatedErrorThreshold: appSettings.repeatedErrorThreshold,
+              maxErrorsBeforeQuiz: appSettings.maxErrorsBeforeQuiz,
+              quizPassingScore: appSettings.quizPassingScore,
+              maxQuizQuestions: appSettings.maxQuizQuestions
             })
           })
+          if (!syncResponse.ok) {
+            console.warn('[Quiz] Backend settings sync failed:', syncResponse.status)
+          }
         } catch (syncError) {
           console.warn('[Quiz] Could not sync settings to backend:', syncError)
         }
@@ -225,6 +231,10 @@ function QuizContent() {
         })
       })
       
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
+      
       const data = await response.json()
       
       if (data.completed) {
@@ -286,6 +296,10 @@ function QuizContent() {
           difficulty_level: difficultyLevel
         })
       })
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
       
       const data = await response.json()
       
@@ -395,6 +409,10 @@ function QuizContent() {
         })
       })
       
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
+      
       const data = await response.json()
       
       const results: QuizGradingResult = {
@@ -405,6 +423,13 @@ function QuizContent() {
       
       // Save results
       await saveQuizResults(user.uid, results)
+
+      // Save quiz history for teacher progress tracking (fire-and-forget)
+      if (quizSession) {
+        const techniques = GRADE_WRITING_TECHNIQUES[difficultyLevel]
+        const technique = techniques[currentLesson] || 'Unknown'
+        saveQuizHistoryEntry(user.uid, quizSession, results, currentLesson, technique).catch(() => {})
+      }
 
       // Track quiz completion in analytics (fire-and-forget)
       incrementAnalytics('quizzesCompleted', { quizScore: data.score }).catch(() => {})
@@ -456,6 +481,10 @@ function QuizContent() {
           difficulty_level: difficultyLevel
         })
       })
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
       
       const data = await response.json()
       

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import styles from './Contest.module.css'
 import { saveBugReport } from '@/lib/adminFirestore'
 import { BugReportContextType } from '@/types'
@@ -84,6 +84,13 @@ export default function ContestButton({
   const [state, setState] = useState<ContestState>('idle')
   const [showResultBox, setShowResultBox] = useState(false)
   const [isConfirmed, setIsConfirmed] = useState(false)
+  const resultTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (resultTimerRef.current) clearTimeout(resultTimerRef.current)
+    }
+  }, [])
 
   // Handle the contest action
   const handleContest = async () => {
@@ -139,8 +146,7 @@ export default function ContestButton({
         setState('success')
         onLoadingComplete?.()  // Notify that loading is complete
         
-        // Wait 2 seconds, then fade out and mark as confirmed
-        setTimeout(() => {
+        resultTimerRef.current = setTimeout(() => {
           setShowResultBox(false)
           setIsConfirmed(true)
           onContestConfirmed()
@@ -150,8 +156,7 @@ export default function ContestButton({
         setState('failure')
         onLoadingComplete?.()  // Notify that loading is complete
         
-        // Wait 1 second, then trigger the callback
-        setTimeout(() => {
+        resultTimerRef.current = setTimeout(() => {
           setShowResultBox(false)
           setState('idle')
           onContestSuccess(result.correction_feedback || '')
