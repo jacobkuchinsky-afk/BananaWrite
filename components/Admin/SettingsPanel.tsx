@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { AppSettings } from '@/types'
+import { AppSettings, DEFAULT_APP_SETTINGS } from '@/types'
 import { updateAppSettings } from '@/lib/adminFirestore'
 import styles from './Admin.module.css'
 
@@ -94,13 +94,13 @@ const SETTING_GROUPS: { title: string; settings: SettingConfig[] }[] = [
 
 export default function SettingsPanel({ settings, onUpdate, userEmail }: SettingsPanelProps) {
   const [localSettings, setLocalSettings] = useState({
-    maxErrorsBeforeQuiz: settings.maxErrorsBeforeQuiz,
-    repeatedErrorThreshold: settings.repeatedErrorThreshold,
-    targetWordCount: settings.targetWordCount,
-    maxWordCount: settings.maxWordCount,
-    quizPassingScore: settings.quizPassingScore,
-    maxQuizQuestions: settings.maxQuizQuestions,
-    minQuizSeverity: settings.minQuizSeverity,
+    maxErrorsBeforeQuiz: settings.maxErrorsBeforeQuiz ?? DEFAULT_APP_SETTINGS.maxErrorsBeforeQuiz,
+    repeatedErrorThreshold: settings.repeatedErrorThreshold ?? DEFAULT_APP_SETTINGS.repeatedErrorThreshold,
+    targetWordCount: settings.targetWordCount ?? DEFAULT_APP_SETTINGS.targetWordCount,
+    maxWordCount: settings.maxWordCount ?? DEFAULT_APP_SETTINGS.maxWordCount,
+    quizPassingScore: settings.quizPassingScore ?? DEFAULT_APP_SETTINGS.quizPassingScore,
+    maxQuizQuestions: settings.maxQuizQuestions ?? DEFAULT_APP_SETTINGS.maxQuizQuestions,
+    minQuizSeverity: settings.minQuizSeverity ?? DEFAULT_APP_SETTINGS.minQuizSeverity,
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
