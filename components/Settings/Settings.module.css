@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .backButton {
@@ -24,13 +24,13 @@
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background-color: transparent;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
   text-decoration: none;
   box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 0 0 var(--color-shadow),
     0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
@@ -39,14 +39,14 @@
   color: var(--color-button-dark-text);
   transform: translateY(-2px);
   box-shadow: 
-    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 12px rgba(0, 0, 0, 0.12);
 }
 
 .backButton:active {
   transform: translateY(2px);
   box-shadow: 
-    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -74,11 +74,11 @@
 .section {
   width: 100%;
   background-color: var(--color-background);
-  border: 3px solid #1a1a1a;
+  border: 3px solid var(--color-border-strong);
   border-radius: 24px;
   padding: var(--spacing-xl);
   box-shadow: 
-    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 20px rgba(0, 0, 0, 0.1),
     0 10px 35px rgba(0, 0, 0, 0.06);
 }
@@ -194,11 +194,11 @@
   padding: 0.875rem 1.25rem;
   font-size: 1rem;
   color: var(--color-text-secondary);
-  background-color: #f5f5f5;
-  border: 2px solid #1a1a1a;
+  background-color: var(--color-surface-alt);
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 0 0 var(--color-shadow),
     0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
@@ -214,7 +214,7 @@
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 4px 0 0 rgba(120, 120, 120, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.15),
     0 6px 25px rgba(0, 0, 0, 0.08);
 }
@@ -222,7 +222,7 @@
 .resetButton:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(120, 120, 120, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 18px rgba(0, 0, 0, 0.18),
     0 8px 30px rgba(0, 0, 0, 0.1);
 }
@@ -230,7 +230,7 @@
 .resetButton:active:not(:disabled) {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
@@ -278,9 +278,9 @@
   font-size: 1rem;
   font-weight: 500;
   font-family: var(--font-body);
-  color: #dc2626;
+  color: var(--color-error);
   background-color: transparent;
-  border: 2px solid #ef4444;
+  border: 2px solid var(--color-error-light);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -290,7 +290,7 @@
 }
 
 .signOutBtn:hover {
-  background-color: #fef2f2;
+  background-color: var(--color-error-bg);
   transform: translateY(-2px);
   box-shadow: 
     0 5px 0 0 rgba(239, 68, 68, 0.85),
@@ -306,12 +306,12 @@
 
 /* Messages - Sketchy 3D */
 .successMessage {
-  background-color: #f0fdf4;
-  border: 3px solid #22c55e;
+  background-color: var(--color-success-bg);
+  border: 3px solid var(--color-success);
   border-radius: 12px;
   padding: 0.875rem 1rem;
   font-size: 0.875rem;
-  color: #16a34a;
+  color: var(--color-success);
   text-align: center;
   width: 100%;
   box-shadow: 
@@ -321,12 +321,12 @@
 }
 
 .errorMessage {
-  background-color: #fef2f2;
-  border: 3px solid #ef4444;
+  background-color: var(--color-error-bg);
+  border: 3px solid var(--color-error-light);
   border-radius: 12px;
   padding: 0.875rem 1rem;
   font-size: 0.875rem;
-  color: #dc2626;
+  color: var(--color-error);
   text-align: center;
   width: 100%;
   box-shadow: 
@@ -381,29 +381,29 @@
   font-weight: 500;
   font-family: var(--font-body);
   color: var(--color-text-primary);
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.1s ease;
   text-align: left;
   width: 100%;
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .preferenceValue:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .preferenceValue:active {
   transform: translateY(2px);
   box-shadow: 
-    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 0 0 var(--color-shadow),
     0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
@@ -418,11 +418,11 @@
   flex-direction: column;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 20px;
   box-shadow: 
-    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 18px rgba(0, 0, 0, 0.1);
 }
 
@@ -439,12 +439,12 @@
   font-family: var(--font-body);
   color: var(--color-text-secondary);
   background-color: transparent;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 0 0 var(--color-shadow),
     0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
@@ -452,14 +452,14 @@
   color: var(--color-text-primary);
   transform: translateY(-1px);
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .cancelButton:active:not(:disabled) {
   transform: translateY(2px);
   box-shadow: 
-    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
@@ -484,21 +484,21 @@
   justify-content: center;
   min-width: 80px;
   box-shadow: 
-    0 4px 0 0 rgba(120, 120, 120, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .saveButton:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(120, 120, 120, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .saveButton:active:not(:disabled) {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -543,15 +543,15 @@
 }
 
 .historyItem {
-  background-color: #fafafa;
-  border: 2px solid rgba(26, 26, 26, 0.2);
+  background-color: var(--color-surface-hover);
+  border: 2px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
   transition: border-color 0.2s ease;
 }
 
 .historyItem:hover {
-  border-color: rgba(26, 26, 26, 0.4);
+  border-color: var(--color-border-strong);
 }
 
 .historyItemHeader {
@@ -569,7 +569,7 @@
 }
 
 .historyItemHeader:hover {
-  background-color: rgba(26, 26, 26, 0.03);
+  background-color: var(--color-surface-alt);
 }
 
 .historyItemLeft {
@@ -617,7 +617,7 @@
 
 .historyItemContent {
   padding: 0 var(--spacing-md) var(--spacing-md);
-  border-top: 1px solid rgba(26, 26, 26, 0.1);
+  border-top: 1px solid var(--color-border);
   animation: slideDown 0.2s ease;
 }
 
@@ -649,9 +649,52 @@
 }
 
 .historyBulletDot {
-  color: #22c55e;
+  color: var(--color-success);
   font-weight: bold;
   flex-shrink: 0;
+}
+
+/* Theme Toggle */
+.themeToggleRow {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.themeOption {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.themeOption:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.themeOptionActive {
+  color: var(--color-button-dark-text);
+  background-color: var(--color-button-dark);
+  border-color: var(--color-button-dark);
+  box-shadow:
+    0 4px 0 0 var(--color-shadow),
+    0 4px 12px var(--color-shadow-soft);
+}
+
+.themeOptionActive:hover {
+  color: var(--color-button-dark-text);
+  border-color: var(--color-button-dark);
 }
 
 /* Responsive */

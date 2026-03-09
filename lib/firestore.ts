@@ -32,7 +32,8 @@ import {
   DEFAULT_USER_SETTINGS,
   CrazinessLevel,
   FocusTopic,
-  EssayType
+  EssayType,
+  Theme
 } from '@/types'
 import { getDifficultyPresetForEmail } from '@/lib/adminFirestore'
 
@@ -551,6 +552,14 @@ export async function completeUserSetup(
     essayType,
     setupComplete: true
   })
+}
+
+/**
+ * Update user's theme preference
+ */
+export async function updateUserTheme(userId: string, theme: Theme): Promise<void> {
+  const settingsRef = getSettingsDocRef(userId)
+  await setDoc(settingsRef, { theme }, { merge: true })
 }
 
 /**

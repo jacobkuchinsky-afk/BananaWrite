@@ -9,7 +9,8 @@ import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import StartLessonButton from '@/components/Dashboard/StartLessonButton'
 import UpdateNotificationModal from '@/components/Dashboard/UpdateNotificationModal'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
-import { SettingsIcon, BellIcon } from '@/components/Icons/Icons'
+import { SettingsIcon, BellIcon, SunIcon, MoonIcon } from '@/components/Icons/Icons'
+import { useTheme } from '@/context/ThemeContext'
 import { UpdateNotification, GRADE_WRITING_TECHNIQUES, DifficultyLevel, UserSettings } from '@/types'
 import { getLatestUpdateNotification } from '@/lib/adminFirestore'
 import { getUserDismissedNotificationId, dismissUpdateNotification, getUserSettings } from '@/lib/firestore'
@@ -17,6 +18,7 @@ import styles from '@/components/Dashboard/Dashboard.module.css'
 
 function DashboardContent() {
   const { user, resendVerificationEmail, isAdmin, isTeacher } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const { progress, session, loading, error, refreshSession } = useUserSession()
   const [resendLoading, setResendLoading] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
@@ -156,6 +158,13 @@ function DashboardContent() {
               Admin
             </Link>
           )}
+          <button
+            onClick={toggleTheme}
+            className={styles.bellButton}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {theme === 'light' ? <MoonIcon size={20} /> : <SunIcon size={20} />}
+          </button>
           <Link href="/notifications" className={styles.bellButton} aria-label="Notifications">
             <BellIcon size={22} />
           </Link>

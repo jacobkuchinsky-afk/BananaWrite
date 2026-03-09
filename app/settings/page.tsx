@@ -8,13 +8,15 @@ import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import ProfilePicture from '@/components/Settings/ProfilePicture'
 import NotificationHistory from '@/components/Settings/NotificationHistory'
 import { CrazinessSelector, FocusSelector, EssayTypeSelector } from '@/components/Setup'
-import { ArrowLeftIcon } from '@/components/Icons/Icons'
+import { ArrowLeftIcon, SunIcon, MoonIcon } from '@/components/Icons/Icons'
+import { useTheme } from '@/context/ThemeContext'
 import { getUserSettings, updateUserSettings } from '@/lib/firestore'
 import { CrazinessLevel, FocusTopic, EssayType, UserSettings, DIFFICULTY_LEVEL_LABELS } from '@/types'
 import styles from '@/components/Settings/Settings.module.css'
 
 function SettingsContent() {
   const { user, logout, resetPassword } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const router = useRouter()
   
   // Password reset states
@@ -164,6 +166,32 @@ function SettingsContent() {
               <p className={styles.profileName}>{displayName}</p>
               <p className={styles.profileEmail}>{user?.email}</p>
             </div>
+          </div>
+        </section>
+
+        {/* Appearance Section */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Appearance</h2>
+          <p className={styles.sectionDescription}>
+            Choose your preferred color theme
+          </p>
+          <div className={styles.themeToggleRow}>
+            <button
+              className={`${styles.themeOption} ${theme === 'light' ? styles.themeOptionActive : ''}`}
+              onClick={() => theme !== 'light' && toggleTheme()}
+              aria-pressed={theme === 'light'}
+            >
+              <SunIcon size={20} />
+              <span>Light</span>
+            </button>
+            <button
+              className={`${styles.themeOption} ${theme === 'dark' ? styles.themeOptionActive : ''}`}
+              onClick={() => theme !== 'dark' && toggleTheme()}
+              aria-pressed={theme === 'dark'}
+            >
+              <MoonIcon size={20} />
+              <span>Dark</span>
+            </button>
           </div>
         </section>
 

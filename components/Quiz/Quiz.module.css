@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+  border-bottom: 1px solid var(--color-border);
   background-color: var(--color-background);
   position: sticky;
   top: 0;
@@ -36,7 +36,7 @@
 
 .backBtn:hover {
   color: var(--color-text-primary);
-  background-color: rgba(26, 26, 26, 0.05);
+  background-color: var(--color-border);
 }
 
 .backArrow {
@@ -89,12 +89,12 @@
 .progressBar {
   width: 100%;
   height: 16px;
-  background-color: #ffffff;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-strong);
   border-radius: 50px;
   overflow: hidden;
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -108,13 +108,13 @@
 
 /* Question Card - Sketchy 3D */
 .questionCard {
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   padding: var(--spacing-xl);
   animation: fadeIn 0.3s ease;
   box-shadow: 
-    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 18px rgba(0, 0, 0, 0.1),
     0 8px 30px rgba(0, 0, 0, 0.05);
 }
@@ -165,12 +165,12 @@
   text-align: left;
   color: var(--color-text-primary);
   background-color: var(--color-background);
-  border: 3px solid #1a1a1a;
+  border: 3px solid var(--color-border-strong);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.1),
     0 6px 22px rgba(0, 0, 0, 0.05);
 }
@@ -178,17 +178,17 @@
 .optionButton:hover:not(.selected):not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 18px rgba(0, 0, 0, 0.12),
     0 8px 28px rgba(0, 0, 0, 0.08);
 }
 
 .optionButton.selected {
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--color-button-dark);
+  color: var(--color-button-dark-text);
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 rgba(0, 0, 0, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -206,14 +206,14 @@
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text-secondary);
-  background-color: rgba(26, 26, 26, 0.1);
+  background-color: var(--color-border);
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .optionButton.selected .optionLetter {
-  background-color: #ffffff;
-  color: #1a1a1a;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .optionText {
@@ -235,12 +235,12 @@
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background-color: var(--color-background);
-  border: 3px solid #1a1a1a;
+  border: 3px solid var(--color-border-strong);
   border-radius: 12px;
   outline: none;
   transition: all 0.2s ease;
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -251,7 +251,7 @@
 
 .answerInput:focus {
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05),
     0 0 0 3px rgba(26, 26, 26, 0.1);
@@ -283,7 +283,7 @@
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 5px 0 0 rgba(120, 120, 120, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 18px rgba(0, 0, 0, 0.15),
     0 8px 30px rgba(0, 0, 0, 0.08);
 }
@@ -291,7 +291,7 @@
 .submitBtn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 7px 0 0 rgba(120, 120, 120, 0.9),
+    0 7px 0 0 var(--color-shadow),
     0 7px 22px rgba(0, 0, 0, 0.18),
     0 10px 35px rgba(0, 0, 0, 0.1);
 }
@@ -299,7 +299,7 @@
 .submitBtn:active:not(:disabled) {
   transform: translateY(4px);
   box-shadow: 
-    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
@@ -312,12 +312,12 @@
 .resultsCard {
   text-align: center;
   padding: var(--spacing-xl);
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 20px;
   animation: fadeIn 0.5s ease;
   box-shadow: 
-    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 20px rgba(0, 0, 0, 0.1),
     0 10px 35px rgba(0, 0, 0, 0.06);
 }
@@ -332,9 +332,9 @@
   margin: 0 auto var(--spacing-lg);
   border-radius: 50%;
   background-color: var(--color-background);
-  border: 5px solid #1a1a1a;
+  border: 5px solid var(--color-border-strong);
   box-shadow: 
-    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -395,11 +395,11 @@
   text-align: left;
   padding: var(--spacing-lg) var(--spacing-xl);
   background-color: var(--color-background);
-  border: 3px solid #1a1a1a;
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   margin-bottom: var(--spacing-lg);
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
@@ -413,7 +413,7 @@
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
   padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .feedbackTitle svg {
@@ -432,7 +432,7 @@
   gap: 12px;
   padding: 14px 16px;
   border-radius: 12px;
-  background-color: rgba(26, 26, 26, 0.03);
+  background-color: var(--color-surface-alt);
   border: 1px solid transparent;
   transition: all 0.2s ease;
 }
@@ -494,8 +494,8 @@
 
 /* Feedback Card (one-by-one display) - Sketchy 3D */
 .feedbackCard {
-  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
-  border: 3px solid #ca8a04;
+  background: linear-gradient(135deg, var(--color-feedback-bg-start) 0%, var(--color-feedback-bg-end) 100%);
+  border: 3px solid var(--color-feedback-border);
   border-radius: 20px;
   padding: var(--spacing-xl);
   animation: slideIn 0.4s ease;
@@ -567,7 +567,7 @@
   font-weight: 600;
   color: #92400e;
   background-color: rgba(255, 255, 255, 0.8);
-  border: 2px solid #ca8a04;
+  border: 2px solid var(--color-feedback-border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -666,7 +666,7 @@
   font-weight: 600;
   color: #ffffff;
   background-color: #ca8a04;
-  border: 2px solid #a16207;
+  border: 2px solid var(--color-feedback-border);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -911,7 +911,7 @@
   transition: all 0.1s ease;
   margin-top: var(--spacing-md);
   box-shadow: 
-    0 5px 0 0 rgba(120, 120, 120, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 18px rgba(0, 0, 0, 0.15),
     0 8px 30px rgba(0, 0, 0, 0.08);
 }
@@ -919,7 +919,7 @@
 .continueBtn:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 7px 0 0 rgba(120, 120, 120, 0.9),
+    0 7px 0 0 var(--color-shadow),
     0 7px 22px rgba(0, 0, 0, 0.18),
     0 10px 35px rgba(0, 0, 0, 0.1);
 }
@@ -927,7 +927,7 @@
 .continueBtn:active {
   transform: translateY(4px);
   box-shadow: 
-    0 1px 0 0 rgba(120, 120, 120, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
@@ -1049,7 +1049,7 @@
   justify-content: center;
   width: 120px;
   height: 120px;
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   border: 4px solid #16a34a;
   border-radius: 50%;
   box-shadow: 
@@ -1116,7 +1116,7 @@
   font-size: 1.375rem;
   font-weight: 700;
   color: #16a34a;
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   border: 3px solid #22c55e;
   border-radius: 50px;
   box-shadow: 
@@ -1253,11 +1253,11 @@
 .writeAnotherSection {
   text-align: center;
   padding: var(--spacing-xl);
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   box-shadow: 
-    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 18px rgba(0, 0, 0, 0.1),
     0 8px 30px rgba(0, 0, 0, 0.05);
 }

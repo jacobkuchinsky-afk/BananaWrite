@@ -17,7 +17,7 @@ import { ModuleComplete, WinScreen } from '@/components/Quiz'
 import { startQuizSession, completeLesson, resetSession, getQuizSession, getUserSettings } from '@/lib/firestore'
 import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
 import { UserSettings, AppSettings, DEFAULT_APP_SETTINGS, GRADE_WRITING_TECHNIQUES, DifficultyLevel } from '@/types'
-import { ArrowLeftIcon, AlertIcon, RefreshIcon, BookIcon } from '@/components/Icons/Icons'
+import { ArrowLeftIcon, AlertIcon, RefreshIcon, BookIcon, MaximizeIcon, MinimizeIcon } from '@/components/Icons/Icons'
 import { ContestButton } from '@/components/Contest'
 import WritingGuidePanel from '@/components/Write/WritingGuidePanel'
 import styles from '@/components/Write/Write.module.css'
@@ -78,6 +78,9 @@ function WriteContent() {
   // Writing guide panel
   const [isGuideOpen, setIsGuideOpen] = useState(false)
 
+  // Focus mode
+  const [isFocusMode, setIsFocusMode] = useState(false)
+
   // Contest state for essay check
   const [essayCheckResponse, setEssayCheckResponse] = useState<string | null>(null)
   const [essayCheckContestConfirmed, setEssayCheckContestConfirmed] = useState(false)
@@ -87,6 +90,17 @@ function WriteContent() {
   const [essayReviewResponse, setEssayReviewResponse] = useState<string | null>(null)
   const [essayReviewContestConfirmed, setEssayReviewContestConfirmed] = useState(false)
   const [showEssayReviewLoadingGame, setShowEssayReviewLoadingGame] = useState(false)
+
+  // Focus mode keyboard shortcut (Escape to exit)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFocusMode) {
+        setIsFocusMode(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isFocusMode])
 
   // Fetch user settings and app settings
   useEffect(() => {
@@ -586,7 +600,27 @@ function WriteContent() {
   }
 
   return (
-    <div className={styles.writePage}>
+    <div className={`${styles.writePage} ${isFocusMode ? styles.focusMode : ''}`}>
+      {/* Focus mode floating controls */}
+      {isFocusMode && (
+        <>
+          <button
+            className={styles.focusExitBtn}
+            onClick={() => setIsFocusMode(false)}
+            aria-label="Exit focus mode"
+          >
+            <MinimizeIcon size={16} />
+            <span>Exit Focus</span>
+          </button>
+          <div className={styles.focusWordCount}>
+            {wordCount} / {appSettings.targetWordCount} words
+          </div>
+          <div className={styles.focusSaveStatus}>
+            <span className={`${styles.focusSaveDot} ${isSaving ? styles.saving : ''}`} />
+          </div>
+        </>
+      )}
+
       {/* Header */}
       <header className={styles.writeHeader}>
         <button onClick={handleBack} className={styles.backBtn}>
@@ -638,6 +672,14 @@ function WriteContent() {
               >
                 <BookIcon size={18} />
                 Guide
+              </button>
+              <button
+                onClick={() => setIsFocusMode(true)}
+                className={styles.focusBtn}
+                title="Focus mode (Escape to exit)"
+              >
+                <MaximizeIcon size={18} />
+                Focus
               </button>
             </div>
           )}

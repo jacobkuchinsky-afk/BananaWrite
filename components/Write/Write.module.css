@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+  border-bottom: 1px solid var(--color-border);
   background-color: var(--color-background);
   position: sticky;
   top: 0;
@@ -36,7 +36,7 @@
 
 .backBtn:hover {
   color: var(--color-text-primary);
-  background-color: rgba(26, 26, 26, 0.05);
+  background-color: var(--color-border);
 }
 
 .backArrow {
@@ -55,11 +55,11 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #22c55e;
+  background-color: var(--color-success);
 }
 
 .saveIndicator.saving {
-  background-color: #f59e0b;
+  background-color: var(--color-warning);
   animation: pulse 1s ease-in-out infinite;
 }
 
@@ -98,12 +98,12 @@
   font-family: var(--font-body);
   color: var(--color-text-secondary);
   background-color: transparent;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 0 0 var(--color-shadow),
     0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
@@ -111,7 +111,7 @@
   color: var(--color-text-primary);
   transform: translateY(-1px);
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -122,7 +122,7 @@
 .regenerateBtn:active:not(:disabled) {
   transform: translateY(2px);
   box-shadow: 
-    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
@@ -136,12 +136,12 @@
 }
 
 .promptCard {
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   padding: var(--spacing-lg);
   box-shadow: 
-    0 3.5px 0 0 rgba(26, 26, 26, 0.9),
+    0 3.5px 0 0 var(--color-shadow),
     0 3.5px 18px rgba(0, 0, 0, 0.1),
     0 6px 30px rgba(0, 0, 0, 0.05);
 }
@@ -166,14 +166,14 @@
   display: inline-block;
   margin-top: var(--spacing-sm);
   padding: 0.375rem 0.875rem;
-  background-color: #f5f5f5;
-  border: 2px solid #1a1a1a;
+  background-color: var(--color-surface-alt);
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
   box-shadow: 
-    0 2px 0 0 rgba(26, 26, 26, 0.9),
+    0 2px 0 0 var(--color-shadow),
     0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -191,8 +191,8 @@
   align-items: center;
   gap: 4px;
   padding: 8px 12px;
-  background-color: #f8f8f8;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-toolbar-bg);
+  border: 3px solid var(--color-border-strong);
   border-bottom: none;
   border-radius: 16px 16px 0 0;
   flex-wrap: wrap;
@@ -220,18 +220,18 @@
 }
 
 .toolbarButton:hover {
-  background-color: rgba(26, 26, 26, 0.08);
+  background-color: var(--color-border);
   color: var(--color-text-primary);
 }
 
 .toolbarButton:active {
-  background-color: rgba(26, 26, 26, 0.15);
+  background-color: rgba(128, 128, 128, 0.2);
 }
 
 .toolbarButton.active {
-  background-color: #1a1a1a;
-  color: white;
-  border-color: #1a1a1a;
+  background-color: var(--color-border-strong);
+  color: var(--color-surface);
+  border-color: var(--color-border-strong);
 }
 
 .toolbarSelect {
@@ -239,8 +239,8 @@
   font-size: 0.8125rem;
   font-family: var(--font-body);
   color: var(--color-text-secondary);
-  background-color: white;
-  border: 2px solid #e0e0e0;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-toolbar-border);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -248,19 +248,19 @@
 }
 
 .toolbarSelect:hover {
-  border-color: #1a1a1a;
+  border-color: var(--color-border-strong);
 }
 
 .toolbarSelect:focus {
   outline: none;
-  border-color: #1a1a1a;
-  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.1);
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 2px var(--color-border);
 }
 
 .toolbarDivider {
   width: 1px;
   height: 24px;
-  background-color: #e0e0e0;
+  background-color: var(--color-toolbar-border);
   margin: 0 8px;
 }
 
@@ -274,13 +274,13 @@
   line-height: 1.8;
   color: var(--color-text-primary);
   background-color: var(--color-background);
-  border: 3px solid #1a1a1a;
+  border: 3px solid var(--color-border-strong);
   border-radius: 0 0 16px 16px;
   resize: none;
   outline: none;
   transition: all 0.2s ease;
   box-shadow: 
-    0 3.5px 0 0 rgba(26, 26, 26, 0.9),
+    0 3.5px 0 0 var(--color-shadow),
     0 3.5px 18px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
@@ -295,7 +295,7 @@
 
 .writingArea:focus {
   box-shadow: 
-    0 3.5px 0 0 rgba(26, 26, 26, 0.9),
+    0 3.5px 0 0 var(--color-shadow),
     0 3.5px 18px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.05),
     0 0 0 3px rgba(26, 26, 26, 0.1);
@@ -321,11 +321,11 @@
 }
 
 .wordCount.complete {
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 .wordCount.warning {
-  color: #f59e0b;
+  color: var(--color-warning);
 }
 
 .wordCountPercent {
@@ -336,12 +336,12 @@
 .progressBar {
   width: 100%;
   height: 16px;
-  background-color: #ffffff;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-strong);
   border-radius: 50px;
   overflow: hidden;
   box-shadow: 
-    0 2.8px 0 0 rgba(26, 26, 26, 0.9),
+    0 2.8px 0 0 var(--color-shadow),
     0 2.8px 15px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -354,15 +354,15 @@
 }
 
 .progressBarFill.complete {
-  background-color: #22c55e;
+  background-color: var(--color-success);
 }
 
 .progressBarFill.warning {
-  background-color: #f59e0b;
+  background-color: var(--color-warning);
 }
 
 .progressBarFill.over {
-  background-color: #ef4444;
+  background-color: var(--color-error-light);
 }
 
 /* Submit Section */
@@ -371,7 +371,7 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(26, 26, 26, 0.1);
+  border-top: 1px solid var(--color-border);
 }
 
 .submitBtn {
@@ -513,8 +513,8 @@
   align-items: flex-start;
   gap: var(--spacing-md);
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
-  border: 3px solid #ca8a04;
+  background: linear-gradient(135deg, var(--color-feedback-bg-start) 0%, var(--color-feedback-bg-end) 100%);
+  border: 3px solid var(--color-feedback-border);
   border-radius: 16px;
   animation: slideIn 0.3s ease;
   box-shadow: 
@@ -547,14 +547,14 @@
   font-family: var(--font-heading);
   font-size: 1.125rem;
   font-weight: 600;
-  color: #92400e;
+  color: var(--color-feedback-title);
   margin-bottom: 0.5rem;
 }
 
 .feedbackText {
   font-size: 1rem;
   line-height: 1.6;
-  color: #78350f;
+  color: var(--color-feedback-text);
 }
 
 /* Marked Essay Overlay */
@@ -601,8 +601,8 @@
 
 /* Error Summary Section - Sketchy 3D */
 .errorSummary {
-  background-color: #fef2f2;
-  border: 3px solid #ef4444;
+  background-color: var(--color-error-bg);
+  border: 3px solid var(--color-error-light);
   border-radius: 16px;
   padding: var(--spacing-lg);
   box-shadow: 
@@ -646,7 +646,7 @@
 
 .errorSeverity[data-severity="high"] {
   background-color: rgba(239, 68, 68, 0.15);
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .errorSeverity[data-severity="medium"] {
@@ -666,11 +666,11 @@
 /* Marked Essay Content - Sketchy 3D */
 .markedEssayContent {
   background-color: var(--color-background);
-  border: 3px solid #1a1a1a;
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   padding: var(--spacing-lg);
   box-shadow: 
-    0 5px 0 0 rgba(26, 26, 26, 0.9),
+    0 5px 0 0 var(--color-shadow),
     0 5px 18px rgba(0, 0, 0, 0.1),
     0 8px 30px rgba(0, 0, 0, 0.05);
 }
@@ -685,21 +685,21 @@
 
 /* Error Highlight - Red background for errors */
 .errorHighlight {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: #dc2626;
+  background-color: var(--color-error-highlight-bg);
+  color: var(--color-error);
   padding: 0.125rem 0.25rem;
   border-radius: 4px;
-  border-bottom: 2px solid #dc2626;
+  border-bottom: 2px solid var(--color-error);
   font-weight: 500;
 }
 
 /* Above-Level Highlight - Muted style for errors above student's grade level */
 .aboveLevelHighlight {
-  background-color: rgba(156, 163, 175, 0.15);
-  color: #9ca3af;
+  background-color: var(--color-above-level-bg);
+  color: var(--color-above-level-text);
   padding: 0.125rem 0.25rem;
   border-radius: 4px;
-  border-bottom: 1px dashed #9ca3af;
+  border-bottom: 1px dashed var(--color-above-level-text);
   cursor: help;
 }
 
@@ -710,7 +710,7 @@
   align-items: center;
   gap: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(26, 26, 26, 0.1);
+  border-top: 1px solid var(--color-border);
 }
 
 .continueHint {
@@ -772,21 +772,21 @@
   font-family: var(--font-body);
   color: var(--color-text-primary);
   background-color: transparent;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 12px rgba(0, 0, 0, 0.1),
     0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .redoBtn:hover {
-  background-color: rgba(26, 26, 26, 0.05);
+  background-color: var(--color-border);
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 0 0 rgba(26, 26, 26, 0.9),
+    0 6px 0 0 var(--color-shadow),
     0 6px 15px rgba(0, 0, 0, 0.12),
     0 8px 25px rgba(0, 0, 0, 0.08);
 }
@@ -794,7 +794,7 @@
 .redoBtn:active {
   transform: translateY(3px);
   box-shadow: 
-    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -818,8 +818,8 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background-color: rgba(239, 68, 68, 0.03);
-  border: 1px solid rgba(239, 68, 68, 0.15);
+  background-color: var(--color-error-snippet-bg);
+  border: 1px solid var(--color-error-snippet-border);
   border-radius: 16px;
   max-height: 600px;
   overflow-y: auto;
@@ -861,9 +861,9 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm);
-  background-color: rgba(239, 68, 68, 0.08);
+  background-color: var(--color-error-snippet-bg);
   border-radius: 8px;
-  border-left: 3px solid #dc2626;
+  border-left: 3px solid var(--color-error);
 }
 
 .errorSnippetNumber {
@@ -873,7 +873,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  background-color: #dc2626;
+  background-color: var(--color-error);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
@@ -883,14 +883,14 @@
 .errorSnippetText {
   font-size: 0.9375rem;
   line-height: 1.5;
-  color: #991b1b;
+  color: var(--color-error-text);
   font-style: italic;
 }
 
 /* Error Snippets Section in Redo Mode */
 .errorSnippetsSection {
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+  border-bottom: 1px solid var(--color-error-snippet-border);
   margin-bottom: var(--spacing-md);
 }
 
@@ -915,8 +915,8 @@
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
-  background-color: #fffbeb;
-  border: 3px solid #f59e0b;
+  background-color: var(--color-redo-bg);
+  border: 3px solid var(--color-redo-border);
   border-radius: 12px;
   margin-bottom: var(--spacing-md);
   box-shadow: 
@@ -935,13 +935,13 @@
 
 .redoBannerTitle {
   font-weight: 600;
-  color: #92400e;
+  color: var(--color-feedback-title);
   margin-bottom: 0.25rem;
 }
 
 .redoBannerSubtitle {
   font-size: 0.875rem;
-  color: #78350f;
+  color: var(--color-feedback-text);
 }
 
 /* Responsive */
@@ -1066,12 +1066,12 @@
   font-family: var(--font-body);
   color: var(--color-text-secondary);
   background-color: transparent;
-  border: 2px solid #1a1a1a;
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
   box-shadow: 
-    0 3px 0 0 rgba(26, 26, 26, 0.9),
+    0 3px 0 0 var(--color-shadow),
     0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
@@ -1079,14 +1079,14 @@
   color: var(--color-text-primary);
   transform: translateY(-1px);
   box-shadow: 
-    0 4px 0 0 rgba(26, 26, 26, 0.9),
+    0 4px 0 0 var(--color-shadow),
     0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .guideBtn:active {
   transform: translateY(2px);
   box-shadow: 
-    0 1px 0 0 rgba(26, 26, 26, 0.9),
+    0 1px 0 0 var(--color-shadow),
     0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
@@ -1111,7 +1111,7 @@
   right: 0;
   width: 75%;
   height: 100vh;
-  background-color: var(--color-background, #fff);
+  background-color: var(--color-background);
   z-index: 1000;
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
@@ -1130,10 +1130,10 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-lg);
-  border-bottom: 2px solid rgba(26, 26, 26, 0.1);
+  border-bottom: 2px solid var(--color-border);
   position: sticky;
   top: 0;
-  background-color: var(--color-background, #fff);
+  background-color: var(--color-background);
   z-index: 10;
 }
 
@@ -1167,7 +1167,7 @@
 }
 
 .guidePanelClose:hover {
-  background-color: rgba(26, 26, 26, 0.08);
+  background-color: var(--color-border);
   color: var(--color-text-primary);
 }
 
@@ -1180,8 +1180,8 @@
 }
 
 .guideSection {
-  background-color: #fafafa;
-  border: 2px solid rgba(26, 26, 26, 0.08);
+  background-color: var(--color-surface-hover);
+  border: 2px solid var(--color-border);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -1191,8 +1191,8 @@
   align-items: center;
   gap: 10px;
   padding: var(--spacing-md) var(--spacing-lg);
-  background-color: rgba(26, 26, 26, 0.03);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+  background-color: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .guideSectionIcon {
@@ -1224,8 +1224,8 @@
 }
 
 .guideSectionContent pre {
-  background-color: rgba(26, 26, 26, 0.04);
-  border: 1px solid rgba(26, 26, 26, 0.08);
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: var(--spacing-sm) var(--spacing-md);
   font-family: var(--font-body);
@@ -1251,7 +1251,7 @@
   align-items: flex-start;
   gap: 10px;
   padding: 10px 14px;
-  background-color: rgba(26, 26, 26, 0.02);
+  background-color: var(--color-surface-alt);
   border-radius: 10px;
   font-size: 0.9rem;
   line-height: 1.6;
@@ -1266,7 +1266,7 @@
   height: 24px;
   min-width: 24px;
   border-radius: 50%;
-  background-color: #1a1a1a;
+  background-color: var(--color-border-strong);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -1279,8 +1279,8 @@
   color: var(--color-text-muted);
   font-style: italic;
   padding: 12px 16px;
-  background-color: rgba(26, 26, 26, 0.02);
-  border-left: 3px solid rgba(26, 26, 26, 0.15);
+  background-color: var(--color-surface-alt);
+  border-left: 3px solid var(--color-border);
   border-radius: 0 8px 8px 0;
   margin-top: 0.5rem;
 }
@@ -1308,4 +1308,216 @@
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
+}
+
+/* ==============================
+   Focus Mode Button
+   ============================== */
+
+.focusBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-shadow:
+    0 3px 0 0 var(--color-shadow),
+    0 3px 10px var(--color-shadow-soft);
+}
+
+.focusBtn:hover {
+  color: var(--color-text-primary);
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 0 0 var(--color-shadow),
+    0 4px 12px var(--color-shadow-soft);
+}
+
+.focusBtn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 0 var(--color-shadow),
+    0 2px 6px var(--color-shadow-soft);
+}
+
+/* ==============================
+   Focus Mode
+   ============================== */
+
+.focusMode .writeHeader {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.focusMode .promptSection {
+  transition: all 0.3s ease;
+}
+
+.focusMode .promptActions {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.focusMode .promptCard {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  padding: var(--spacing-sm) 0;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.focusMode .promptCard:hover {
+  opacity: 0.8;
+}
+
+.focusMode .promptLabel {
+  display: none;
+}
+
+.focusMode .promptText {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.focusMode .skillBadge {
+  display: none;
+}
+
+.focusMode .formattingToolbar {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.focusMode .writingArea {
+  border-radius: 16px;
+  min-height: 70vh;
+  border-color: var(--color-border);
+  box-shadow: none;
+  transition: all 0.3s ease;
+}
+
+.focusMode .writingArea:focus {
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+
+.focusMode .wordCounterSection {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.focusMode .submitSection {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.focusMode .feedbackSection {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+/* Focus mode floating exit button */
+.focusExitBtn {
+  position: fixed;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 50px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+.focusExitBtn:hover {
+  opacity: 1;
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  box-shadow:
+    0 3px 0 0 var(--color-shadow),
+    0 3px 10px var(--color-shadow-soft);
+}
+
+/* Focus mode floating word count */
+.focusWordCount {
+  position: fixed;
+  bottom: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 200;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  padding: 0.375rem 0.75rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 50px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.focusWordCount:hover {
+  opacity: 1;
+}
+
+/* Focus mode floating save status */
+.focusSaveStatus {
+  position: fixed;
+  bottom: var(--spacing-md);
+  left: var(--spacing-md);
+  z-index: 200;
+}
+
+.focusSaveDot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-success);
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.focusSaveDot.saving {
+  background-color: var(--color-warning);
+  opacity: 1;
+  animation: pulse 1s ease-in-out infinite;
 }

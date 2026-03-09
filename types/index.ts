@@ -364,6 +364,9 @@ export const ESSAY_TYPE_OPTIONS = [
 
 export type EssayType = typeof ESSAY_TYPE_OPTIONS[number]
 
+// Theme type
+export type Theme = 'light' | 'dark'
+
 // User settings interface
 export interface UserSettings {
   craziness: CrazinessLevel
@@ -372,6 +375,7 @@ export interface UserSettings {
   setupComplete: boolean
   dismissedNotificationId: string | null
   difficultyLevel: DifficultyLevel
+  theme: Theme
 }
 
 // Default user settings
@@ -381,7 +385,8 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   essayType: 'Non-Fiction',
   setupComplete: false,
   dismissedNotificationId: null,
-  difficultyLevel: 'proficient'
+  difficultyLevel: 'proficient',
+  theme: 'light'
 }
 
 

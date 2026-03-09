@@ -3,7 +3,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f5f5f5 0%, #ffffff 100%);
+  background: linear-gradient(180deg, var(--color-page-gradient-start) 0%, var(--color-page-gradient-end) 100%);
 }
 
 .teacherHeader {
@@ -11,8 +11,8 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) var(--spacing-lg);
-  background-color: #1a1a1a;
-  border-bottom: 3px solid #2d2d2d;
+  background-color: var(--color-header-dark);
+  border-bottom: 3px solid var(--color-border-strong);
 }
 
 .backButton {
@@ -23,8 +23,8 @@
   font-size: 0.9375rem;
   font-weight: 500;
   font-family: var(--font-body);
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-header-dark-text);
+  background-color: var(--color-border);
   border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 50px;
   cursor: pointer;
@@ -34,7 +34,7 @@
 }
 
 .backButton:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--color-surface-alt);
   transform: translateY(-2px);
   box-shadow: 0 5px 0 0 rgba(255, 255, 255, 0.3), 0 5px 12px rgba(0, 0, 0, 0.25);
 }
@@ -51,7 +51,7 @@
   font-family: var(--font-heading);
   font-size: 1.5rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-header-dark-text);
   letter-spacing: -0.02em;
 }
 
@@ -85,11 +85,11 @@
 
 /* Card / Section */
 .card {
-  background-color: #ffffff;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-strong);
   border-radius: 24px;
   padding: var(--spacing-xl);
-  box-shadow: 0 6px 0 0 rgba(26, 26, 26, 0.9), 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 0 0 var(--color-shadow), 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .cardTitle {
@@ -119,9 +119,9 @@
   padding: 0.75rem 1rem;
   font-size: 0.9375rem;
   font-family: var(--font-body);
-  border: 2px solid rgba(26, 26, 26, 0.2);
+  border: 2px solid var(--color-border);
   border-radius: 12px;
-  background-color: #fafafa;
+  background-color: var(--color-surface-hover);
   color: var(--color-text-primary);
   transition: border-color 0.15s ease;
   flex: 1;
@@ -129,8 +129,8 @@
 
 .formInput:focus {
   outline: none;
-  border-color: #1a1a1a;
-  box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 3px var(--color-border);
 }
 
 .primaryButton {
@@ -138,24 +138,24 @@
   font-size: 0.9375rem;
   font-weight: 600;
   font-family: var(--font-body);
-  color: #ffffff;
-  background-color: #1a1a1a;
-  border: 2px solid #1a1a1a;
+  color: var(--color-header-dark-text);
+  background-color: var(--color-header-dark);
+  border: 2px solid var(--color-border-strong);
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.1s ease;
   white-space: nowrap;
-  box-shadow: 0 3px 0 0 rgba(26, 26, 26, 0.9), 0 3px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 0 0 var(--color-shadow), 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .primaryButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 0 0 rgba(26, 26, 26, 0.9), 0 5px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 0 0 var(--color-shadow), 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .primaryButton:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 0 rgba(26, 26, 26, 0.9), 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 0 0 var(--color-shadow), 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .primaryButton:disabled {
@@ -166,8 +166,8 @@
 
 .dangerButton {
   composes: primaryButton;
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
   box-shadow: 0 3px 0 0 rgba(185, 28, 28, 0.9), 0 3px 10px rgba(185, 28, 28, 0.1);
 }
 
@@ -176,7 +176,7 @@
 }
 
 .formError {
-  color: #dc2626;
+  color: var(--color-error);
   font-size: 0.875rem;
   margin-top: var(--spacing-xs);
 }
@@ -193,24 +193,24 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   padding: var(--spacing-lg);
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.1s ease;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 4px 0 0 rgba(26, 26, 26, 0.9), 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 0 0 var(--color-shadow), 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .classroomCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 rgba(26, 26, 26, 0.9), 0 6px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 0 0 var(--color-shadow), 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
 .classroomCard:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 0 rgba(26, 26, 26, 0.9), 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 0 0 var(--color-shadow), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .classroomName {
@@ -231,7 +231,7 @@
 .classroomCode {
   font-family: monospace;
   padding: 2px 8px;
-  background-color: rgba(26, 26, 26, 0.06);
+  background-color: var(--color-surface-alt);
   border-radius: 6px;
   font-weight: 600;
 }
@@ -255,13 +255,13 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
-  border-bottom: 2px solid rgba(26, 26, 26, 0.1);
+  border-bottom: 2px solid var(--color-border);
 }
 
 .rosterTable td {
   padding: 0.875rem 1rem;
   font-size: 0.9375rem;
-  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
@@ -271,7 +271,7 @@
 }
 
 .rosterTable tbody tr:hover {
-  background-color: rgba(26, 26, 26, 0.03);
+  background-color: var(--color-surface-hover);
 }
 
 .studentName {
@@ -299,7 +299,7 @@
 .statusIdle {
   composes: statusBadge;
   color: var(--color-text-muted);
-  background-color: rgba(26, 26, 26, 0.06);
+  background-color: var(--color-surface-alt);
 }
 
 .statusWriting {
@@ -329,17 +329,17 @@
   align-items: center;
   gap: 4px;
   padding: var(--spacing-md) var(--spacing-lg);
-  background-color: #ffffff;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
-  box-shadow: 0 4px 0 0 rgba(26, 26, 26, 0.9), 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 0 0 var(--color-shadow), 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .statValue {
   font-family: var(--font-heading);
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-text-primary);
 }
 
 .statLabel {
@@ -353,18 +353,18 @@
   align-items: center;
   gap: var(--spacing-lg);
   padding: var(--spacing-lg);
-  background-color: #ffffff;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface);
+  border: 3px solid var(--color-border-strong);
   border-radius: 24px;
-  box-shadow: 0 6px 0 0 rgba(26, 26, 26, 0.9), 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 0 0 var(--color-shadow), 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .studentAvatar {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--color-header-dark);
+  color: var(--color-header-dark-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -403,7 +403,7 @@
   font-size: 0.8125rem;
   font-weight: 500;
   border-radius: 50px;
-  background-color: rgba(26, 26, 26, 0.06);
+  background-color: var(--color-surface-alt);
   color: var(--color-text-secondary);
 }
 
@@ -433,7 +433,7 @@
   font-size: 0.8125rem;
   font-weight: 500;
   font-family: var(--font-body);
-  border: 2px solid rgba(26, 26, 26, 0.2);
+  border: 2px solid var(--color-border);
   border-radius: 50px;
   background-color: transparent;
   color: var(--color-text-secondary);
@@ -442,15 +442,15 @@
 }
 
 .filterButton:hover {
-  border-color: #1a1a1a;
-  color: #1a1a1a;
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
 }
 
 .filterActive {
   composes: filterButton;
-  background-color: #1a1a1a;
-  border-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--color-header-dark);
+  border-color: var(--color-border-strong);
+  color: var(--color-header-dark-text);
 }
 
 .struggleGrid {
@@ -461,17 +461,17 @@
 
 .struggleCard {
   padding: var(--spacing-md) var(--spacing-lg);
-  background-color: #fafafa;
-  border: 3px solid #1a1a1a;
+  background-color: var(--color-surface-hover);
+  border: 3px solid var(--color-border-strong);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.1s ease;
-  box-shadow: 0 3px 0 0 rgba(26, 26, 26, 0.9), 0 3px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 3px 0 0 var(--color-shadow), 0 3px 12px rgba(0, 0, 0, 0.06);
 }
 
 .struggleCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 0 0 rgba(26, 26, 26, 0.9), 0 5px 14px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 0 0 var(--color-shadow), 0 5px 14px rgba(0, 0, 0, 0.1);
 }
 
 .struggleCardExpanded {
@@ -482,7 +482,7 @@
 
 .struggleCardExpanded:hover {
   transform: none;
-  box-shadow: 0 3px 0 0 rgba(26, 26, 26, 0.9), 0 3px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 3px 0 0 var(--color-shadow), 0 3px 12px rgba(0, 0, 0, 0.06);
 }
 
 .struggleHeader {
@@ -511,7 +511,7 @@
 }
 
 .trendDeclining {
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .trendStable {
@@ -537,13 +537,13 @@
 }
 
 .scoreFailed {
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .chartContainer {
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(26, 26, 26, 0.08);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Activity Timeline */
@@ -558,13 +558,13 @@
   align-items: flex-start;
   gap: var(--spacing-md);
   padding: var(--spacing-md) 0;
-  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   transition: background-color 0.1s ease;
 }
 
 .timelineEntry:hover {
-  background-color: rgba(26, 26, 26, 0.02);
+  background-color: var(--color-surface-hover);
 }
 
 .timelineEntry:last-child {
@@ -605,14 +605,14 @@
 .timelineExpanded {
   padding: var(--spacing-md);
   margin-top: var(--spacing-sm);
-  background-color: rgba(26, 26, 26, 0.03);
+  background-color: var(--color-surface-hover);
   border-radius: 12px;
   font-size: 0.875rem;
 }
 
 .timelineExpandedItem {
   padding: var(--spacing-xs) 0;
-  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .timelineExpandedItem:last-child {
@@ -633,7 +633,7 @@
 }
 
 .answerWrong {
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 /* Score Distribution Bar Chart */
@@ -659,7 +659,7 @@
 .barTrack {
   flex: 1;
   height: 20px;
-  background-color: rgba(26, 26, 26, 0.06);
+  background-color: var(--color-surface-alt);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -667,7 +667,7 @@
 .barFill {
   height: 100%;
   border-radius: 10px;
-  background-color: #1a1a1a;
+  background-color: var(--color-header-dark);
   transition: width 0.3s ease;
 }
 
@@ -689,7 +689,7 @@
   font-weight: 700;
   color: var(--color-text-muted);
   background-color: transparent;
-  border: 2px solid rgba(26, 26, 26, 0.2);
+  border: 2px solid var(--color-border);
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -697,9 +697,9 @@
 }
 
 .folderButton:hover {
-  color: #1a1a1a;
-  border-color: #1a1a1a;
-  background-color: rgba(26, 26, 26, 0.04);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-alt);
   transform: scale(1.1);
 }
 
@@ -711,7 +711,7 @@
   height: 32px;
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-header-dark-text);
   background-color: #16a34a;
   border: 2px solid #16a34a;
   border-radius: 50%;
@@ -721,8 +721,8 @@
 }
 
 .folderButtonActive:hover {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
   transform: scale(1.1);
 }
 
@@ -755,8 +755,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid rgba(45, 45, 45, 0.2);
-  border-top-color: #2d2d2d;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-text-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
