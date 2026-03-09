@@ -82,19 +82,6 @@ export interface QuizHistoryEntry {
   teacherFeedback?: { explanations: string[]; memoryHooks: string[] }
 }
 
-// ============================================
-// Classroom & Teacher Types
-// ============================================
-
-export interface Classroom {
-  id?: string
-  name: string
-  teacherEmail: string
-  classCode: string
-  studentEmails: string[]
-  createdAt: Timestamp
-}
-
 // API response types
 export interface StreamChunk {
   type: 'chunk' | 'done' | 'error'
@@ -385,7 +372,6 @@ export interface UserSettings {
   setupComplete: boolean
   dismissedNotificationId: string | null
   difficultyLevel: DifficultyLevel
-  classroomId?: string | null
 }
 
 // Default user settings

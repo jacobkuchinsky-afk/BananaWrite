@@ -1,22 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
-import { Classroom } from '@/types'
-import { getTeacherClassrooms, createClassroom, deleteClassroom } from '@/lib/adminFirestore'
+import { GRADE_WRITING_TECHNIQUES, DifficultyLevel } from '@/types'
+import {
+  getAllStudents,
+  getTeacherFolderEmails,
+  addStudentToFolder,
+  removeStudentFromFolder,
+  StudentOverview
+} from '@/lib/adminFirestore'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Teacher/Teacher.module.css'
+
+type ViewFilter = 'all' | 'my_class'
 
 function TeacherDashboardContent() {
   const router = useRouter()
   const { user, loading, isTeacher, isAdmin } = useAuth()
-  const [classrooms, setClassrooms] = useState<Classroom[]>([])
+  const [students, setStudents] = useState<StudentOverview[]>([])
+  const [folderEmails, setFolderEmails] = useState<string[]>([])
   const [loadingData, setLoadingData] = useState(true)
-  const [newClassName, setNewClassName] = useState('')
-  const [creating, setCreating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [viewFilter, setViewFilter] = useState<ViewFilter>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (!loading && !isTeacher && !isAdmin) {
@@ -25,55 +33,75 @@ function TeacherDashboardContent() {
   }, [loading, isTeacher, isAdmin, router])
 
   useEffect(() => {
-    async function loadClassrooms() {
+    async function loadData() {
       if (!user?.email) return
       try {
-        const data = await getTeacherClassrooms(user.email)
-        setClassrooms(data)
+        const [allStudents, folder] = await Promise.all([
+          getAllStudents(),
+          getTeacherFolderEmails(user.email)
+        ])
+        setStudents(allStudents)
+        setFolderEmails(folder)
       } catch (err) {
-        console.error('Error loading classrooms:', err)
+        console.error('Error loading students:', err)
       } finally {
         setLoadingData(false)
       }
     }
-    if (user && (isTeacher || isAdmin)) loadClassrooms()
+    if (user && (isTeacher || isAdmin)) loadData()
   }, [user, isTeacher, isAdmin])
 
-  const handleCreateClassroom = async () => {
-    if (!user?.email || !newClassName.trim()) {
-      setError('Please enter a class name.')
-      return
-    }
-    setCreating(true)
-    setError(null)
+  const handleAddToFolder = async (studentEmail: string) => {
+    if (!user?.email) return
     try {
-      await createClassroom(newClassName.trim(), user.email)
-      const data = await getTeacherClassrooms(user.email)
-      setClassrooms(data)
-      setNewClassName('')
+      await addStudentToFolder(user.email, studentEmail)
+      setFolderEmails(prev => [...prev, studentEmail.toLowerCase()])
     } catch (err) {
-      console.error('Error creating classroom:', err)
-      setError('Failed to create classroom.')
-    } finally {
-      setCreating(false)
+      console.error('Error adding to folder:', err)
     }
   }
 
-  const handleDeleteClassroom = async (id: string) => {
+  const handleRemoveFromFolder = async (studentEmail: string) => {
+    if (!user?.email) return
     try {
-      await deleteClassroom(id)
-      setClassrooms(prev => prev.filter(c => c.id !== id))
+      await removeStudentFromFolder(user.email, studentEmail)
+      setFolderEmails(prev => prev.filter(e => e !== studentEmail.toLowerCase()))
     } catch (err) {
-      console.error('Error deleting classroom:', err)
+      console.error('Error removing from folder:', err)
     }
   }
+
+  const isInFolder = (email: string) => folderEmails.includes(email.toLowerCase())
+
+  const getSkillName = (student: StudentOverview) => {
+    const techniques = GRADE_WRITING_TECHNIQUES[student.difficultyLevel as DifficultyLevel]
+    return techniques?.[student.currentLesson] || 'Commas'
+  }
+
+  const filteredStudents = useMemo(() => {
+    let list = students
+    if (viewFilter === 'my_class') {
+      list = list.filter(s => isInFolder(s.email))
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      list = list.filter(s =>
+        s.email.toLowerCase().includes(q) ||
+        (s.displayName && s.displayName.toLowerCase().includes(q))
+      )
+    }
+    return list
+  }, [students, viewFilter, searchQuery, folderEmails])
+
+  const myClassCount = students.filter(s => isInFolder(s.email)).length
+  const writingCount = students.filter(s => s.sessionStatus === 'writing').length
 
   if (loading || loadingData) {
     return (
       <div className={styles.teacherPage}>
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
-          <p className={styles.loadingText}>Loading teacher dashboard...</p>
+          <p className={styles.loadingText}>Loading students...</p>
         </div>
       </div>
     )
@@ -89,7 +117,7 @@ function TeacherDashboardContent() {
         </Link>
         <h1 className={styles.pageTitle}>
           <span className={styles.badge}>Teacher</span>
-          My Classrooms
+          Students
         </h1>
         <div className={styles.headerSpacer} />
       </header>
@@ -98,78 +126,126 @@ function TeacherDashboardContent() {
         {/* Quick Stats */}
         <div className={styles.statsRow}>
           <div className={styles.statCard}>
-            <span className={styles.statValue}>{classrooms.length}</span>
-            <span className={styles.statLabel}>Classes</span>
+            <span className={styles.statValue}>{students.length}</span>
+            <span className={styles.statLabel}>All Students</span>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statValue}>
-              {classrooms.reduce((sum, c) => sum + (c.studentEmails?.length || 0), 0)}
-            </span>
-            <span className={styles.statLabel}>Total Students</span>
+            <span className={styles.statValue}>{myClassCount}</span>
+            <span className={styles.statLabel}>Your Class</span>
+          </div>
+          <div className={styles.statCard}>
+            <span className={styles.statValue}>{writingCount}</span>
+            <span className={styles.statLabel}>Currently Writing</span>
           </div>
         </div>
 
-        {/* Create Class */}
+        {/* Filters & Search */}
         <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Create a New Class</h2>
-          <p className={styles.cardDescription}>
-            Students will join using a class code you&apos;ll receive after creating it.
-          </p>
-          <div className={styles.formRow}>
+          <div className={styles.sectionHeader}>
+            <div className={styles.filterToggle} role="group" aria-label="Filter students">
+              <button
+                className={viewFilter === 'all' ? styles.filterActive : styles.filterButton}
+                onClick={() => setViewFilter('all')}
+              >
+                All Students ({students.length})
+              </button>
+              <button
+                className={viewFilter === 'my_class' ? styles.filterActive : styles.filterButton}
+                onClick={() => setViewFilter('my_class')}
+              >
+                Your Class ({myClassCount})
+              </button>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 'var(--spacing-md)' }}>
             <input
               type="text"
-              value={newClassName}
-              onChange={e => { setNewClassName(e.target.value); setError(null) }}
-              placeholder="e.g. Period 3 English"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search by name or email..."
               className={styles.formInput}
-              onKeyDown={e => e.key === 'Enter' && handleCreateClassroom()}
+              style={{ maxWidth: 400 }}
             />
-            <button
-              onClick={handleCreateClassroom}
-              disabled={creating}
-              className={styles.primaryButton}
-            >
-              {creating ? 'Creating...' : 'Create Class'}
-            </button>
           </div>
-          {error && <p className={styles.formError} role="alert">{error}</p>}
-        </section>
 
-        {/* Classroom List */}
-        {classrooms.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p className={styles.emptyStateText}>
-              No classrooms yet. Create one above to get started.
-            </p>
-          </div>
-        ) : (
-          <div className={styles.classroomGrid}>
-            {classrooms.map(classroom => (
-              <div key={classroom.id} style={{ position: 'relative' }}>
-                <Link
-                  href={`/teacher/classroom/${classroom.id}`}
-                  className={styles.classroomCard}
-                >
-                  <span className={styles.classroomName}>{classroom.name}</span>
-                  <div className={styles.classroomMeta}>
-                    <span>Code: <span className={styles.classroomCode}>{classroom.classCode}</span></span>
-                    <span className={styles.classroomStudentCount}>
-                      {classroom.studentEmails?.length || 0} students
-                    </span>
-                  </div>
-                </Link>
-                <button
-                  onClick={(e) => { e.preventDefault(); handleDeleteClassroom(classroom.id!) }}
-                  className={styles.dangerButton}
-                  style={{ position: 'absolute', top: 12, right: 12, padding: '4px 10px', fontSize: '0.75rem' }}
-                  aria-label={`Delete ${classroom.name}`}
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+          {/* Student Table */}
+          {filteredStudents.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p className={styles.emptyStateText}>
+                {viewFilter === 'my_class' && myClassCount === 0
+                  ? 'No students in Your Class yet. Click the + button next to a student to add them.'
+                  : searchQuery
+                    ? 'No students match your search.'
+                    : 'No students found.'}
+              </p>
+            </div>
+          ) : (
+            <table className={styles.rosterTable}>
+              <thead>
+                <tr>
+                  <th scope="col">Student</th>
+                  <th scope="col">Current Skill</th>
+                  <th scope="col">Lessons</th>
+                  <th scope="col">XP</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Your Class</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map(student => {
+                  const inFolder = isInFolder(student.email)
+                  return (
+                    <tr
+                      key={student.userId}
+                      onClick={() => router.push(`/teacher/student/${student.userId}`)}
+                    >
+                      <td>
+                        <div className={styles.studentName}>
+                          {student.displayName || 'No Name'}
+                        </div>
+                        <div className={styles.studentEmail}>{student.email}</div>
+                      </td>
+                      <td>{getSkillName(student)}</td>
+                      <td>{student.completedLessons.length}</td>
+                      <td>{student.totalXP}</td>
+                      <td>
+                        <span className={
+                          student.sessionStatus === 'writing' ? styles.statusWriting
+                          : student.sessionStatus === 'submitted' ? styles.statusQuiz
+                          : styles.statusIdle
+                        }>
+                          {student.sessionStatus}
+                        </span>
+                      </td>
+                      <td>
+                        {inFolder ? (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRemoveFromFolder(student.email) }}
+                            className={styles.folderButtonActive}
+                            aria-label={`Remove ${student.displayName || student.email} from Your Class`}
+                            title="Remove from Your Class"
+                          >
+                            ✓
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleAddToFolder(student.email) }}
+                            className={styles.folderButton}
+                            aria-label={`Add ${student.displayName || student.email} to Your Class`}
+                            title="Add to Your Class"
+                          >
+                            +
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
+        </section>
       </main>
     </div>
   )

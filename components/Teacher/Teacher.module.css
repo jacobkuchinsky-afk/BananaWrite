@@ -678,6 +678,54 @@
   min-width: 24px;
 }
 
+/* Folder Add/Remove Buttons */
+.folderButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background-color: transparent;
+  border: 2px solid rgba(26, 26, 26, 0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  line-height: 1;
+}
+
+.folderButton:hover {
+  color: #1a1a1a;
+  border-color: #1a1a1a;
+  background-color: rgba(26, 26, 26, 0.04);
+  transform: scale(1.1);
+}
+
+.folderButtonActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #16a34a;
+  border: 2px solid #16a34a;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  line-height: 1;
+}
+
+.folderButtonActive:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  transform: scale(1.1);
+}
+
 /* Empty State */
 .emptyState {
   display: flex;

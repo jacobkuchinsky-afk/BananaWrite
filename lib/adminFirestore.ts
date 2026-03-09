@@ -39,7 +39,6 @@ import {
   DifficultyLevel,
   DifficultyPreset,
   QuizHistoryEntry,
-  Classroom,
   SUPER_ADMIN_EMAIL
 } from '@/types'
 import { addDoc, deleteDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
@@ -51,7 +50,6 @@ const USERS_COLLECTION = 'users'
 const BUG_REPORTS_COLLECTION = 'bugReports'
 const UPDATE_NOTIFICATIONS_COLLECTION = 'updateNotifications'
 const DIFFICULTY_PRESETS_COLLECTION = 'difficultyPresets'
-const CLASSROOMS_COLLECTION = 'classrooms'
 
 // Document references
 const getAppSettingsDocRef = () => doc(db, APP_SETTINGS_COLLECTION, 'global')
@@ -175,70 +173,34 @@ export async function removeTeacher(email: string): Promise<void> {
 }
 
 // ============================================
-// Classroom Functions
+// Teacher Folder Functions ("Your Class" bookmarks)
 // ============================================
 
-function generateClassCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = ''
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return code
-}
+const getTeacherFolderDocRef = (teacherEmail: string) =>
+  doc(db, APP_SETTINGS_COLLECTION, `teacherFolder_${teacherEmail.toLowerCase().replace(/[^a-z0-9]/g, '_')}`)
 
-export async function createClassroom(name: string, teacherEmail: string): Promise<string> {
-  const classroomsRef = collection(db, CLASSROOMS_COLLECTION)
-  const classCode = generateClassCode()
-  const docRef = await addDoc(classroomsRef, {
-    name,
-    teacherEmail: teacherEmail.toLowerCase(),
-    classCode,
-    studentEmails: [],
-    createdAt: serverTimestamp()
-  })
-  return docRef.id
-}
-
-export async function getTeacherClassrooms(teacherEmail: string): Promise<Classroom[]> {
-  const classroomsRef = collection(db, CLASSROOMS_COLLECTION)
-  const q = query(classroomsRef, where('teacherEmail', '==', teacherEmail.toLowerCase()), orderBy('createdAt', 'desc'))
-  const snapshot = await getDocs(q)
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Classroom))
-}
-
-export async function getClassroomById(classroomId: string): Promise<Classroom | null> {
-  const classroomRef = doc(db, CLASSROOMS_COLLECTION, classroomId)
-  const snap = await getDoc(classroomRef)
+export async function getTeacherFolderEmails(teacherEmail: string): Promise<string[]> {
+  const folderRef = getTeacherFolderDocRef(teacherEmail)
+  const snap = await getDoc(folderRef)
   if (snap.exists()) {
-    return { id: snap.id, ...snap.data() } as Classroom
+    return (snap.data().studentEmails || []).map((e: string) => e.toLowerCase())
   }
-  return null
+  return []
 }
 
-export async function joinClassroom(classCode: string, studentEmail: string): Promise<string | null> {
-  const classroomsRef = collection(db, CLASSROOMS_COLLECTION)
-  const q = query(classroomsRef, where('classCode', '==', classCode.toUpperCase()))
-  const snapshot = await getDocs(q)
-  if (snapshot.empty) return null
-
-  const classroomDoc = snapshot.docs[0]
-  await updateDoc(doc(db, CLASSROOMS_COLLECTION, classroomDoc.id), {
-    studentEmails: arrayUnion(studentEmail.toLowerCase())
-  })
-  return classroomDoc.id
+export async function addStudentToFolder(teacherEmail: string, studentEmail: string): Promise<void> {
+  const folderRef = getTeacherFolderDocRef(teacherEmail)
+  const snap = await getDoc(folderRef)
+  if (!snap.exists()) {
+    await setDoc(folderRef, { studentEmails: [studentEmail.toLowerCase()] })
+  } else {
+    await updateDoc(folderRef, { studentEmails: arrayUnion(studentEmail.toLowerCase()) })
+  }
 }
 
-export async function removeStudentFromClassroom(classroomId: string, studentEmail: string): Promise<void> {
-  const classroomRef = doc(db, CLASSROOMS_COLLECTION, classroomId)
-  await updateDoc(classroomRef, {
-    studentEmails: arrayRemove(studentEmail.toLowerCase())
-  })
-}
-
-export async function deleteClassroom(classroomId: string): Promise<void> {
-  const classroomRef = doc(db, CLASSROOMS_COLLECTION, classroomId)
-  await deleteDoc(classroomRef)
+export async function removeStudentFromFolder(teacherEmail: string, studentEmail: string): Promise<void> {
+  const folderRef = getTeacherFolderDocRef(teacherEmail)
+  await updateDoc(folderRef, { studentEmails: arrayRemove(studentEmail.toLowerCase()) })
 }
 
 // ============================================
@@ -257,10 +219,7 @@ export interface StudentOverview {
   lastActive: Timestamp | null
 }
 
-export async function getClassroomStudents(classroomId: string): Promise<StudentOverview[]> {
-  const classroom = await getClassroomById(classroomId)
-  if (!classroom) return []
-
+export async function getAllStudents(): Promise<StudentOverview[]> {
   const students: StudentOverview[] = []
   const usersRef = collection(db, USERS_COLLECTION)
   const usersSnap = await getDocs(usersRef)
@@ -268,8 +227,6 @@ export async function getClassroomStudents(classroomId: string): Promise<Student
   for (const userDoc of usersSnap.docs) {
     const userId = userDoc.id
     const userData = userDoc.data()
-    const email = (userData.email || '').toLowerCase()
-    if (!classroom.studentEmails.includes(email)) continue
 
     const [profileSnap, progressSnap, settingsSnap, sessionSnap] = await Promise.all([
       getDoc(doc(db, USERS_COLLECTION, userId, 'data', 'profile')),
@@ -283,16 +240,18 @@ export async function getClassroomStudents(classroomId: string): Promise<Student
     const settings = settingsSnap.exists() ? settingsSnap.data() as UserSettings : null
     const session = sessionSnap.exists() ? sessionSnap.data() as CurrentSession : null
 
+    if (!profile) continue
+
     students.push({
       userId,
-      email: profile?.email || email,
-      displayName: profile?.displayName || null,
+      email: profile.email || (userData.email as string) || '',
+      displayName: profile.displayName || null,
       currentLesson: progress?.currentLesson ?? 0,
       completedLessons: progress?.completedLessons ?? [],
       totalXP: progress?.totalXP ?? 0,
       difficultyLevel: settings?.difficultyLevel || 'proficient',
       sessionStatus: session?.status || 'idle',
-      lastActive: profile?.lastActive || null
+      lastActive: profile.lastActive || null
     })
   }
 
