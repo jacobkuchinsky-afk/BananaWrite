@@ -7,7 +7,6 @@ import logging
 import os
 import re
 from openai import OpenAI
-import anthropic
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -24,8 +23,10 @@ logger = logging.getLogger(__name__)
 # SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2.5-TEE"
 # FAST_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
 
-# --- Anthropic API configuration (Claude setup token) ---
-ANTHROPIC_AUTH_TOKEN = os.getenv('ANTHROPIC_AUTH_TOKEN', '')
+# --- Claude Max API Proxy configuration ---
+# The proxy runs locally (started by start.sh) and handles Anthropic auth via CLI.
+API_KEY = os.getenv('CLAUDE_PROXY_API_KEY', 'not-needed')
+BASE_URL = os.getenv('CLAUDE_PROXY_BASE_URL', 'http://localhost:3456/v1')
 MAIN_MODEL = "claude-sonnet-4-6"
 SELF_REVIEWER_MODEL = "claude-opus-4-6"
 FAST_MODEL = "claude-sonnet-4-6"
@@ -48,9 +49,9 @@ TEMPERATURE_QUIZ_GRADER = 0.1           # Grades quiz answers - should be very c
 TEMPERATURE_TEACHER_FEEDBACK = 0.5      # Provides feedback for wrong answers - balanced
 TEMPERATURE_TEACHER_CHAT = 0.6          # Chat interactions with student - conversational
 
-# Log warning if API key is missing (but don't fail during import/build)
-if not ANTHROPIC_AUTH_TOKEN:
-    logger.warning("ANTHROPIC_AUTH_TOKEN environment variable not set! API calls will fail.")
+# Log warning if proxy URL is default localhost (expected in production)
+if 'localhost' in BASE_URL:
+    logger.info("Using local Claude Max API Proxy at %s", BASE_URL)
 
 # Writing techniques list - progression of skills to learn
 WRITING_TECHNIQUES = [
@@ -1162,83 +1163,12 @@ Output:
 }
 
 
-# =============================================================================
-# ANTHROPIC WRAPPER
-# Translates OpenAI SDK interface to Anthropic Messages API so all existing
-# call sites (client.chat.completions.create) work without changes.
-# =============================================================================
-
-class _Message:
-    def __init__(self, content):
-        self.content = content
-
-class _Choice:
-    def __init__(self, message):
-        self.message = message
-
-class _Response:
-    def __init__(self, content):
-        self.choices = [_Choice(_Message(content))]
-
-class _Delta:
-    def __init__(self, content):
-        self.content = content
-
-class _StreamChoice:
-    def __init__(self, delta):
-        self.delta = delta
-
-class _StreamChunk:
-    def __init__(self, content):
-        self.choices = [_StreamChoice(_Delta(content))]
-
-class _Completions:
-    def __init__(self, client):
-        self._client = client
-
-    def create(self, model, messages, temperature=1.0, stream=False, **kwargs):
-        system = ""
-        user_messages = []
-        for msg in messages:
-            if msg["role"] == "system":
-                system = msg["content"]
-            else:
-                user_messages.append(msg)
-
-        params = dict(
-            model=model,
-            messages=user_messages,
-            max_tokens=16384,
-            temperature=temperature,
-        )
-        if system:
-            params["system"] = system
-
-        if stream:
-            return self._stream_response(params)
-
-        response = self._client.messages.create(**params)
-        return _Response(response.content[0].text)
-
-    def _stream_response(self, params):
-        with self._client.messages.stream(**params) as stream:
-            for text in stream.text_stream:
-                yield _StreamChunk(text)
-
-class _Chat:
-    def __init__(self, client):
-        self.completions = _Completions(client)
-
-class AnthropicWrapper:
-    """Drop-in replacement for OpenAI() that routes to the Anthropic Messages API."""
-    def __init__(self, auth_token):
-        self._client = anthropic.Anthropic(auth_token=auth_token)
-        self.chat = _Chat(self._client)
-
-
 def create_client():
-    """Create and return an Anthropic client with OpenAI-compatible interface"""
-    return AnthropicWrapper(auth_token=ANTHROPIC_AUTH_TOKEN)
+    """Create and return an OpenAI client pointed at the Claude Max API Proxy"""
+    return OpenAI(
+        base_url=BASE_URL,
+        api_key=API_KEY
+    )
 
 
 def self_review(context_type: str, original_response: str, user_content: str, original_prompt: str = None) -> dict:
