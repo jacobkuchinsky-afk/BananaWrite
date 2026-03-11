@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useActivityTracker } from '@/hooks/useActivityTracker'
+import { calculateEssayXP, calculateQuizXP } from '@/lib/xpCalculator'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import InteractiveLoader from '@/components/Loading/InteractiveLoader'
 import {
@@ -31,6 +33,7 @@ import {
   completeLesson,
   resetSession,
   getUserProgress,
+  getCurrentSession,
   replaceQuizQuestion
 } from '@/lib/firestore'
 import { getAppSettings, incrementAnalytics, saveBugReport } from '@/lib/adminFirestore'
@@ -90,6 +93,14 @@ function QuizContent() {
   // User settings for difficulty level
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const difficultyLevel = (userSettings?.difficultyLevel || 'proficient') as DifficultyLevel
+
+  // Activity tracking for XP
+  const { getActiveMinutes } = useActivityTracker()
+  const [earnedXP, setEarnedXP] = useState(0)
+
+  // Essay session data for combined XP calculation
+  const [essayWordCount, setEssayWordCount] = useState(0)
+  const [essayActiveMinutes, setEssayActiveMinutes] = useState(0)
   
   // Guard ref to prevent duplicate API calls during generation
   const isGenerating = useRef(false)
@@ -162,50 +173,67 @@ function QuizContent() {
           console.warn('[Quiz] Could not sync settings to backend:', syncError)
         }
         
-        // Fetch user settings for difficulty level
+        // Fetch user settings, progress, and essay session for XP calculation
+        let essaySession: import('@/types').CurrentSession | null = null
         try {
-          const settings = await getUserSettings(user.uid)
+          const [settings, progress, session] = await Promise.all([
+            getUserSettings(user.uid),
+            getUserProgress(user.uid),
+            getCurrentSession(user.uid)
+          ])
+          essaySession = session
           if (settings) setUserSettings(settings)
+          if (progress) setCurrentLesson(progress.currentLesson)
+          if (essaySession) {
+            setEssayWordCount(essaySession.wordCount || 0)
+            setEssayActiveMinutes(essaySession.activeMinutes || 0)
+          }
         } catch (settingsError) {
-          console.warn('[Quiz] Could not fetch user settings:', settingsError)
+          console.warn('[Quiz] Could not fetch user settings/progress:', settingsError)
         }
         
-        const session = await getQuizSession(user.uid)
+        const quizSessionData = await getQuizSession(user.uid)
         
-        if (!session || !session.essayErrors || session.essayErrors.length === 0) {
+        if (!quizSessionData || !quizSessionData.essayErrors || quizSessionData.essayErrors.length === 0) {
           // No quiz session, redirect to dashboard
           router.push('/dashboard')
           return
         }
         
-        setQuizSessionState(session)
+        setQuizSessionState(quizSessionData)
         
         // Determine current phase based on session state
-        if (session.status === 'complete') {
+        if (quizSessionData.status === 'complete') {
+          // Reconstruct XP from stored session data for display
+          const storedQuizXP = calculateQuizXP(
+            quizSessionData.totalQuestionsAnswered || 0,
+            quizSessionData.activeMinutes || 0
+          )
+          const storedEssayXP = calculateEssayXP(
+            essaySession?.wordCount || 0,
+            essaySession?.activeMinutes || 0
+          )
+          setEarnedXP(storedEssayXP + storedQuizXP)
           setPhase('all_topics_done')
-        } else if (session.status === 'feedback' && session.teacherFeedback) {
+        } else if (quizSessionData.status === 'feedback' && quizSessionData.teacherFeedback) {
           setPhase('feedback')
-          setFeedbackIndex(session.currentFeedbackIndex)
-        } else if (session.status === 'grading' && session.quizResults) {
-          if (session.quizResults.passed) {
-            // Check if there are more topics
+          setFeedbackIndex(quizSessionData.currentFeedbackIndex)
+        } else if (quizSessionData.status === 'grading' && quizSessionData.quizResults) {
+          if (quizSessionData.quizResults.passed) {
             setPhase('results')
           } else {
             setPhase('results')
           }
-        } else if (session.currentQuiz && session.currentQuiz.questions.length > 0) {
+        } else if (quizSessionData.currentQuiz && quizSessionData.currentQuiz.questions.length > 0) {
           // Resume quiz
-          if (session.currentQuestionIndex >= session.currentQuiz.questions.length) {
-            // All questions answered, need grading
+          if (quizSessionData.currentQuestionIndex >= quizSessionData.currentQuiz.questions.length) {
             setPhase('grading')
           } else {
             setPhase('answering')
           }
-        } else if (session.currentQuizRequirements) {
-          // Have requirements, need to generate quiz
+        } else if (quizSessionData.currentQuizRequirements) {
           setPhase('generating_quiz')
         } else {
-          // Need to get quiz requirements
           setPhase('generating_requirements')
         }
       } catch (err) {
@@ -242,9 +270,19 @@ function QuizContent() {
       const data = await response.json()
       
       if (data.completed) {
-        // All topics learned! Time for another essay
-        await completeQuizSession(user.uid)
-        // Update local state to reflect completion
+        // All topics learned! Calculate XP and complete
+        const quizActiveMin = getActiveMinutes()
+        await completeQuizSession(user.uid, quizActiveMin)
+
+        const totalQuestions = quizSession.totalQuestionsAnswered || 0
+        const quizXP = calculateQuizXP(totalQuestions, quizActiveMin)
+        const essayXP = calculateEssayXP(essayWordCount, essayActiveMinutes)
+        const totalXP = essayXP + quizXP
+        setEarnedXP(totalXP)
+
+        await completeLesson(user.uid, currentLesson, totalXP)
+        await resetSession(user.uid)
+
         setQuizSessionState(prev => prev ? {
           ...prev,
           status: 'complete' as const
@@ -401,8 +439,7 @@ function QuizContent() {
         displayName: user.displayName || null,
         contextType: 'quiz_question',
         originalResponse: reportedQuestion.correctAnswer,
-        userContent: reportedQuestion.question,
-        selfReviewResult: undefined
+        userContent: reportedQuestion.question
       }).catch(err => console.error('Failed to save question report:', err))
 
       // Generate a replacement question
@@ -586,11 +623,12 @@ function QuizContent() {
     if (!quizSession?.quizResults || !user) return
     
     if (quizSession.quizResults.passed) {
-      // Mark topic as learned
+      // Mark topic as learned and accumulate question count for XP
       const currentTopic = quizSession.currentQuizRequirements?.topic || ''
+      const questionsInQuiz = quizSession.currentQuiz?.questions.length || 0
       
       if (currentTopic) {
-        await markTopicLearned(user.uid, currentTopic)
+        await markTopicLearned(user.uid, currentTopic, questionsInQuiz)
       }
       
       // Update local state - clear current quiz for next round
@@ -724,18 +762,6 @@ function QuizContent() {
     router.push('/write')
   }
   
-  // Handle module complete (no errors in essay)
-  const handleModuleComplete = async () => {
-    if (!user) return
-    
-    // Complete the lesson and advance
-    await completeLesson(user.uid, currentLesson, 100)
-    await clearQuizSession(user.uid)
-    await resetSession(user.uid)
-    
-    router.push('/dashboard')
-  }
-  
   // Handle back navigation
   const handleBack = () => {
     router.push('/dashboard')
@@ -818,18 +844,18 @@ function QuizContent() {
     return (
       <ModuleComplete
         lessonName={currentTechnique}
-        xpEarned={100}
+        xpEarned={earnedXP}
         nextLessonName={nextTechnique}
       />
     )
   }
   
-  // All topics done - show win screen
+  // All topics done - show win screen with combined essay+quiz XP
   if (phase === 'all_topics_done') {
     return (
       <WinScreen
         variant="quizzes_complete"
-        xpEarned={100}
+        xpEarned={earnedXP}
         learnedTopics={quizSession?.learnedTopics || []}
       />
     )
