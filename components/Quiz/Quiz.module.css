@@ -308,6 +308,34 @@
   cursor: not-allowed;
 }
 
+/* Report Question Button */
+.reportBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  align-self: center;
+}
+
+.reportBtn:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-hover);
+}
+
+.reportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Results Section - Sketchy 3D */
 .resultsCard {
   text-align: center;

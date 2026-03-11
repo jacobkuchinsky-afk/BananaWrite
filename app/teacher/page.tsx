@@ -12,9 +12,12 @@ import {
   removeStudentFromFolder,
   StudentOverview
 } from '@/lib/adminFirestore'
+import DifficultyPanel from '@/components/Admin/DifficultyPanel'
+import AnalyticsPanel from '@/components/Admin/AnalyticsPanel'
 import { ArrowLeftIcon } from '@/components/Icons/Icons'
 import styles from '@/components/Teacher/Teacher.module.css'
 
+type TeacherTab = 'students' | 'difficulty' | 'analytics'
 type ViewFilter = 'all' | 'my_class'
 
 function TeacherDashboardContent() {
@@ -23,6 +26,7 @@ function TeacherDashboardContent() {
   const [students, setStudents] = useState<StudentOverview[]>([])
   const [folderEmails, setFolderEmails] = useState<string[]>([])
   const [loadingData, setLoadingData] = useState(true)
+  const [activeTab, setActiveTab] = useState<TeacherTab>('students')
   const [viewFilter, setViewFilter] = useState<ViewFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -122,130 +126,165 @@ function TeacherDashboardContent() {
         <div className={styles.headerSpacer} />
       </header>
 
+      <nav className={styles.tabNav}>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'students' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('students')}
+        >
+          Students
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'difficulty' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('difficulty')}
+        >
+          Difficulty Levels
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'analytics' ? styles.tabActive : ''}`}
+          onClick={() => setActiveTab('analytics')}
+        >
+          Analytics
+        </button>
+      </nav>
+
       <main className={styles.content}>
-        {/* Quick Stats */}
-        <div className={styles.statsRow}>
-          <div className={styles.statCard}>
-            <span className={styles.statValue}>{students.length}</span>
-            <span className={styles.statLabel}>All Students</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statValue}>{myClassCount}</span>
-            <span className={styles.statLabel}>Your Class</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statValue}>{writingCount}</span>
-            <span className={styles.statLabel}>Currently Writing</span>
-          </div>
-        </div>
+        <div className={styles.tabContent}>
+          {activeTab === 'students' && (
+            <>
+              {/* Quick Stats */}
+              <div className={styles.statsRow}>
+                <div className={styles.statCard}>
+                  <span className={styles.statValue}>{students.length}</span>
+                  <span className={styles.statLabel}>All Students</span>
+                </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statValue}>{myClassCount}</span>
+                  <span className={styles.statLabel}>Your Class</span>
+                </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statValue}>{writingCount}</span>
+                  <span className={styles.statLabel}>Currently Writing</span>
+                </div>
+              </div>
 
-        {/* Filters & Search */}
-        <section className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <div className={styles.filterToggle} role="group" aria-label="Filter students">
-              <button
-                className={viewFilter === 'all' ? styles.filterActive : styles.filterButton}
-                onClick={() => setViewFilter('all')}
-              >
-                All Students ({students.length})
-              </button>
-              <button
-                className={viewFilter === 'my_class' ? styles.filterActive : styles.filterButton}
-                onClick={() => setViewFilter('my_class')}
-              >
-                Your Class ({myClassCount})
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 'var(--spacing-md)' }}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by name or email..."
-              className={styles.formInput}
-              style={{ maxWidth: 400 }}
-            />
-          </div>
-
-          {/* Student Table */}
-          {filteredStudents.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p className={styles.emptyStateText}>
-                {viewFilter === 'my_class' && myClassCount === 0
-                  ? 'No students in Your Class yet. Click the + button next to a student to add them.'
-                  : searchQuery
-                    ? 'No students match your search.'
-                    : 'No students found.'}
-              </p>
-            </div>
-          ) : (
-            <table className={styles.rosterTable}>
-              <thead>
-                <tr>
-                  <th scope="col">Student</th>
-                  <th scope="col">Current Skill</th>
-                  <th scope="col">Lessons</th>
-                  <th scope="col">XP</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Your Class</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map(student => {
-                  const inFolder = isInFolder(student.email)
-                  return (
-                    <tr
-                      key={student.userId}
-                      onClick={() => router.push(`/teacher/student/${student.userId}`)}
+              {/* Filters & Search */}
+              <section className={styles.card}>
+                <div className={styles.sectionHeader}>
+                  <div className={styles.filterToggle} role="group" aria-label="Filter students">
+                    <button
+                      className={viewFilter === 'all' ? styles.filterActive : styles.filterButton}
+                      onClick={() => setViewFilter('all')}
                     >
-                      <td>
-                        <div className={styles.studentName}>
-                          {student.displayName || 'No Name'}
-                        </div>
-                        <div className={styles.studentEmail}>{student.email}</div>
-                      </td>
-                      <td>{getSkillName(student)}</td>
-                      <td>{student.completedLessons.length}</td>
-                      <td>{student.totalXP}</td>
-                      <td>
-                        <span className={
-                          student.sessionStatus === 'writing' ? styles.statusWriting
-                          : student.sessionStatus === 'submitted' ? styles.statusQuiz
-                          : styles.statusIdle
-                        }>
-                          {student.sessionStatus}
-                        </span>
-                      </td>
-                      <td>
-                        {inFolder ? (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleRemoveFromFolder(student.email) }}
-                            className={styles.folderButtonActive}
-                            aria-label={`Remove ${student.displayName || student.email} from Your Class`}
-                            title="Remove from Your Class"
+                      All Students ({students.length})
+                    </button>
+                    <button
+                      className={viewFilter === 'my_class' ? styles.filterActive : styles.filterButton}
+                      onClick={() => setViewFilter('my_class')}
+                    >
+                      Your Class ({myClassCount})
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 'var(--spacing-md)' }}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or email..."
+                    className={styles.formInput}
+                    style={{ maxWidth: 400 }}
+                  />
+                </div>
+
+                {/* Student Table */}
+                {filteredStudents.length === 0 ? (
+                  <div className={styles.emptyState}>
+                    <p className={styles.emptyStateText}>
+                      {viewFilter === 'my_class' && myClassCount === 0
+                        ? 'No students in Your Class yet. Click the + button next to a student to add them.'
+                        : searchQuery
+                          ? 'No students match your search.'
+                          : 'No students found.'}
+                    </p>
+                  </div>
+                ) : (
+                  <table className={styles.rosterTable}>
+                    <thead>
+                      <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Current Skill</th>
+                        <th scope="col">Lessons</th>
+                        <th scope="col">XP</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Your Class</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStudents.map(student => {
+                        const inFolder = isInFolder(student.email)
+                        return (
+                          <tr
+                            key={student.userId}
+                            onClick={() => router.push(`/teacher/student/${student.userId}`)}
                           >
-                            ✓
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleAddToFolder(student.email) }}
-                            className={styles.folderButton}
-                            aria-label={`Add ${student.displayName || student.email} to Your Class`}
-                            title="Add to Your Class"
-                          >
-                            +
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                            <td>
+                              <div className={styles.studentName}>
+                                {student.displayName || 'No Name'}
+                              </div>
+                              <div className={styles.studentEmail}>{student.email}</div>
+                            </td>
+                            <td>{getSkillName(student)}</td>
+                            <td>{student.completedLessons.length}</td>
+                            <td>{student.totalXP}</td>
+                            <td>
+                              <span className={
+                                student.sessionStatus === 'writing' ? styles.statusWriting
+                                : student.sessionStatus === 'submitted' ? styles.statusQuiz
+                                : styles.statusIdle
+                              }>
+                                {student.sessionStatus}
+                              </span>
+                            </td>
+                            <td>
+                              {inFolder ? (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleRemoveFromFolder(student.email) }}
+                                  className={styles.folderButtonActive}
+                                  aria-label={`Remove ${student.displayName || student.email} from Your Class`}
+                                  title="Remove from Your Class"
+                                >
+                                  ✓
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleAddToFolder(student.email) }}
+                                  className={styles.folderButton}
+                                  aria-label={`Add ${student.displayName || student.email} to Your Class`}
+                                  title="Add to Your Class"
+                                >
+                                  +
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </section>
+            </>
           )}
-        </section>
+
+          {activeTab === 'difficulty' && user?.email && (
+            <DifficultyPanel adminEmail={user.email} />
+          )}
+
+          {activeTab === 'analytics' && (
+            <AnalyticsPanel />
+          )}
+        </div>
       </main>
     </div>
   )

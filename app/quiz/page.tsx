@@ -30,9 +30,10 @@ import {
   clearQuizSession,
   completeLesson,
   resetSession,
-  getUserProgress
+  getUserProgress,
+  replaceQuizQuestion
 } from '@/lib/firestore'
-import { getAppSettings, incrementAnalytics } from '@/lib/adminFirestore'
+import { getAppSettings, incrementAnalytics, saveBugReport } from '@/lib/adminFirestore'
 import { 
   QuizSession, 
   QuizQuestion as QuizQuestionType,
@@ -82,6 +83,9 @@ function QuizContent() {
   // Contest state for quiz grading
   const [quizGradeContestConfirmed, setQuizGradeContestConfirmed] = useState(false)
   const [showQuizGradeLoadingGame, setShowQuizGradeLoadingGame] = useState(false)
+  
+  // Report question state
+  const [isReportingQuestion, setIsReportingQuestion] = useState(false)
   
   // User settings for difficulty level
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
@@ -380,6 +384,72 @@ function QuizContent() {
     }
   }
   
+  // Handle reporting a question during the quiz
+  const handleReportQuestion = async () => {
+    if (!user || !quizSession?.currentQuiz || !quizSession.currentQuizRequirements || isReportingQuestion) return
+
+    setIsReportingQuestion(true)
+
+    try {
+      const { currentQuestionIndex, currentQuiz, currentQuizRequirements } = quizSession
+      const reportedQuestion = currentQuiz.questions[currentQuestionIndex]
+
+      // Save bug report (fire-and-forget)
+      saveBugReport({
+        userId: user.uid,
+        userEmail: user.email || '',
+        displayName: user.displayName || null,
+        contextType: 'quiz_question',
+        originalResponse: reportedQuestion.correctAnswer,
+        userContent: reportedQuestion.question,
+        selfReviewResult: undefined
+      }).catch(err => console.error('Failed to save question report:', err))
+
+      // Generate a replacement question
+      const response = await fetch(`${FLASK_API_URL}/api/create-quiz`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic: currentQuizRequirements.topic,
+          question_type: currentQuizRequirements.questionType,
+          question_count: 1,
+          last_quiz_results: `Previously reported question (generate a different one): ${reportedQuestion.question}`,
+          difficulty_level: difficultyLevel
+        })
+      })
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`)
+
+      const data = await response.json()
+      const newQuestions = data.questions || []
+      if (newQuestions.length === 0) throw new Error('No replacement question generated')
+
+      const newQuestion: QuizQuestionType = {
+        question: newQuestions[0].question,
+        correctAnswer: newQuestions[0].correct_answer
+      }
+
+      // Update Firestore
+      await replaceQuizQuestion(user.uid, currentQuestionIndex, newQuestion)
+
+      // Update local state
+      setQuizSessionState(prev => {
+        if (!prev?.currentQuiz) return prev
+        const updatedQuestions = [...prev.currentQuiz.questions]
+        updatedQuestions[currentQuestionIndex] = newQuestion
+        return {
+          ...prev,
+          currentQuiz: { ...prev.currentQuiz, questions: updatedQuestions }
+        }
+      })
+    } catch (err) {
+      console.error('Error reporting question:', err)
+      setError('Failed to replace question. Please try again.')
+    } finally {
+      setIsReportingQuestion(false)
+    }
+  }
+
   // Grade quiz (with optional correction feedback from contest)
   const gradeQuiz = useCallback(async (correctionFeedback?: string) => {
     if (!user || !quizSession) return
@@ -836,7 +906,9 @@ function QuizContent() {
             questionText={currentQuestion.question}
             questionType={quizSession.currentQuizRequirements?.questionType || 'A,B,C,D'}
             onAnswer={handleAnswerSubmit}
+            onReport={handleReportQuestion}
             disabled={isSubmitting}
+            isReporting={isReportingQuestion}
           />
         </main>
       </div>

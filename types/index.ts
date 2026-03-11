@@ -574,7 +574,7 @@ export interface UpdateNotification {
 export type BugReportStatus = 'pending' | 'reviewed' | 'resolved'
 
 // Context type for bug reports
-export type BugReportContextType = 'essay_check' | 'essay_review' | 'quiz_grade' | 'general'
+export type BugReportContextType = 'essay_check' | 'essay_review' | 'quiz_grade' | 'quiz_question' | 'general'
 
 // Chat message within a bug report
 export interface BugReportMessage {

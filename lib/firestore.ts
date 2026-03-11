@@ -322,6 +322,26 @@ export async function setCurrentQuiz(
 }
 
 /**
+ * Replace a single question in the current quiz (used when a question is reported)
+ */
+export async function replaceQuizQuestion(
+  userId: string,
+  questionIndex: number,
+  newQuestion: QuizQuestion
+): Promise<void> {
+  const quizRef = getQuizSessionDocRef(userId)
+  const session = await getQuizSession(userId)
+  if (!session?.currentQuiz) return
+
+  const updatedQuestions = [...session.currentQuiz.questions]
+  updatedQuestions[questionIndex] = newQuestion
+
+  await updateDoc(quizRef, {
+    'currentQuiz.questions': updatedQuestions
+  })
+}
+
+/**
  * Submit an answer for the current question
  */
 export async function submitQuizAnswer(

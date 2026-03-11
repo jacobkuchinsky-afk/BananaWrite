@@ -8,7 +8,9 @@ interface QuizQuestionProps {
   questionText: string
   questionType: string  // 'A,B,C,D' | 'Fill in the blank' | 'type out an answer'
   onAnswer: (answer: string) => void
+  onReport?: () => Promise<void>
   disabled?: boolean
+  isReporting?: boolean
 }
 
 interface ParsedQuestion {
@@ -114,12 +116,21 @@ function parseLegacyQuestion(text: string): ParsedQuestion {
   }
 }
 
+const FlagIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+    <line x1="4" y1="22" x2="4" y2="15" />
+  </svg>
+)
+
 export default function QuizQuestion({ 
   questionNumber, 
   questionText, 
   questionType,
   onAnswer,
-  disabled = false
+  onReport,
+  disabled = false,
+  isReporting = false
 }: QuizQuestionProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [textAnswer, setTextAnswer] = useState('')
@@ -209,10 +220,20 @@ export default function QuizQuestion({
         <button
           className={styles.submitBtn}
           onClick={handleSubmit}
-          disabled={disabled || !canSubmit}
+          disabled={disabled || !canSubmit || isReporting}
         >
           {disabled ? 'Submitting...' : 'Submit Answer'}
         </button>
+        {onReport && (
+          <button
+            className={styles.reportBtn}
+            onClick={onReport}
+            disabled={disabled || isReporting}
+          >
+            <FlagIcon />
+            {isReporting ? 'Replacing question...' : 'Report Question'}
+          </button>
+        )}
       </div>
     </div>
   )

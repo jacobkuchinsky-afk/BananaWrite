@@ -216,12 +216,9 @@ GRADE_WRITING_TECHNIQUES = {
     ],
     'proficient': [
         "Commas",
-        "Periods",
-        "Question marks",
         "Apostrophes",
         "Quotation marks",
         "Capitalization",
-        "Subject-verb agreement",
         "Verb conjugation",
         "Pronoun-antecedent agreement",
         "Coordinating conjunctions",
@@ -230,7 +227,6 @@ GRADE_WRITING_TECHNIQUES = {
         "Dialogue formatting",
         "Semicolons",
         "Colons",
-        "Parentheses",
         "Complex sentences",
         "Subordinating conjunctions",
         "Transitional phrases",
@@ -688,11 +684,10 @@ Context Information:
 Output Format:
 Line 1: The essay prompt (1-2 sharp, focused sentences)
 Line 2: The writing technique to practice and the exact, unambiguous requirements for the essay
-Line 3: Essential supporting information for the writer, OR "None" if genuinely not needed
+Line 3 (OPTIONAL): Essential supporting information for the writer. ONLY include this line if the prompt demands specific knowledge. Otherwise, DO NOT include a third line at all—no placeholder, no "None", nothing.
 
 Example Output:
 "Write an expository essay ruthlessly explaining the lore of your favorite video game. Include exactly 4 compound sentences—no more, no less."
-None
 
 Example Output (with context):
 "Write an argumentative essay fiercely defending why the 1969 Moon landing was humanity's greatest achievement."

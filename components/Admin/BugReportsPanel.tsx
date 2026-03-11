@@ -96,6 +96,7 @@ export default function BugReportsPanel({ adminEmail }: BugReportsPanelProps) {
       case 'essay_check': return 'Essay Check'
       case 'essay_review': return 'Essay Review'
       case 'quiz_grade': return 'Quiz Grade'
+      case 'quiz_question': return 'Quiz Question Report'
       case 'general': return 'General Report'
       default: return type
     }

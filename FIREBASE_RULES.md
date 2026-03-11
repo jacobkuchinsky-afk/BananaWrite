@@ -39,6 +39,13 @@ service cloud.firestore {
          request.auth.token.email in get(/databases/$(database)/documents/appSettings/admins).data.emails);
     }
     
+    // Check if user is in the teacher list
+    function isTeacher() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/appSettings/teachers) &&
+        request.auth.token.email in get(/databases/$(database)/documents/appSettings/teachers).data.emails;
+    }
+    
     // App Settings - admin can read/write, authenticated users can read
     match /appSettings/{document} {
       allow read: if request.auth != null;
@@ -46,9 +53,9 @@ service cloud.firestore {
       allow write: if document == 'admins' ? isSuperAdmin() : isAdmin();
     }
     
-    // Analytics - admin can read, authenticated users can write (for tracking)
+    // Analytics - admin and teachers can read, authenticated users can write (for tracking)
     match /analytics/{document} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || isTeacher();
       allow write: if request.auth != null;
     }
     
@@ -59,10 +66,10 @@ service cloud.firestore {
       allow update, delete: if false;
     }
     
-    // Difficulty Presets - authenticated users can read, admin can write
+    // Difficulty Presets - authenticated users can read, admin and teachers can write
     match /difficultyPresets/{email} {
       allow read: if request.auth != null;
-      allow write: if isAdmin();
+      allow write: if isAdmin() || isTeacher();
     }
     
     // Bug Reports - users can create and read their own, admin can read/update all
@@ -85,16 +92,16 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if isAdmin();
+      allow read, write: if isAdmin() || isTeacher();
       
       match /data/{document} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
-        allow read, write: if isAdmin();
+        allow read, write: if isAdmin() || isTeacher();
       }
       
       match /{document=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
-        allow read, write: if isAdmin();
+        allow read, write: if isAdmin() || isTeacher();
       }
     }
   }
