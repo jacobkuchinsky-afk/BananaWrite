@@ -7,7 +7,7 @@ import styles from './Quiz.module.css'
 
 interface ModuleCompleteProps {
   lessonName: string
-  xpEarned?: number
+  xpEarned: number
   nextLessonName?: string
 }
 
@@ -60,7 +60,7 @@ function ConfettiPiece({ index }: { index: number }) {
 
 export default function ModuleComplete({ 
   lessonName, 
-  xpEarned = 100,
+  xpEarned,
   nextLessonName
 }: ModuleCompleteProps) {
   const router = useRouter()

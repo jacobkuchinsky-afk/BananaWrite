@@ -138,6 +138,7 @@ users/
         - essayPrompt: string
         - essayDraft: string
         - wordCount: number
+        - activeMinutes: number  # Activity-verified writing time for XP
         - startedAt: timestamp
         - lastSavedAt: timestamp
         - submittedAt: timestamp
@@ -151,6 +152,14 @@ users/
         - quizResults: object
         - learnedTopics: array
         - teacherFeedback: object
+        - activeMinutes: number          # Activity-verified quiz time for XP
+        - totalQuestionsAnswered: number # Running total across all topics for XP
+
+    xpHistory/                   # XP award log for stats tracking
+      {entryId}/
+        - amount: number         # XP earned
+        - lessonIndex: number    # Which lesson this was for
+        - timestamp: timestamp   # When XP was awarded
 
 bugReports/
   {reportId}/                  # Bug report document

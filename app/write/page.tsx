@@ -6,6 +6,8 @@ import { useAuth } from '@/context/AuthContext'
 import { useUserSession } from '@/hooks/useUserSession'
 import { useStreamingPrompt } from '@/hooks/useStreamingPrompt'
 import { useAutoSave } from '@/hooks/useAutoSave'
+import { useActivityTracker } from '@/hooks/useActivityTracker'
+import { calculateEssayXP } from '@/lib/xpCalculator'
 import ProtectedRoute from '@/components/Auth/ProtectedRoute'
 import InteractiveLoader from '@/components/Loading/InteractiveLoader'
 import PromptHeader from '@/components/Write/PromptHeader'
@@ -80,6 +82,10 @@ function WriteContent() {
 
   // Focus mode
   const [isFocusMode, setIsFocusMode] = useState(false)
+
+  // Activity tracking for XP
+  const { getActiveMinutes } = useActivityTracker()
+  const [earnedEssayXP, setEarnedEssayXP] = useState(0)
 
   // Contest state for essay check
   const [essayCheckResponse, setEssayCheckResponse] = useState<string | null>(null)
@@ -292,9 +298,10 @@ function WriteContent() {
       setIsSubmitting(true)
       setIsReviewingEssay(true)
       
-      // Save final version and mark as submitted
+      // Save final version and mark as submitted (with activity time for XP)
+      const activeMinutes = getActiveMinutes()
       await saveEssayDraft(essayText, wordCount)
-      await submitEssay()
+      await submitEssay(activeMinutes)
       
       // Choose the appropriate review endpoint based on whether this is a redo
       let reviewResponse
@@ -335,7 +342,9 @@ function WriteContent() {
       if (!reviewResult.has_errors) {
         // No errors! Module complete - advance lesson
         incrementAnalytics('essaysSubmitted').catch(() => {})
-        await completeLesson(user.uid, currentLesson, 100)
+        const essayXP = calculateEssayXP(wordCount, activeMinutes)
+        setEarnedEssayXP(essayXP)
+        await completeLesson(user.uid, currentLesson, essayXP)
         await resetSession(user.uid)
         setIsReviewingEssay(false)
         setShowModuleComplete(true)
@@ -428,7 +437,9 @@ function WriteContent() {
     
     try {
       // No errors confirmed by self-reviewer - module complete
-      await completeLesson(user.uid, currentLesson, 100)
+      const essayXP = calculateEssayXP(wordCount, getActiveMinutes())
+      setEarnedEssayXP(essayXP)
+      await completeLesson(user.uid, currentLesson, essayXP)
       await resetSession(user.uid)
       setIsReviewingEssay(false)
       setShowModuleComplete(true)
@@ -559,7 +570,7 @@ function WriteContent() {
     return (
       <WinScreen
         variant="perfect_essay"
-        xpEarned={100}
+        xpEarned={earnedEssayXP}
         lessonName={currentTechnique}
       />
     )

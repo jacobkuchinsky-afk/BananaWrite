@@ -8,10 +8,10 @@ import styles from './Quiz.module.css'
 
 interface WinScreenProps {
   variant: 'perfect_essay' | 'quizzes_complete'
-  xpEarned?: number
-  lessonName?: string // For perfect essay
-  learnedTopics?: string[] // For quizzes complete
-  autoRedirectDelay?: number // in seconds
+  xpEarned: number
+  lessonName?: string
+  learnedTopics?: string[]
+  autoRedirectDelay?: number
 }
 
 // Confetti cannon piece component
@@ -75,7 +75,7 @@ function ConfettiCannonPiece({ index, side }: { index: number; side: 'left' | 'r
 
 export default function WinScreen({ 
   variant,
-  xpEarned = 100,
+  xpEarned,
   lessonName,
   learnedTopics,
   autoRedirectDelay = 5

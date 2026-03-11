@@ -30,7 +30,7 @@ interface UseUserSessionReturn {
   refreshSession: () => Promise<void>
   startWritingSession: (writingTechnique: string, essayPrompt: string) => Promise<void>
   saveEssayDraft: (essayDraft: string, wordCount: number) => Promise<void>
-  submitEssay: () => Promise<void>
+  submitEssay: (activeMinutes?: number) => Promise<void>
   resetSession: () => Promise<void>
 }
 
@@ -139,11 +139,11 @@ export function useUserSession(): UseUserSessionReturn {
   }, [user])
 
   // Submit essay
-  const submitEssay = useCallback(async () => {
+  const submitEssay = useCallback(async (activeMinutes?: number) => {
     if (!user) return
 
     try {
-      await submitEssayDB(user.uid)
+      await submitEssayDB(user.uid, activeMinutes)
       await refreshSession()
     } catch (err) {
       console.error('Error submitting essay:', err)

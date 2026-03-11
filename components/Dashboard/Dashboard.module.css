@@ -276,6 +276,14 @@
     0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Dashboard Actions Row */
+.dashboardActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
 /* Settings Button - Sketchy 3D */
 .settingsBtn {
   display: flex;
@@ -293,7 +301,6 @@
   cursor: pointer;
   transition: all 0.1s ease;
   text-decoration: none;
-  margin-top: var(--spacing-md);
   box-shadow: 
     0 4px 0 0 var(--color-shadow),
     0 4px 12px rgba(0, 0, 0, 0.1),

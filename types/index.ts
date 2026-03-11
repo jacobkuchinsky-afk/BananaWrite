@@ -29,6 +29,7 @@ export interface CurrentSession {
   essayPrompt: string  // AI-generated prompt
   essayDraft: string  // User's current essay text
   wordCount: number
+  activeMinutes: number  // Activity-verified writing time for XP calculation
   startedAt: Timestamp | null
   lastSavedAt: Timestamp | null
   submittedAt: Timestamp | null
@@ -58,6 +59,7 @@ export const DEFAULT_CURRENT_SESSION: Omit<CurrentSession, 'startedAt' | 'lastSa
   essayPrompt: '',
   essayDraft: '',
   wordCount: 0,
+  activeMinutes: 0,
   startedAt: null,
   lastSavedAt: null,
   submittedAt: null
@@ -163,6 +165,8 @@ export interface QuizSession {
   teacherFeedback: TeacherFeedback | null
   currentFeedbackIndex: number    // For showing feedback one-by-one
   lastQuizResults: string         // For tailoring retry quizzes
+  activeMinutes: number           // Activity-verified quiz time for XP calculation
+  totalQuestionsAnswered: number  // Running total of questions answered across all topics
   startedAt: Timestamp | null
   completedAt: Timestamp | null
 }
@@ -185,6 +189,8 @@ export const DEFAULT_QUIZ_SESSION: Omit<QuizSession, 'startedAt' | 'completedAt'
   teacherFeedback: null,
   currentFeedbackIndex: 0,
   lastQuizResults: '',
+  activeMinutes: 0,
+  totalQuestionsAnswered: 0,
   startedAt: null,
   completedAt: null
 }

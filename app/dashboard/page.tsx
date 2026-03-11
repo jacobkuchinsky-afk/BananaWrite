@@ -231,10 +231,18 @@ function DashboardContent() {
               </div>
             )}
 
-            <Link href="/settings" className={styles.settingsBtn} aria-label="Settings">
-              <SettingsIcon size={20} />
-              Settings
-            </Link>
+            <div className={styles.dashboardActions}>
+              <Link href="/stats" className={styles.settingsBtn} aria-label="Your XP">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                {progress?.totalXP ?? 0} XP
+              </Link>
+              <Link href="/settings" className={styles.settingsBtn} aria-label="Settings">
+                <SettingsIcon size={20} />
+                Settings
+              </Link>
+            </div>
           </>
         )}
       </main>

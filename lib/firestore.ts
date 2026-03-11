@@ -12,7 +12,7 @@ import {
   serverTimestamp,
   Timestamp 
 } from './firebase'
-import { collection, addDoc } from 'firebase/firestore'
+import { collection, addDoc, query, orderBy, getDocs } from 'firebase/firestore'
 import { 
   UserProfile, 
   UserProgress, 
@@ -150,6 +150,7 @@ export async function startWritingSession(
     essayPrompt,
     essayDraft: '',
     wordCount: 0,
+    activeMinutes: 0,
     startedAt: serverTimestamp(),
     lastSavedAt: serverTimestamp(),
     submittedAt: null
@@ -175,14 +176,15 @@ export async function saveEssayDraft(
 
 /**
  * Submit the essay
- * Marks the session as submitted
+ * Marks the session as submitted and records activity time for XP
  */
-export async function submitEssay(userId: string): Promise<void> {
+export async function submitEssay(userId: string, activeMinutes?: number): Promise<void> {
   const sessionRef = getSessionDocRef(userId)
   
   await updateDoc(sessionRef, {
     status: 'submitted' as SessionStatus,
-    submittedAt: serverTimestamp()
+    submittedAt: serverTimestamp(),
+    ...(activeMinutes !== undefined && { activeMinutes })
   })
 }
 
@@ -207,7 +209,8 @@ export async function updateCurrentLesson(userId: string, lessonIndex: number): 
 }
 
 /**
- * Mark a lesson as completed and increment XP
+ * Mark a lesson as completed and increment XP.
+ * Also logs the XP award to the xpHistory subcollection for stats tracking.
  */
 export async function completeLesson(userId: string, lessonIndex: number, xpEarned: number): Promise<void> {
   const progressRef = getProgressDocRef(userId)
@@ -223,7 +226,24 @@ export async function completeLesson(userId: string, lessonIndex: number, xpEarn
       totalXP: progress.totalXP + xpEarned,
       currentLesson: lessonIndex + 1
     })
+
+    const historyRef = collection(db, USERS_COLLECTION, userId, 'xpHistory')
+    addDoc(historyRef, {
+      amount: xpEarned,
+      lessonIndex,
+      timestamp: serverTimestamp()
+    }).catch(err => console.error('Failed to log XP history:', err))
   }
+}
+
+/**
+ * Get a user's XP history entries, ordered by time (oldest first).
+ */
+export async function getXPHistory(userId: string): Promise<Array<{ amount: number; timestamp: Timestamp }>> {
+  const historyRef = collection(db, USERS_COLLECTION, userId, 'xpHistory')
+  const q = query(historyRef, orderBy('timestamp', 'asc'))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => d.data() as { amount: number; timestamp: Timestamp })
 }
 
 /**
@@ -437,9 +457,9 @@ export async function advanceFeedbackIndex(userId: string): Promise<void> {
 }
 
 /**
- * Mark a topic as learned (passed quiz with >= 80%)
+ * Mark a topic as learned (passed quiz) and accumulate question count for XP
  */
-export async function markTopicLearned(userId: string, topic: string): Promise<void> {
+export async function markTopicLearned(userId: string, topic: string, questionsInQuiz: number = 0): Promise<void> {
   const quizRef = getQuizSessionDocRef(userId)
   const quizSession = await getQuizSession(userId)
   
@@ -449,7 +469,8 @@ export async function markTopicLearned(userId: string, topic: string): Promise<v
       : [...quizSession.learnedTopics, topic]
     
     await updateDoc(quizRef, {
-      learnedTopics: newLearnedTopics
+      learnedTopics: newLearnedTopics,
+      totalQuestionsAnswered: (quizSession.totalQuestionsAnswered || 0) + questionsInQuiz
     })
   }
 }
@@ -477,12 +498,13 @@ export async function resetQuizForRetry(userId: string): Promise<void> {
 /**
  * Complete quiz session (all topics learned, ready for new essay)
  */
-export async function completeQuizSession(userId: string): Promise<void> {
+export async function completeQuizSession(userId: string, activeMinutes?: number): Promise<void> {
   const quizRef = getQuizSessionDocRef(userId)
   
   await updateDoc(quizRef, {
     status: 'complete' as QuizSessionStatus,
-    completedAt: serverTimestamp()
+    completedAt: serverTimestamp(),
+    ...(activeMinutes !== undefined && { activeMinutes })
   })
 }
 
