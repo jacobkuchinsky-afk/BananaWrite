@@ -746,7 +746,7 @@ export async function saveBugReport(report: {
   originalResponse: string
   userContent: string
   originalPrompt?: string
-  selfReviewResult: {
+  selfReviewResult?: {
     isCorrect: boolean
     correctionFeedback: string | null
     rawResponse: string
@@ -755,18 +755,21 @@ export async function saveBugReport(report: {
   const bugReportsRef = collection(db, BUG_REPORTS_COLLECTION)
   
   // Firebase doesn't allow undefined values, so convert to null
-  const docRef = await addDoc(bugReportsRef, {
+  const docData: Record<string, unknown> = {
     userId: report.userId,
     userEmail: report.userEmail,
     displayName: report.displayName,
     contextType: report.contextType,
     originalResponse: report.originalResponse,
     userContent: report.userContent,
-    originalPrompt: report.originalPrompt ?? null,  // Convert undefined to null
-    selfReviewResult: report.selfReviewResult,
+    originalPrompt: report.originalPrompt ?? null,
     status: 'pending' as BugReportStatus,
     createdAt: serverTimestamp()
-  })
+  }
+  if (report.selfReviewResult) {
+    docData.selfReviewResult = report.selfReviewResult
+  }
+  const docRef = await addDoc(bugReportsRef, docData)
   
   return docRef.id
 }
