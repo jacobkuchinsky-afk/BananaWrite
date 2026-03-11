@@ -7,6 +7,7 @@ import logging
 import os
 import re
 from openai import OpenAI
+import anthropic
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -16,12 +17,18 @@ load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Chutes API configuration from environment variables
-API_KEY = os.getenv('CHUTES_API_KEY', '')
-BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
-MAIN_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
-SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2.5-TEE"
-FAST_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"  # Fast model for simple tasks: prompts, quiz grading, topic validation
+# --- Chutes API configuration (commented out) ---
+# API_KEY = os.getenv('CHUTES_API_KEY', '')
+# BASE_URL = os.getenv('CHUTES_BASE_URL', 'https://llm.chutes.ai/v1')
+# MAIN_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
+# SELF_REVIEWER_MODEL = "moonshotai/Kimi-K2.5-TEE"
+# FAST_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
+
+# --- Anthropic API configuration (Claude setup token) ---
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
+MAIN_MODEL = "claude-sonnet-4-6"
+SELF_REVIEWER_MODEL = "claude-opus-4-6"
+FAST_MODEL = "claude-sonnet-4-6"
 
 # =============================================================================
 # AI TEMPERATURE SETTINGS
@@ -42,8 +49,8 @@ TEMPERATURE_TEACHER_FEEDBACK = 0.5      # Provides feedback for wrong answers - 
 TEMPERATURE_TEACHER_CHAT = 0.6          # Chat interactions with student - conversational
 
 # Log warning if API key is missing (but don't fail during import/build)
-if not API_KEY:
-    logger.warning("CHUTES_API_KEY environment variable not set! API calls will fail.")
+if not ANTHROPIC_API_KEY:
+    logger.warning("ANTHROPIC_API_KEY environment variable not set! API calls will fail.")
 
 # Writing techniques list - progression of skills to learn
 WRITING_TECHNIQUES = [
@@ -1058,12 +1065,83 @@ Output:
 }
 
 
+# =============================================================================
+# ANTHROPIC WRAPPER
+# Translates OpenAI SDK interface to Anthropic Messages API so all existing
+# call sites (client.chat.completions.create) work without changes.
+# =============================================================================
+
+class _Message:
+    def __init__(self, content):
+        self.content = content
+
+class _Choice:
+    def __init__(self, message):
+        self.message = message
+
+class _Response:
+    def __init__(self, content):
+        self.choices = [_Choice(_Message(content))]
+
+class _Delta:
+    def __init__(self, content):
+        self.content = content
+
+class _StreamChoice:
+    def __init__(self, delta):
+        self.delta = delta
+
+class _StreamChunk:
+    def __init__(self, content):
+        self.choices = [_StreamChoice(_Delta(content))]
+
+class _Completions:
+    def __init__(self, client):
+        self._client = client
+
+    def create(self, model, messages, temperature=1.0, stream=False, **kwargs):
+        system = ""
+        user_messages = []
+        for msg in messages:
+            if msg["role"] == "system":
+                system = msg["content"]
+            else:
+                user_messages.append(msg)
+
+        params = dict(
+            model=model,
+            messages=user_messages,
+            max_tokens=16384,
+            temperature=temperature,
+        )
+        if system:
+            params["system"] = system
+
+        if stream:
+            return self._stream_response(params)
+
+        response = self._client.messages.create(**params)
+        return _Response(response.content[0].text)
+
+    def _stream_response(self, params):
+        with self._client.messages.stream(**params) as stream:
+            for text in stream.text_stream:
+                yield _StreamChunk(text)
+
+class _Chat:
+    def __init__(self, client):
+        self.completions = _Completions(client)
+
+class AnthropicWrapper:
+    """Drop-in replacement for OpenAI() that routes to the Anthropic Messages API."""
+    def __init__(self, api_key):
+        self._client = anthropic.Anthropic(api_key=api_key)
+        self.chat = _Chat(self._client)
+
+
 def create_client():
-    """Create and return an OpenAI client configured for Chutes API"""
-    return OpenAI(
-        base_url=BASE_URL,
-        api_key=API_KEY
-    )
+    """Create and return an Anthropic client with OpenAI-compatible interface"""
+    return AnthropicWrapper(api_key=ANTHROPIC_API_KEY)
 
 
 def self_review(context_type: str, original_response: str, user_content: str, original_prompt: str = None) -> dict:
