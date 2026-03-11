@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # FAST_MODEL = "MiniMaxAI/MiniMax-M2.5-TEE"
 
 # --- Anthropic API configuration (Claude setup token) ---
-ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
+ANTHROPIC_AUTH_TOKEN = os.getenv('ANTHROPIC_AUTH_TOKEN', '')
 MAIN_MODEL = "claude-sonnet-4-6"
 SELF_REVIEWER_MODEL = "claude-opus-4-6"
 FAST_MODEL = "claude-sonnet-4-6"
@@ -49,8 +49,8 @@ TEMPERATURE_TEACHER_FEEDBACK = 0.5      # Provides feedback for wrong answers - 
 TEMPERATURE_TEACHER_CHAT = 0.6          # Chat interactions with student - conversational
 
 # Log warning if API key is missing (but don't fail during import/build)
-if not ANTHROPIC_API_KEY:
-    logger.warning("ANTHROPIC_API_KEY environment variable not set! API calls will fail.")
+if not ANTHROPIC_AUTH_TOKEN:
+    logger.warning("ANTHROPIC_AUTH_TOKEN environment variable not set! API calls will fail.")
 
 # Writing techniques list - progression of skills to learn
 WRITING_TECHNIQUES = [
@@ -894,6 +894,103 @@ Example - Written Response:
 <TYPE>Rewrite with correct punctuation: "The dog ran fast the cat jumped high"</TYPE>
 ~
 The dog ran fast. The cat jumped high.
+`
+
+Example - Multiple Choice (Semicolons):
+Semicolon Basics
+~
+Which sentence uses a semicolon correctly?
+<MULTI>A. I went to the store; and bought milk.</MULTI>
+<MULTI>B. She was tired; she went to bed early.</MULTI>
+<MULTI>C. The sky was blue; beautiful.</MULTI>
+<MULTI>D. He ran; quickly down the street.</MULTI>
+~
+B
+`
+
+Example - Fill in Blank (Apostrophes):
+~
+<FILL>What is the correct possessive form to fill the blank: "The ___ toys were scattered everywhere." (referring to toys belonging to multiple children)</FILL>
+~
+children's
+`
+
+Example - Written Response (Run-on Sentences):
+~
+<TYPE>Fix this run-on sentence: "I wanted to go to the park it was raining so I stayed home I watched a movie instead"</TYPE>
+~
+I wanted to go to the park, but it was raining, so I stayed home. I watched a movie instead.
+`
+
+Example - Multiple Choice (Subject-Verb Agreement):
+Agreement Check
+~
+Which sentence has correct subject-verb agreement?
+<MULTI>A. The group of students are going on a trip.</MULTI>
+<MULTI>B. Neither the teacher nor the students was prepared.</MULTI>
+<MULTI>C. Each of the players has a uniform.</MULTI>
+<MULTI>D. The team are winning the game.</MULTI>
+~
+C
+`
+
+Example - Fill in Blank (Homophones):
+~
+<FILL>Choose the correct word: "The students turned in ___ homework on time." (there/their/they're)</FILL>
+~
+their
+`
+
+Example - Written Response (Comma Splices):
+~
+<TYPE>Fix the comma splice: "The concert was amazing, we stayed until the very end."</TYPE>
+~
+The concert was amazing; we stayed until the very end.
+`
+
+Example - Multiple Choice (Pronoun Usage):
+Pronoun Precision
+~
+Which sentence uses pronouns correctly?
+<MULTI>A. Me and him went to the store.</MULTI>
+<MULTI>B. The teacher gave the books to she and I.</MULTI>
+<MULTI>C. Between you and me, the test was hard.</MULTI>
+<MULTI>D. Her and me are best friends.</MULTI>
+~
+C
+`
+
+Example - Fill in Blank (Colons):
+~
+<FILL>What punctuation mark belongs after "ingredients" in: "You will need three ingredients flour, sugar, and butter."</FILL>
+~
+:
+`
+
+Example - Written Response (Parallel Structure):
+~
+<TYPE>Rewrite this sentence with correct parallel structure: "She likes swimming, to run, and playing tennis."</TYPE>
+~
+She likes swimming, running, and playing tennis.
+`
+
+Example - Multiple Choice (Quotation Marks):
+Quoting Rules
+~
+Which sentence punctuates dialogue correctly?
+<MULTI>A. She said "I'm leaving now".</MULTI>
+<MULTI>B. She said, "I'm leaving now."</MULTI>
+<MULTI>C. She said "I'm leaving now."</MULTI>
+<MULTI>D. She said, "I'm leaving now".</MULTI>
+~
+B
+`
+
+Example - Fill in Blank (Conjunctions):
+~
+<FILL>What coordinating conjunction best completes this sentence: "I studied hard for the exam, ___ I still didn't pass."</FILL>
+~
+but
 
 
 DO NOT DO THE FOLLOWING:
@@ -1134,14 +1231,14 @@ class _Chat:
 
 class AnthropicWrapper:
     """Drop-in replacement for OpenAI() that routes to the Anthropic Messages API."""
-    def __init__(self, api_key):
-        self._client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, auth_token):
+        self._client = anthropic.Anthropic(auth_token=auth_token)
         self.chat = _Chat(self._client)
 
 
 def create_client():
     """Create and return an Anthropic client with OpenAI-compatible interface"""
-    return AnthropicWrapper(api_key=ANTHROPIC_API_KEY)
+    return AnthropicWrapper(auth_token=ANTHROPIC_AUTH_TOKEN)
 
 
 def self_review(context_type: str, original_response: str, user_content: str, original_prompt: str = None) -> dict:
